@@ -17,8 +17,18 @@ CenterDuckComp2AudioProcessorEditor::CenterDuckComp2AudioProcessorEditor (Center
     // INITIAL CONSTRUCTOR SETUP
     //
     setSize (1000, 400);
-    inCenterMeter.setSampleRate(audioProcessor.getSampleRate());
     
+    inLeftMeter.setSampleRate   (audioProcessor.getSampleRate());
+    inCenterMeter.setSampleRate (audioProcessor.getSampleRate());
+    inRightMeter.setSampleRate  (audioProcessor.getSampleRate());
+    inSideMeter.setSampleRate   (audioProcessor.getSampleRate());
+    
+    sidechainMeter.setSampleRate  (audioProcessor.getSampleRate());
+    gainReduceMeter.setSampleRate (audioProcessor.getSampleRate());
+    
+    outLeftMeter.setSampleRate   (audioProcessor.getSampleRate());
+    outCenterMeter.setSampleRate (audioProcessor.getSampleRate());
+    outRightMeter.setSampleRate  (audioProcessor.getSampleRate());
     
     
     //
@@ -95,7 +105,17 @@ CenterDuckComp2AudioProcessorEditor::CenterDuckComp2AudioProcessorEditor (Center
     //=== METERING ===
     //
     
+    addAndMakeVisible(inLeftMeter);
     addAndMakeVisible(inCenterMeter);
+    addAndMakeVisible(inRightMeter);
+    addAndMakeVisible(inSideMeter);
+    
+    addAndMakeVisible(sidechainMeter);
+    addAndMakeVisible(gainReduceMeter);
+    
+    addAndMakeVisible(outLeftMeter);
+    addAndMakeVisible(outCenterMeter);
+    addAndMakeVisible(outRightMeter);
     
     //
     //=== TIMER ===
@@ -125,7 +145,17 @@ void CenterDuckComp2AudioProcessorEditor::paint (juce::Graphics& g)
 /// Timer Callback for drawing meters
 void CenterDuckComp2AudioProcessorEditor::timerCallback()
 {
-    inCenterMeter.meterProcess(audioProcessor.inMidLevel, audioProcessor.getSampleRate());
+    inLeftMeter.meterProcess    ( audioProcessor.inLeftLevel, audioProcessor.getSampleRate() );
+    inCenterMeter.meterProcess  ( audioProcessor.inMidLevel, audioProcessor.getSampleRate() );
+    inRightMeter.meterProcess   ( audioProcessor.inRightLevel, audioProcessor.getSampleRate() );
+    inSideMeter.meterProcess    ( audioProcessor.inSideLevel, audioProcessor.getSampleRate() );
+    
+    sidechainMeter.meterProcess  (audioProcessor.sideChainLevel, audioProcessor.getSampleRate() );
+    gainReduceMeter.meterProcess (audioProcessor.gainReduction, audioProcessor.getSampleRate() );
+    
+    outLeftMeter.meterProcess   (audioProcessor.outLeftLevel, audioProcessor.getSampleRate() );
+    outCenterMeter.meterProcess (audioProcessor.outMidLevel, audioProcessor.getSampleRate() );
+    outRightMeter.meterProcess  (audioProcessor.outRightLevel, audioProcessor.getSampleRate() );
 }
 
 void CenterDuckComp2AudioProcessorEditor::resized()
@@ -162,7 +192,17 @@ void CenterDuckComp2AudioProcessorEditor::resized()
     scMeter = Rectangle<float>( (getWidth() * (3.0f / 8.0f)) - meterOffsetCenter, (getHeight() * 0.5f) - (meterHeight * 0.5f), meterWidth * 0.5f, meterHeight );
     grMeter = Rectangle<float>( (getWidth() * (5.0f / 8.0f)) + meterOffsetCenter, (getHeight() * 0.5f) - (meterHeight * 0.5f), meterWidth * 0.5f, meterHeight );
     
-    inCenterMeter.setBounds( getWidth() / 2.0f, getHeight() / 2.0f, inCenterMeter.getMeterWidth(), inCenterMeter.getMeterHeight() );
+    inLeftMeter.setBounds   ( getWidth() * (1.0f / 10.0f), getHeight() / 2.0f, inLeftMeter.getMeterWidth(), inLeftMeter.getMeterHeight() );
+    inCenterMeter.setBounds ( getWidth() * (2.0f / 10.0f), getHeight() / 2.0f, inCenterMeter.getMeterWidth(), inCenterMeter.getMeterHeight() );
+    inRightMeter.setBounds  ( getWidth() * (3.0f / 10.0f), getHeight() / 2.0f, inRightMeter.getMeterWidth(), inRightMeter.getMeterHeight() );
+    inSideMeter.setBounds   ( getWidth() * (4.0f / 10.0f), getHeight() / 2.0f, inSideMeter.getMeterWidth(), inSideMeter.getMeterHeight() );
+    
+    sidechainMeter.setBounds  ( getWidth() * (5.0f / 10.0f), getHeight() / 2.0f, sidechainMeter.getMeterWidth(), sidechainMeter.getMeterHeight() );
+    gainReduceMeter.setBounds ( getWidth() * (6.0f / 10.0f), getHeight() / 2.0f, gainReduceMeter.getMeterWidth(), gainReduceMeter.getMeterHeight() );
+    
+    outLeftMeter.setBounds   ( getWidth() * (7.0f / 10.0f), getHeight() / 2.0f, outLeftMeter.getMeterWidth(), outLeftMeter.getMeterHeight() );
+    outCenterMeter.setBounds ( getWidth() * (8.0f / 10.0f), getHeight() / 2.0f, outCenterMeter.getMeterWidth(), outCenterMeter.getMeterHeight() );
+    outRightMeter.setBounds  ( getWidth() * (9.0f / 10.0f), getHeight() / 2.0f, outRightMeter.getMeterWidth(), outRightMeter.getMeterHeight() );
 }
 
 

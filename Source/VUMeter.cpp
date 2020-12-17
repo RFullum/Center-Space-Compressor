@@ -14,13 +14,15 @@
 //==============================================================================
 VUMeter::VUMeter() : SR(44100.0f), xPos( getWidth() / 2.0f ), yPos( getHeight() / 2.0f ),
                         meterWidth(50.0f), meterHeight(120.0f), heightMult(0.0f),
-                        currentValue(0.0f), decayFactor(decayRate * SR)
+                        currentValue(0.0f), decayRateRise(0.0005f), decayRateFall(0.001f),
+                        decayFactorRise(decayRateRise * SR), decayFactorFall(decayRateFall * SR)
 {
 }
 
 VUMeter::VUMeter(float xPosition, float yPosition, float meterWidth_, float meterHeight_, float sampleRate_) :
                     SR(sampleRate_), xPos(xPosition), yPos(yPosition), meterWidth(meterWidth_), meterHeight(meterHeight_),
-                    heightMult(0.0f), currentValue(0.0f), decayFactor(decayRate * SR)
+                    heightMult(0.0f), currentValue(0.0f), decayRateRise(0.0005f), decayRateFall(0.001f),
+                    decayFactorRise(decayRateRise * SR), decayFactorFall(decayRateFall * SR)
 {
 }
 
@@ -84,9 +86,9 @@ void VUMeter::heightMultiplier(float mult)
     //heightMult = (mult > heightMult) ? mult : heightMult * (1.0f - (1.0f / decayFactor) );
     
     if (mult > heightMult)
-        heightMult = mult;
+        heightMult = mult * (1.0f - (1.0f / decayFactorRise) );
     else
-        heightMult *= 1.0f - (1.0f / decayFactor);
+        heightMult *= 1.0f - (1.0f / decayFactorFall);
 }
 
 /**

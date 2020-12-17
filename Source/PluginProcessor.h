@@ -57,7 +57,15 @@ public:
     // Parameters
     AudioProcessorValueTreeState parameters;
     
-    float inMidLevel = 0.0f;
+    float inMidLevel     = 0.0f;
+    float inLeftLevel    = 0.0f;
+    float inRightLevel   = 0.0f;
+    float inSideLevel    = 0.0f;
+    float sideChainLevel = 0.0f;
+    float outLeftLevel   = 0.0f;
+    float outMidLevel    = 0.0f;
+    float outRightLevel  = 0.0f;
+    float gainReduction  = 0.0f;
 
 private:
     // Parameters
@@ -77,7 +85,6 @@ private:
     // Decibels for conversions
     static Decibels decibels;
     
-    //AudioDeviceManager::LevelMeter outMeter;
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CenterDuckComp2AudioProcessor)

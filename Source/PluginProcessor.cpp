@@ -48,6 +48,7 @@ parameters(*this, nullptr, "ParameterTree", {
                                           NormalisableRange<float>(1.0f, 20.0f, 0.1f, 0.4f, false), 1.0f, ":1"),
     std::make_unique<AudioParameterFloat>("outGain", "Output Gain dB",
                                           NormalisableRange<float>(-100.0f, 12.0f, 0.01f, 4.0f, false), 0.0f, "dB"),
+    
     std::make_unique<AudioParameterChoice>("peakRMS", "Peak/RMS", StringArray( {"Peak", "RMS"} ), 0)
 })
 
@@ -157,6 +158,29 @@ bool CenterDuckComp2AudioProcessor::isBusesLayoutSupported (const BusesLayout& l
 
 void CenterDuckComp2AudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
+    // Metering
+    AudioBuffer<float> inLeftBuffer     (1, buffer.getNumSamples());
+    AudioBuffer<float> inMidBuffer      (1, buffer.getNumSamples());
+    AudioBuffer<float> inRightBuffer    (1, buffer.getNumSamples());
+    AudioBuffer<float> inSideBuffer     (1, buffer.getNumSamples());
+    
+    AudioBuffer<float> sidechainBuffer  (1, buffer.getNumSamples());
+    AudioBuffer<float> gainReductBuffer (1, buffer.getNumSamples());
+    
+    AudioBuffer<float> outMidBuffer     (1, buffer.getNumSamples());
+    
+    inLeftBuffer.clear();
+    inMidBuffer.clear();
+    inRightBuffer.clear();
+    inSideBuffer.clear();
+    
+    sidechainBuffer.clear();
+    gainReductBuffer.clear();
+    
+    outMidBuffer.clear();
+    
+    
+    
     // Gain Parameters
     float inGainDB = *inputGainParam;
     float outGainDB = *outputGainParam;
@@ -210,7 +234,11 @@ void CenterDuckComp2AudioProcessor::processBlock (juce::AudioBuffer<float>& buff
         float mid = (leftChannel[i] + rightChannel[i]) * inGainAmp;
         float side = (leftChannel[i] - rightChannel[i]) * inGainAmp;
         
-        inMidLevel = std::fabs(mid);
+        // Input Metering       TRY WITH ENVELOPES?!?!?!
+        inLeftBuffer.addSample  (0, i, leftChannel[i]);
+        inMidBuffer.addSample   (0, i, mid);
+        inRightBuffer.addSample (0, i, rightChannel[i]);
+        inSideBuffer.addSample  (0, i, side);
         
         // Mono the sidechain
         float monoSidechainSample = 0.0f;
@@ -227,11 +255,17 @@ void CenterDuckComp2AudioProcessor::processBlock (juce::AudioBuffer<float>& buff
         // Run sidechain values through the envelope
         float envVal = env.process(monoSidechainSample, peakRMSChoice);
         
+        // Sidechain Metering
+        sidechainBuffer.addSample(0, i, envVal);
+        
         // Compressor gain
         float compGain = (envVal < thresholdAmp) ? 1.0f : std::pow(envVal * thresholdInverse, ratio - 1.0f);
         
         // Apply gain to mid channel
         float midComped = mid * compGain;
+        
+        // Output Metering
+        outMidBuffer.addSample(0, i, midComped);
         
 
         // Encode Main MS to Stereo
@@ -239,11 +273,37 @@ void CenterDuckComp2AudioProcessor::processBlock (juce::AudioBuffer<float>& buff
         leftChannel[i] = ( (midComped + side) * outGainAmp ) * gainCompensation;
         rightChannel[i] = ( (midComped - side) * outGainAmp ) * gainCompensation;
         
-        //outMeterVal = leftChannel[i];
 
     }   // DSP
     
-    //outMeter.getCurrentLevel();
+    // Metering
+    if (*peakRMSChoice == 1)
+    {
+        inLeftLevel = inLeftBuffer.getRMSLevel   ( 0, 0, inLeftBuffer.getNumSamples() );
+        inMidLevel = inMidBuffer.getRMSLevel     ( 0, 0, inMidBuffer.getNumSamples() ) * 0.5f;
+        inRightLevel = inRightBuffer.getRMSLevel ( 0, 0, inRightBuffer.getNumSamples() );
+        inSideLevel = inSideBuffer.getRMSLevel   ( 0, 0, inSideBuffer.getNumSamples() );
+        
+        sideChainLevel = sidechainBuffer.getRMSLevel ( 0, 0, sidechainBuffer.getNumSamples() );
+        
+        outLeftLevel = buffer.getRMSLevel      ( 0, 0, buffer.getNumSamples() );
+        outMidLevel = outMidBuffer.getRMSLevel ( 0, 0, outMidBuffer.getNumSamples() ) * 0.5f;
+        outRightLevel = buffer.getRMSLevel     ( 1, 0, buffer.getNumSamples() );
+        
+    }
+    else
+    {
+        inLeftLevel = inLeftBuffer.getMagnitude   ( 0, inLeftBuffer.getNumSamples() );
+        inMidLevel = inMidBuffer.getMagnitude     ( 0, inMidBuffer.getNumSamples() ) * 0.5f;
+        inRightLevel = inRightBuffer.getMagnitude ( 0, inRightBuffer.getNumSamples() );
+        inSideLevel = inSideBuffer.getMagnitude   ( 0, inSideBuffer.getNumSamples() );
+        
+        sideChainLevel = sidechainBuffer.getMagnitude ( 0, sidechainBuffer.getNumSamples() );
+        
+        outLeftLevel = buffer.getMagnitude      ( 0, 0, buffer.getNumSamples() );
+        outMidLevel = outMidBuffer.getMagnitude ( 0, outMidBuffer.getNumSamples() ) * 0.5f;
+        outRightLevel = buffer.getMagnitude     ( 1, 0, buffer.getNumSamples() );
+    }
     
 }
 

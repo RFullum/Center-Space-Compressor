@@ -70,8 +70,10 @@ private:
     float meterHeight; // { 120.0f };
     float heightMult;
     float currentValue;
-    float decayRate = 0.007f; // in ms
-    float decayFactor;      // for N in value *= (1 - 1/N), in samples
+    float decayRateRise = 0.0005f;
+    float decayRateFall = 0.001f; // in ms... in Seconds?
+    float decayFactorRise;
+    float decayFactorFall;      // for N in value *= (1 - 1/N), in samples
     
     
     // Colors 

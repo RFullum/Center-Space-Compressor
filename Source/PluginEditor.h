@@ -98,7 +98,17 @@ private:
     float meterHeight = 160.0f;
     float meterOffsetCenter = 100.0f;
     
+    VUMeter inLeftMeter;
     VUMeter inCenterMeter;
+    VUMeter inRightMeter;
+    VUMeter inSideMeter;
+    
+    VUMeter sidechainMeter;
+    VUMeter gainReduceMeter;
+    
+    VUMeter outLeftMeter;
+    VUMeter outCenterMeter;
+    VUMeter outRightMeter;
     
     
     
