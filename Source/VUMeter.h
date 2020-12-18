@@ -54,31 +54,44 @@ public:
     */
     void meterProcess(float inValue, float sampleRate_);
     
-
-private:
+protected:
     /// Multiplies meterHeight by mult (mult is typically gain level 0-1)
     void heightMultiplier(float mult);
     
-    // Rectangle
-    Rectangle<float> meterLevel;
-    
-    // Dimensions
-    float SR;
+    // Member Variables
     float xPos; // { getWidth()  / 2.0f };
     float yPos; // { getHeight() / 2.0f };
     float meterWidth; // { 50.0f };
     float meterHeight; // { 120.0f };
     float heightMult;
+    
+    // Rectangle
+    Rectangle<float> meterLevel;
+    
+private:
+    
+    // Member Variables
+    
+    // Dimensions
+    float SR;
     float currentValue;
-    float decayRateRise = 0.0005f;
-    float decayRateFall = 0.001f; // in ms... in Seconds?
+    float decayRateRise; // = 0.0005f;
+    float decayRateFall; // = 0.001f; // in ms... in Seconds?
     float decayFactorRise;
     float decayFactorFall;      // for N in value *= (1 - 1/N), in samples
-    
     
     // Colors 
     Colour brightGreen = Colour((uint8)89, (uint8)255, (uint8)0, (uint8)255);
     
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (VUMeter)
+};
+
+
+//================================================================================
+
+class ReduceMeter : public VUMeter
+{
+public:
+    void resized() override;
 };

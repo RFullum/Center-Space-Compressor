@@ -251,12 +251,12 @@ void CenterDuckComp2AudioProcessor::processBlock (juce::AudioBuffer<float>& buff
         // Divide amplitudes by channel count without dividing by zero, then Mult by sidechain gain
         monoSidechainSample /= (sideChainInput.getNumChannels() < 1.0f) ? 1.0f : static_cast<float> (sideChainInput.getNumChannels());
         monoSidechainSample *= sideGainAmp;
+        
+        // Sidechain Metering
+        sidechainBuffer.addSample(0, i, monoSidechainSample);
 
         // Run sidechain values through the envelope
         float envVal = env.process(monoSidechainSample, peakRMSChoice);
-        
-        // Sidechain Metering
-        sidechainBuffer.addSample(0, i, envVal);
         
         // Compressor gain
         float compGain = (envVal < thresholdAmp) ? 1.0f : std::pow(envVal * thresholdInverse, ratio - 1.0f);
@@ -266,11 +266,12 @@ void CenterDuckComp2AudioProcessor::processBlock (juce::AudioBuffer<float>& buff
         
         // Output Metering
         outMidBuffer.addSample(0, i, midComped);
+        gainReductBuffer.addSample( 0, i, inMidBuffer.getSample(0, i) - outMidBuffer.getSample(0, i) );
         
 
         // Encode Main MS to Stereo
         float gainCompensation = 0.5f;
-        leftChannel[i] = ( (midComped + side) * outGainAmp ) * gainCompensation;
+        leftChannel[i]  = ( (midComped + side) * outGainAmp ) * gainCompensation;
         rightChannel[i] = ( (midComped - side) * outGainAmp ) * gainCompensation;
         
 
@@ -279,30 +280,34 @@ void CenterDuckComp2AudioProcessor::processBlock (juce::AudioBuffer<float>& buff
     // Metering
     if (*peakRMSChoice == 1)
     {
-        inLeftLevel = inLeftBuffer.getRMSLevel   ( 0, 0, inLeftBuffer.getNumSamples() );
-        inMidLevel = inMidBuffer.getRMSLevel     ( 0, 0, inMidBuffer.getNumSamples() ) * 0.5f;
+        inLeftLevel  = inLeftBuffer.getRMSLevel  ( 0, 0, inLeftBuffer.getNumSamples() );
+        inMidLevel   = inMidBuffer.getRMSLevel   ( 0, 0, inMidBuffer.getNumSamples() ) * 0.5f;
         inRightLevel = inRightBuffer.getRMSLevel ( 0, 0, inRightBuffer.getNumSamples() );
-        inSideLevel = inSideBuffer.getRMSLevel   ( 0, 0, inSideBuffer.getNumSamples() );
+        inSideLevel  = inSideBuffer.getRMSLevel  ( 0, 0, inSideBuffer.getNumSamples() );
         
-        sideChainLevel = sidechainBuffer.getRMSLevel ( 0, 0, sidechainBuffer.getNumSamples() );
+        sideChainLevel = sidechainBuffer.getRMSLevel  ( 0, 0, sidechainBuffer.getNumSamples() );
+        //gainReduction  = gainReductBuffer.getRMSLevel ( 0, 0, gainReductBuffer.getNumSamples() );
         
-        outLeftLevel = buffer.getRMSLevel      ( 0, 0, buffer.getNumSamples() );
-        outMidLevel = outMidBuffer.getRMSLevel ( 0, 0, outMidBuffer.getNumSamples() ) * 0.5f;
-        outRightLevel = buffer.getRMSLevel     ( 1, 0, buffer.getNumSamples() );
+        outLeftLevel  = buffer.getRMSLevel       ( 0, 0, buffer.getNumSamples() );
+        outMidLevel   = outMidBuffer.getRMSLevel ( 0, 0, outMidBuffer.getNumSamples() ) * 0.5f;
+        outRightLevel = buffer.getRMSLevel       ( 1, 0, buffer.getNumSamples() );
+        
+        gainReduction = inMidLevel - outMidLevel;
         
     }
     else
     {
-        inLeftLevel = inLeftBuffer.getMagnitude   ( 0, inLeftBuffer.getNumSamples() );
-        inMidLevel = inMidBuffer.getMagnitude     ( 0, inMidBuffer.getNumSamples() ) * 0.5f;
+        inLeftLevel  = inLeftBuffer.getMagnitude  ( 0, inLeftBuffer.getNumSamples() );
+        inMidLevel   = inMidBuffer.getMagnitude   ( 0, inMidBuffer.getNumSamples() ) * 0.5f;
         inRightLevel = inRightBuffer.getMagnitude ( 0, inRightBuffer.getNumSamples() );
-        inSideLevel = inSideBuffer.getMagnitude   ( 0, inSideBuffer.getNumSamples() );
+        inSideLevel  = inSideBuffer.getMagnitude  ( 0, inSideBuffer.getNumSamples() );
         
-        sideChainLevel = sidechainBuffer.getMagnitude ( 0, sidechainBuffer.getNumSamples() );
+        sideChainLevel = sidechainBuffer.getMagnitude  ( 0, sidechainBuffer.getNumSamples() );
+        gainReduction  = gainReductBuffer.getMagnitude ( 0, gainReductBuffer.getNumSamples() );
         
-        outLeftLevel = buffer.getMagnitude      ( 0, 0, buffer.getNumSamples() );
-        outMidLevel = outMidBuffer.getMagnitude ( 0, outMidBuffer.getNumSamples() ) * 0.5f;
-        outRightLevel = buffer.getMagnitude     ( 1, 0, buffer.getNumSamples() );
+        outLeftLevel  = buffer.getMagnitude       ( 0, 0, buffer.getNumSamples() );
+        outMidLevel   = outMidBuffer.getMagnitude ( 0, outMidBuffer.getNumSamples() ) * 0.5f;
+        outRightLevel = buffer.getMagnitude       ( 1, 0, buffer.getNumSamples() );
     }
     
 }

@@ -118,3 +118,9 @@ void VUMeter::resized()
 }
 
 //===========================================================================
+
+
+void ReduceMeter::resized()
+{
+    meterLevel.setBounds( xPos, yPos, meterWidth, meterHeight * heightMult );
+}

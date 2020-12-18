@@ -104,7 +104,8 @@ private:
     VUMeter inSideMeter;
     
     VUMeter sidechainMeter;
-    VUMeter gainReduceMeter;
+    ReduceMeter gainReduceMeter;
+    //VUMeter gainReduceMeter;
     
     VUMeter outLeftMeter;
     VUMeter outCenterMeter;
