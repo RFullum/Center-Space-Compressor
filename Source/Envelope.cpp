@@ -11,16 +11,15 @@
 #include "Envelope.h"
 
 
-Envelope::Envelope()
+Envelope::Envelope() : sampleRate(44100.0f), attack(0.1f), release(0.2f), inVal(0.0f), prevVal(0.0f)
 {
-    
 }
 
 /// Sets sampleRate
 void Envelope::setSampleRate(float SR)
 {
     sampleRate = SR;
-    expFactor = -2.0f * MathConstants<float>::pi * 1000.0f / sampleRate;
+    expFactor  = -2.0f * MathConstants<float>::pi * 1000.0f / sampleRate;
 }
 
 /// returns sampleRate
@@ -33,14 +32,14 @@ float Envelope::getSampleRate()
 void Envelope::setAttackTime(float atk)
 {
     attack = atk;
-    cteAT = calcCte(attack);
+    cteAT  = calcCte(attack);
 }
 
 /// Set release time in ms
 void Envelope::setReleaseTime(float rls)
 {
     release = rls;
-    cteRL = calcCte(release);
+    cteRL   = calcCte(release);
 }
 
 /**
@@ -54,7 +53,7 @@ float Envelope::process(float inputVal, std::atomic<float>* peakRMSMode)
     else
         inVal = std::abs(inputVal);
 
-    float cte = (inVal > prevVal) ? cteAT : cteRL;
+    float cte    = (inVal > prevVal) ? cteAT : cteRL;
     float result = inVal + cte * (prevVal - inVal);
     
     // update previous value with current values
@@ -71,5 +70,5 @@ float Envelope::process(float inputVal, std::atomic<float>* peakRMSMode)
 /// Calculates the curve attack/release curve
 float Envelope::calcCte(float timeMs)
 {
-    return (timeMs < (1.0e-3)) ? 0 : ( std::exp(expFactor / timeMs) );
+    return ( timeMs < (1.0e-3) ) ? 0 : ( std::exp(expFactor / timeMs) );
 }

@@ -42,11 +42,11 @@ private:
     
     // Members
     float sampleRate;
-    float attack = 0.1f;
-    float release = 0.2f;
+    float attack;
+    float release;
     float expFactor;
     float cteAT;
     float cteRL;
-    float inVal = 0.0f;
-    float prevVal = 0.0f;
+    float inVal;
+    float prevVal;
 };

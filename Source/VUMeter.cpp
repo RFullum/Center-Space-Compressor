@@ -86,7 +86,7 @@ void VUMeter::heightMultiplier(float mult)
     //heightMult = (mult > heightMult) ? mult : heightMult * (1.0f - (1.0f / decayFactor) );
     
     if (mult > heightMult)
-        heightMult = mult * (1.0f - (1.0f / decayFactorRise) );
+        heightMult = mult * ( 1.0f - (1.0f / decayFactorRise) );
     else
         heightMult *= 1.0f - (1.0f / decayFactorFall);
 }
@@ -108,8 +108,6 @@ void VUMeter::paint (juce::Graphics& g)
 {
     g.setColour(brightGreen);
     g.fillRect(meterLevel);
-    //g.drawRect(meterLevel);
-    
 }
 
 void VUMeter::resized()

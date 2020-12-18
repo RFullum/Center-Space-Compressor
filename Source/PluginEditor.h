@@ -51,10 +51,10 @@ private:
     Slider attackSlider;
     Slider releaseSlider;
     
-    float sliderSize = 125.0f;
+    float sliderSize      = 125.0f;
     float ratioSliderSize = 175.0f;
-    float textBoxW = 50.0f;
-    float textBoxH = 25.0f;
+    float textBoxW        = 50.0f;
+    float textBoxH        = 25.0f;
     
     // Labels
     Label inputGainLabel;
@@ -67,8 +67,8 @@ private:
     Label releaseLabel;
     
     float labelSize = 50.0f;
-    float labelW = 100.0f;
-    float labelH = 25.0f;
+    float labelW    = 100.0f;
+    float labelH    = 25.0f;
     
     // Combo Box
     ComboBox peakRMSBox;
@@ -88,14 +88,16 @@ private:
     
     // Meters
     
+    // these placeholders can be fucked off
     Rectangle<float> inMeterL;
     //Rectangle<float> inMeterC;
     Rectangle<float> outMeterL;
     Rectangle<float> scMeter;
     Rectangle<float> grMeter;
+    // ~placeholders
     
-    float meterWidth = 70.0f;
-    float meterHeight = 160.0f;
+    float meterWidth        = 70.0f;
+    float meterHeight       = 160.0f;
     float meterOffsetCenter = 100.0f;
     
     VUMeter inLeftMeter;
@@ -105,7 +107,6 @@ private:
     
     VUMeter sidechainMeter;
     ReduceMeter gainReduceMeter;
-    //VUMeter gainReduceMeter;
     
     VUMeter outLeftMeter;
     VUMeter outCenterMeter;
