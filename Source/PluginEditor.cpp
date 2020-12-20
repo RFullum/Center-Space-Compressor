@@ -81,7 +81,6 @@ CenterDuckComp2AudioProcessorEditor::CenterDuckComp2AudioProcessorEditor (Center
     peakRMSBox.setJustificationType(Justification::centred);
     peakRMSBox.setSelectedItemIndex(0);
     addAndMakeVisible(peakRMSBox);
-        
     
     //
     //=== ATTACHMENTS ===
@@ -135,10 +134,6 @@ void CenterDuckComp2AudioProcessorEditor::paint (juce::Graphics& g)
     g.fillAll(backgroundColor);
     
     g.setColour(textColor);
-    g.fillRect(inMeterL);
-    g.fillRect(outMeterL);
-    g.fillRect(scMeter);
-    g.fillRect(grMeter);
 
 }
 
@@ -186,12 +181,6 @@ void CenterDuckComp2AudioProcessorEditor::resized()
     peakRMSBox.setBounds( getWidth() * (6.0f / 8.0f), getHeight() * 0.5f, 100, 25);
     
     // Meter Vals
-    inMeterL = Rectangle<float>( 10.0f, (getHeight() * 0.5f) - (meterHeight * 0.5f) , meterWidth, meterHeight );
-    //inMeterC = Rectangle<float>( 10.0f, (getHeight() * 0.5f) - (meterHeight * 0.5f) , meterWidth - 3.0f, meterHeight - 3.0f );
-    outMeterL = Rectangle<float>( getWidth() - meterWidth - 10.0f, (getHeight() * 0.5f) - (meterHeight * 0.5f), meterWidth, meterHeight );
-    scMeter = Rectangle<float>( (getWidth() * (3.0f / 8.0f)) - meterOffsetCenter, (getHeight() * 0.5f) - (meterHeight * 0.5f), meterWidth * 0.5f, meterHeight );
-    grMeter = Rectangle<float>( (getWidth() * (5.0f / 8.0f)) + meterOffsetCenter, (getHeight() * 0.5f) - (meterHeight * 0.5f), meterWidth * 0.5f, meterHeight );
-    
     inLeftMeter.setBounds   ( getWidth() * (1.0f / 10.0f), getHeight() / 2.0f, inLeftMeter.getMeterWidth(), inLeftMeter.getMeterHeight() );
     inCenterMeter.setBounds ( getWidth() * (2.0f / 10.0f), getHeight() / 2.0f, inCenterMeter.getMeterWidth(), inCenterMeter.getMeterHeight() );
     inRightMeter.setBounds  ( getWidth() * (3.0f / 10.0f), getHeight() / 2.0f, inRightMeter.getMeterWidth(), inRightMeter.getMeterHeight() );
