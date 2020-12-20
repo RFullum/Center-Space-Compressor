@@ -36,43 +36,43 @@ CenterDuckComp2AudioProcessorEditor::CenterDuckComp2AudioProcessorEditor (Center
     //
     
     //=== Look and Feel (global) ===
-    getLookAndFeel().setColour(Slider::textBoxTextColourId, darkBlue);
-    getLookAndFeel().setColour(Slider::thumbColourId, darkGreen);
-    getLookAndFeel().setColour(Slider::rotarySliderOutlineColourId, darkBlue);
-    getLookAndFeel().setColour(Label::textColourId, darkBlue);
+    getLookAndFeel().setColour(Slider::textBoxTextColourId, textColor);
+    getLookAndFeel().setColour(Slider::thumbColourId, buttonColor);
+    getLookAndFeel().setColour(Slider::rotarySliderOutlineColourId, sliderTrack);
+    getLookAndFeel().setColour(Label::textColourId, textColor);
     
     
     //=== Gain Sliders ===
     
     // Input Gain
-    sliderSetup(inputGainSlider, " dB", brightOrange);
+    sliderSetup(inputGainSlider, " dB", dBSliderColor);
     sliderLabelSetup(inputGainLabel, "In Gain dB");
     
     // SideChain Input Gain
-    sliderSetup(sideChainGainSlider, " dB", brightOrange);
+    sliderSetup(sideChainGainSlider, " dB", dBSliderColor);
     sliderLabelSetup(sideChainGainLabel, "SCh Gain dB");
     
     // Output Gain
-    sliderSetup(outputGainSlider, " dB", brightOrange);
+    sliderSetup(outputGainSlider, " dB", dBSliderColor);
     sliderLabelSetup(outputGainLabel, "Out Gain dB");
     
     
     //=== Compressor Sliders ===
     
     // Threshold
-    sliderSetup(thresholdSlider, " dB", brightGreen);
+    sliderSetup(thresholdSlider, " dB", compSliderColor);
     sliderLabelSetup(thresholdLabel, "Threshold");
     
     // Ratio
-    sliderSetup(ratioSlider, ":1", brightGreen);
+    sliderSetup(ratioSlider, ":1", compSliderColor);
     sliderLabelSetup(ratioLabel, "Ratio");
     
     // Attack
-    sliderSetup(attackSlider, " ms", brightGreen);
+    sliderSetup(attackSlider, " ms", compSliderColor);
     sliderLabelSetup(attackLabel, "Attack ms");
     
     // Release
-    sliderSetup(releaseSlider, " ms", brightGreen);
+    sliderSetup(releaseSlider, " ms", compSliderColor);
     sliderLabelSetup(releaseLabel, "Release ms");
     
     //=== Combo Box ===
@@ -132,9 +132,9 @@ CenterDuckComp2AudioProcessorEditor::~CenterDuckComp2AudioProcessorEditor()
 //==============================================================================
 void CenterDuckComp2AudioProcessorEditor::paint (juce::Graphics& g)
 {
-    g.fillAll(babyBlue);
+    g.fillAll(backgroundColor);
     
-    g.setColour(darkBlue);
+    g.setColour(textColor);
     g.fillRect(inMeterL);
     g.fillRect(outMeterL);
     g.fillRect(scMeter);

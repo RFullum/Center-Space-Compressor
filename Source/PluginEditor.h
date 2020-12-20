@@ -27,11 +27,12 @@ public:
     void timerCallback() override;
     
     // Colors
-    Colour babyBlue = Colour((uint8)196, (uint8)253, (uint8)255, (uint8)255);
-    Colour darkBlue = Colour((uint8)22, (uint8)10, (uint8)79, (uint8)255);
-    Colour brightOrange = Colour((uint8)255, (uint8)89, (uint8)0, (uint8)255);
-    Colour brightGreen = Colour((uint8)89, (uint8)255, (uint8)0, (uint8)255);
-    Colour darkGreen = Colour((uint8)19, (uint8)145, (uint8)63, (uint8)255);
+    Colour backgroundColor = Colour((uint8)33, (uint8)77, (uint8)143, (uint8)255);
+    Colour sliderTrack = Colour((uint8)39, (uint8)19, (uint8)92, (uint8)255);
+    Colour textColor = Colour((uint8)188, (uint8)204, (uint8)230, (uint8)255);
+    Colour dBSliderColor = Colour((uint8)255, (uint8)89, (uint8)0, (uint8)255);
+    Colour compSliderColor = Colour((uint8)89, (uint8)255, (uint8)0, (uint8)255);
+    Colour buttonColor = Colour((uint8)19, (uint8)145, (uint8)63, (uint8)255);
 
 private:
     /// Sets up Slider object instances in constructor. sliderInstance is the slider to set up, suffix is textValueSuffix, sliderFillColor is the slider color below the thumb
