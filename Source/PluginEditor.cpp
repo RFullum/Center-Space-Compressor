@@ -117,6 +117,12 @@ CenterDuckComp2AudioProcessorEditor::CenterDuckComp2AudioProcessorEditor (Center
     addAndMakeVisible(outRightMeter);
     
     //
+    //=== BACKGROUND ===
+    //
+    //addAndMakeVisible(background);
+    //addAndMakeVisible(background2);
+    
+    //
     //=== TIMER ===
     //
     Timer::startTimerHz(60);
@@ -155,6 +161,11 @@ void CenterDuckComp2AudioProcessorEditor::timerCallback()
 
 void CenterDuckComp2AudioProcessorEditor::resized()
 {
+    // Background
+    //auto area = getLocalBounds();
+    //background.setBounds(area.removeFromTop(100));
+    //background2.setBounds(area.removeFromBottom(25));
+    
     // Sliders
     inputGainSlider.setBounds( ( getWidth() * (1.0f / 8.0f) ) - (sliderSize * 0.5f), (getHeight() * 0.5f) - (sliderSize * 0.5f), sliderSize, sliderSize );
     inputGainLabel.setBounds ( ( getWidth() * (1.0f / 8.0f) ) - (labelW * 0.5f), (getHeight() * 0.5f) - (labelH * 0.5f) - (sliderSize * 0.5f), labelW, labelH );

@@ -11,6 +11,7 @@
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 #include "VUMeter.h"
+#include "Background.h"
 
 //==============================================================================
 /**
@@ -105,9 +106,10 @@ private:
     VUMeter outRightMeter;
     
     // Backgrounds
-    Rectangle<float> header;
-    Rectangle<float> footer;
-    
+    //Rectangle<float> header;
+    //Rectangle<float> footer;
+    //Background background;
+    //Background background2;
     
     
     // This reference is provided as a quick way for your editor to

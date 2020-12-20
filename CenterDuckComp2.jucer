@@ -15,6 +15,8 @@
       <FILE id="DmfS5e" name="Envelope.h" compile="0" resource="0" file="Source/Envelope.h"/>
       <FILE id="dRQASo" name="VUMeter.cpp" compile="1" resource="0" file="Source/VUMeter.cpp"/>
       <FILE id="yQDMes" name="VUMeter.h" compile="0" resource="0" file="Source/VUMeter.h"/>
+      <FILE id="MBjr3w" name="Background.cpp" compile="1" resource="0" file="Source/Background.cpp"/>
+      <FILE id="pj2gz6" name="Background.h" compile="0" resource="0" file="Source/Background.h"/>
     </GROUP>
   </MAINGROUP>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"/>
