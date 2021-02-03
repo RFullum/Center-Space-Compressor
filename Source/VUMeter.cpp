@@ -12,16 +12,16 @@
 #include "VUMeter.h"
 
 //==============================================================================
-VUMeter::VUMeter() : SR(44100.0f), xPos( getWidth() / 2.0f ), yPos( getHeight() / 2.0f ),
-                        meterWidth(50.0f), meterHeight(120.0f), heightMult(0.0f),
+VUMeter::VUMeter() :  xPos( getWidth() / 2.0f ), yPos( getHeight() / 2.0f ),
+                        meterWidth(50.0f), meterHeight(120.0f), heightMult(0.0f), SR(44100.0f),
                         currentValue(0.0f), decayRateRise(0.0005f), decayRateFall(0.001f),
                         decayFactorRise(decayRateRise * SR), decayFactorFall(decayRateFall * SR)
 {
 }
 
 VUMeter::VUMeter(float xPosition, float yPosition, float meterWidth_, float meterHeight_, float sampleRate_) :
-                    SR(sampleRate_), xPos(xPosition), yPos(yPosition), meterWidth(meterWidth_), meterHeight(meterHeight_),
-                    heightMult(0.0f), currentValue(0.0f), decayRateRise(0.0005f), decayRateFall(0.001f),
+                    xPos(xPosition), yPos(yPosition), meterWidth(meterWidth_), meterHeight(meterHeight_),
+                    heightMult(0.0f), SR(sampleRate_), currentValue(0.0f), decayRateRise(0.0005f), decayRateFall(0.001f),
                     decayFactorRise(decayRateRise * SR), decayFactorFall(decayRateFall * SR)
 {
 }

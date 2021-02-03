@@ -8,11 +8,11 @@
             file="Source/PluginProcessor.cpp"/>
       <FILE id="wrXJjL" name="PluginProcessor.h" compile="0" resource="0"
             file="Source/PluginProcessor.h"/>
+      <FILE id="Pk1Mg2" name="Envelope.cpp" compile="1" resource="0" file="Source/Envelope.cpp"/>
+      <FILE id="DmfS5e" name="Envelope.h" compile="0" resource="0" file="Source/Envelope.h"/>
       <FILE id="tADjRh" name="PluginEditor.cpp" compile="1" resource="0"
             file="Source/PluginEditor.cpp"/>
       <FILE id="JHINT4" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
-      <FILE id="Pk1Mg2" name="Envelope.cpp" compile="1" resource="0" file="Source/Envelope.cpp"/>
-      <FILE id="DmfS5e" name="Envelope.h" compile="0" resource="0" file="Source/Envelope.h"/>
       <FILE id="dRQASo" name="VUMeter.cpp" compile="1" resource="0" file="Source/VUMeter.cpp"/>
       <FILE id="yQDMes" name="VUMeter.h" compile="0" resource="0" file="Source/VUMeter.h"/>
       <FILE id="MBjr3w" name="Background.cpp" compile="1" resource="0" file="Source/Background.cpp"/>

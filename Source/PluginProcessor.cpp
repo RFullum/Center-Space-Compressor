@@ -133,9 +133,9 @@ void CenterDuckComp2AudioProcessor::changeProgramName (int index, const juce::St
 void CenterDuckComp2AudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     // Initial setup for Envelope instance
-    env.setSampleRate(sampleRate);
-    env.setAttackTime(*attackParam);
-    env.setReleaseTime(*releaseParam);
+    env.setSampleRate  (sampleRate);
+    env.setAttackTime  (*attackParam);
+    env.setReleaseTime (*releaseParam);
 }
 
 void CenterDuckComp2AudioProcessor::releaseResources()
