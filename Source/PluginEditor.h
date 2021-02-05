@@ -11,7 +11,8 @@
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 #include "VUMeter.h"
-#include "Background.h"
+#include "OtherLookAndFeel.h"
+#include "TitleHeader.h"
 
 //==============================================================================
 /**
@@ -28,16 +29,23 @@ public:
     void timerCallback() override;
     
     // Colors
-    Colour backgroundColor  = Colour( (uint8)33, (uint8)77, (uint8)143, (uint8)255 );
-    Colour sliderTrack      = Colour( (uint8)39, (uint8)19, (uint8)92, (uint8)255 );
-    Colour textColor        = Colour( (uint8)188, (uint8)204, (uint8)230, (uint8)255 );
-    Colour dBSliderColor    = Colour( (uint8)255, (uint8)89, (uint8)0, (uint8)255 );
-    Colour compSliderColor  = Colour( (uint8)89, (uint8)255, (uint8)0, (uint8)255 );
-    Colour buttonColor      = Colour( (uint8)19, (uint8)145, (uint8)63, (uint8)255 );
+    Colour backgroundColor;
+    Colour sliderTrack;
+    Colour textColor;
+    Colour dBSliderColor;
+    Colour compSliderColor;
+    Colour buttonColor;
 
 private:
+    // Custom look and feel
+    OtherLookAndFeel compLookAndFeel;
+    OtherLookAndFeel dBLookAndFeel;
+    
+    // Title Header
+    TitleHeader titleHeader;
+    
     /// Sets up Slider object instances in constructor. sliderInstance is the slider to set up, suffix is textValueSuffix, sliderFillColor is the slider color below the thumb
-    void sliderSetup(Slider& sliderInstance, String suffix, Colour sliderFillColor);
+    void sliderSetup(Slider& sliderInstance, Slider::SliderStyle style, bool showTextBox);
     
     /// Sets up Label for the Slider instances. Takes the labelInstance and the text for setText
     void sliderLabelSetup(Label& labelInstance, String labelText);
@@ -53,10 +61,10 @@ private:
     Slider attackSlider;
     Slider releaseSlider;
     
-    float sliderSize      = 125.0f;
-    float ratioSliderSize = 175.0f;
-    float textBoxW        = 50.0f;
-    float textBoxH        = 25.0f;
+    float sliderSize;
+    float ratioSliderSize;
+    float textBoxW;
+    float textBoxH;
     
     // Labels
     Label inputGainLabel;
@@ -68,9 +76,9 @@ private:
     Label attackLabel;
     Label releaseLabel;
     
-    float labelSize = 50.0f;
-    float labelW    = 100.0f;
-    float labelH    = 25.0f;
+    float labelSize;
+    float labelW;
+    float labelH;
     
     // Combo Box
     ComboBox peakRMSBox;
@@ -89,31 +97,19 @@ private:
     
     
     // Meters
-    float meterWidth        = 70.0f;
-    float meterHeight       = 160.0f;
-    float meterOffsetCenter = 100.0f;
-    
     VUMeter inLeftMeter;
     VUMeter inCenterMeter;
     VUMeter inRightMeter;
     VUMeter inSideMeter;
     
-    VUMeter sidechainMeter;
+    //VUMeter sidechainMeter;
     ReduceMeter gainReduceMeter;
     
     VUMeter outLeftMeter;
     VUMeter outCenterMeter;
     VUMeter outRightMeter;
     
-    // Backgrounds
-    //Rectangle<float> header;
-    //Rectangle<float> footer;
-    //Background background;
-    //Background background2;
     
-    
-    // This reference is provided as a quick way for your editor to
-    // access the processor object that created it.
     CenterDuckComp2AudioProcessor& audioProcessor;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CenterDuckComp2AudioProcessorEditor)

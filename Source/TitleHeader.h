@@ -1,8 +1,8 @@
 /*
   ==============================================================================
 
-    Background.h
-    Created: 20 Dec 2020 7:26:12pm
+    TitleHeader.h
+    Created: 4 Feb 2021 11:47:30am
     Author:  Robert Fullum
 
   ==============================================================================
@@ -15,16 +15,19 @@
 //==============================================================================
 /*
 */
-class Background  : public juce::Component
+class TitleHeader  : public juce::Component
 {
 public:
-    Background();
-    ~Background() override;
+    TitleHeader();
+    ~TitleHeader() override;
 
     void paint (juce::Graphics&) override;
     void resized() override;
+    
+    /// Sets the background color
+    void setBackgroundColor(Colour bg);
 
 private:
-    
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Background)
+    Colour backgroundColor;
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TitleHeader)
 };

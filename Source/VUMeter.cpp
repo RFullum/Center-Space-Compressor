@@ -12,19 +12,12 @@
 #include "VUMeter.h"
 
 //==============================================================================
-VUMeter::VUMeter() :  xPos( getWidth() / 2.0f ), yPos( getHeight() / 2.0f ),
-                        meterWidth(50.0f), meterHeight(120.0f), heightMult(0.0f), SR(44100.0f),
-                        currentValue(0.0f), decayRateRise(0.0005f), decayRateFall(0.001f),
-                        decayFactorRise(decayRateRise * SR), decayFactorFall(decayRateFall * SR)
+VUMeter::VUMeter() :  meterLevel(0.0f), levelClipping(false), heightMult(0.0f),
+                      SR(44100.0f), decayRateRise(0.0005f), decayRateFall(0.001f),
+                      decayFactorRise(decayRateRise * SR), decayFactorFall(decayRateFall * SR)
 {
 }
 
-VUMeter::VUMeter(float xPosition, float yPosition, float meterWidth_, float meterHeight_, float sampleRate_) :
-                    xPos(xPosition), yPos(yPosition), meterWidth(meterWidth_), meterHeight(meterHeight_),
-                    heightMult(0.0f), SR(sampleRate_), currentValue(0.0f), decayRateRise(0.0005f), decayRateFall(0.001f),
-                    decayFactorRise(decayRateRise * SR), decayFactorFall(decayRateFall * SR)
-{
-}
 
 VUMeter::~VUMeter()
 {
@@ -33,86 +26,83 @@ VUMeter::~VUMeter()
 
 //===========================================================================
 
-/// Sets SR with sampleRate_
-void VUMeter::setSampleRate(float sampleRate_)
+void VUMeter::vuMeterLevel(float level, float sampleRate)
 {
-    SR = sampleRate_;
-}
-
-/// Sets xPos and yPos to arguments
-void VUMeter::setMeterPosition(float xPosition, float yPosition)
-{
-    xPos = xPosition;
-    yPos = yPosition;
-}
-
-/// Sets meterWidth to newWidth
-void VUMeter::setMeterWidth(float newWidth)
-{
-    meterWidth = newWidth;
-}
-
-/// Sets meterHeight to newHeight
-void VUMeter::setMeterHeight(float newHeight)
-{
-    meterHeight = newHeight;
-}
-
-
-/// Returns meterWidth
-float VUMeter::getMeterWidth()
-{
-    return meterWidth;
-}
-
-/// Returns meterHeight
-float VUMeter::getMeterHeight()
-{
-    return meterHeight;
-}
-
-/// Returns meter's current samplerate
-float VUMeter::getSampleRate()
-{
-    return SR;
-}
-
-/**
- Sets heightMult to mult if amplitude is increasing, or tails off the heightMult by decayFactor formula if decreasing.
- */
-void VUMeter::heightMultiplier(float mult)
-{
-    //heightMult = mult;
-    //heightMult = (mult > heightMult) ? mult : heightMult * (1.0f - (1.0f / decayFactor) );
+    float multiplier = (level < 1.0f) ? level : 1.0f;
     
-    if (mult > heightMult)
-        heightMult = mult * ( 1.0f - (1.0f / decayFactorRise) );
-    else
-        heightMult *= 1.0f - (1.0f / decayFactorFall);
-}
-
-/**
-Processes meter. Takes the level you want to meter in amplitude 0-1 for inVal, and samplerate.
-Updates SR if necessary. Determines height of meter via heightMultiplier( ), then runs resized( ) and repaint( )
-*/
-void VUMeter::meterProcess(float inValue, float sampleRate_)
-{
-    SR = (SR != sampleRate_) ? sampleRate_ : SR;
-    heightMultiplier(inValue);
+    // If sample rate changes, update SR and decay factors
+    if (SR != sampleRate)
+    {
+        SR = sampleRate;
+        decayFactorRise = decayRateRise * SR;
+        decayFactorFall = decayRateFall * SR;
+    }
+    
+    heightMultiplier(multiplier);
+    
+    levelClipping = (level < 1.0f) ? false : true;
+    
     resized();
     repaint();
 }
 
 
+/**
+ Sets heightMult to mult if amplitude is increasing, or tails off the heightMult by decayFactor formula if decreasing.
+ */
+void VUMeter::heightMultiplier(float mult)
+{   
+    if (mult > heightMult)
+        heightMult = mult * ( 1.0f - (1.0f / decayFactorRise) );
+    else
+        heightMult *= 1.0f - (1.0f / decayFactorFall);
+    
+    if (mult == 1.0f)
+        heightMult = 1.0f;
+}
+
 void VUMeter::paint (juce::Graphics& g)
 {
-    g.setColour(brightGreen);
-    g.fillRect(meterLevel);
+    Colour clipBackRed    = Colour( (uint8)97,  (uint8)9,   (uint8)5 );
+    Colour clippingRed    = Colour( (uint8)255, (uint8)52,  (uint8)41 );
+    Colour levelBackGreen = Colour( (uint8)10,  (uint8)87,  (uint8)9 );
+    Colour levelGreen     = Colour( (uint8)27,  (uint8)255, (uint8)23 );
+    
+    
+    // Clipping? Bright red, else dark red
+    if (levelClipping)
+        g.setColour ( clippingRed );
+    else
+        g.setColour ( clipBackRed );
+    
+    g.fillRect ( clipBack );
+    
+    // Level meter background
+    g.setColour ( levelBackGreen );
+    g.fillRect  ( meterBack );
+    
+    // Level meter VU
+    g.setColour ( levelGreen );
+    g.fillRect  ( meterLight );
 }
 
 void VUMeter::resized()
 {
-    meterLevel.setBounds( xPos, yPos + meterHeight, meterWidth, -meterHeight * heightMult );
+    int reducer = 2;
+    auto totalArea = getLocalBounds();
+    
+    // Create Clipping Light Area
+    Rectangle<int> reducedArea = totalArea.reduced         ( reducer );
+    Rectangle<int> clipArea    = reducedArea.removeFromTop ( reducedArea.getHeight() * 0.2f );
+    
+    clipBack.setBounds( clipArea.getX(), clipArea.getY(), clipArea.getWidth(), clipArea.getHeight() );
+    
+    // Create Level Meter Area
+    Rectangle<int> vuMeterArea = reducedArea;
+    
+    meterBack.setBounds  ( vuMeterArea.getX(), vuMeterArea.getY(), vuMeterArea.getWidth(), vuMeterArea.getHeight() );
+    meterLight.setBounds ( vuMeterArea.getX(), vuMeterArea.getY() + vuMeterArea.getHeight(),
+                           vuMeterArea.getWidth(), -vuMeterArea.getHeight() * heightMult );
 }
 
 //===========================================================================
@@ -120,5 +110,5 @@ void VUMeter::resized()
 
 void ReduceMeter::resized()
 {
-    meterLevel.setBounds( xPos, yPos, meterWidth, meterHeight * heightMult );
+    //meterLevel.setBounds( xPos, yPos, meterWidth, meterHeight * heightMult );
 }

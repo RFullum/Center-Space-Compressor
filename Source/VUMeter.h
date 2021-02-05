@@ -19,7 +19,7 @@ class VUMeter  : public juce::Component
 {
 public:
     VUMeter();
-    VUMeter(float xPosition, float yPosition, float meterWidth_, float meterHeight_, float sampleRate_);
+    //VUMeter(float xPosition, float yPosition, float meterWidth_, float meterHeight_, float sampleRate_);
     ~VUMeter() override;
     
     
@@ -27,56 +27,25 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
     
-    /// Sets SR with sampleRate_
-    void setSampleRate(float sampleRate_);
+    void vuMeterLevel(float level, float sampleRate);
     
-    /// Sets xPos and yPos to arguments
-    void setMeterPosition(float xPosition, float yPosition);
-    
-    /// Sets meterWidth to newWidth
-    void setMeterWidth(float newWidth);
-    
-    /// Sets meterHeight to new value
-    void setMeterHeight(float newHeight);
-    
-    /// Returns meterWidth
-    float getMeterWidth();
-    
-    /// Returns meterHeight
-    float getMeterHeight();
-    
-    /// Returns meter's current samplerate
-    float getSampleRate();
-    
-    /**
-    Processes meter. Takes the level you want to meter in amplitude 0-1 for inVal, and samplerate.
-    Updates SR if necessary. Determines height of meter via heightMultiplier( ), then runs resized( ) and repaint( )
-    */
-    void meterProcess(float inValue, float sampleRate_);
-    
-protected:
+private:
     /// Multiplies meterHeight by mult (mult is typically gain level 0-1)
     void heightMultiplier(float mult);
     
-    // Member Variables
-    float xPos; // { getWidth()  / 2.0f };
-    float yPos; // { getHeight() / 2.0f };
-    float meterWidth; // { 50.0f };
-    float meterHeight; // { 120.0f };
-    float heightMult;
-    
     // Rectangle
-    Rectangle<float> meterLevel;
-    
-private:
+    Rectangle<int> meterBack;
+    Rectangle<int> meterLight;
+    Rectangle<int> clipBack;
     
     // Member Variables
+    float meterLevel;
+    bool levelClipping;
     
-    // Dimensions
+    float heightMult;
     float SR;
-    float currentValue;
-    float decayRateRise; // = 0.0005f;
-    float decayRateFall; // = 0.001f; // in ms... in Seconds?
+    float decayRateRise;        // = 0.0005f;
+    float decayRateFall;        // = 0.001f; // in ms... in Seconds?
     float decayFactorRise;
     float decayFactorFall;      // for N in value *= (1 - 1/N), in samples
     

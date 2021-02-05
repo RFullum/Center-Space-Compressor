@@ -11,24 +11,31 @@
 
 //==============================================================================
 CenterDuckComp2AudioProcessorEditor::CenterDuckComp2AudioProcessorEditor (CenterDuckComp2AudioProcessor& p)
-    : AudioProcessorEditor (&p), audioProcessor (p)
+                                      : AudioProcessorEditor (&p),
+                                        backgroundColor (Colour( (uint8)33,  (uint8)77,  (uint8)143, (uint8)255 ) ),
+                                        sliderTrack     (Colour( (uint8)39,  (uint8)19,  (uint8)92,  (uint8)255 ) ),
+                                        textColor       (Colour( (uint8)188, (uint8)204, (uint8)230, (uint8)255 ) ),
+                                        dBSliderColor   (Colour( (uint8)255, (uint8)89,  (uint8)0,   (uint8)255 ) ),
+                                        compSliderColor (Colour( (uint8)89,  (uint8)255, (uint8)0,   (uint8)255 ) ),
+                                        buttonColor     (Colour( (uint8)19,  (uint8)145, (uint8)63,  (uint8)255 ) ),
+                                        sliderSize(125.0f), ratioSliderSize(175.0f), textBoxW(50.0f), textBoxH(25.0f),
+                                        labelSize(50.0f), labelW(100.0f), labelH(25.0f),
+                                        audioProcessor (p)
 {
     //
     // INITIAL CONSTRUCTOR SETUP
     //
-    setSize (1000, 400);
+    setSize (1000, 500);
     
-    inLeftMeter.setSampleRate   (audioProcessor.getSampleRate());
-    inCenterMeter.setSampleRate (audioProcessor.getSampleRate());
-    inRightMeter.setSampleRate  (audioProcessor.getSampleRate());
-    inSideMeter.setSampleRate   (audioProcessor.getSampleRate());
+    // Custom Look And Feel
+    compLookAndFeel.setDialColor (compSliderColor);
+    compLookAndFeel.setTickColor (Colours::black);
+    dBLookAndFeel.setDialColor   (dBSliderColor);
+    dBLookAndFeel.setTickColor   (Colours::darkblue);
     
-    sidechainMeter.setSampleRate  (audioProcessor.getSampleRate());
-    gainReduceMeter.setSampleRate (audioProcessor.getSampleRate());
-    
-    outLeftMeter.setSampleRate   (audioProcessor.getSampleRate());
-    outCenterMeter.setSampleRate (audioProcessor.getSampleRate());
-    outRightMeter.setSampleRate  (audioProcessor.getSampleRate());
+    // Header
+    titleHeader.setBackgroundColor ( buttonColor );
+    addAndMakeVisible              ( titleHeader );
     
     
     //
@@ -45,57 +52,64 @@ CenterDuckComp2AudioProcessorEditor::CenterDuckComp2AudioProcessorEditor (Center
     //=== Gain Sliders ===
     
     // Input Gain
-    sliderSetup(inputGainSlider, " dB", dBSliderColor);
-    sliderLabelSetup(inputGainLabel, "In Gain dB");
+    sliderSetup                    ( inputGainSlider, Slider::SliderStyle::RotaryHorizontalVerticalDrag, true );
+    sliderLabelSetup               ( inputGainLabel, "In Gain dB" );
+    inputGainSlider.setLookAndFeel ( &dBLookAndFeel );
     
     // SideChain Input Gain
-    sliderSetup(sideChainGainSlider, " dB", dBSliderColor);
-    sliderLabelSetup(sideChainGainLabel, "SCh Gain dB");
+    sliderSetup                        ( sideChainGainSlider, Slider::SliderStyle::RotaryHorizontalVerticalDrag, true );
+    sliderLabelSetup                   ( sideChainGainLabel, "SCh Gain dB" );
+    sideChainGainSlider.setLookAndFeel ( &dBLookAndFeel );
     
     // Output Gain
-    sliderSetup(outputGainSlider, " dB", dBSliderColor);
-    sliderLabelSetup(outputGainLabel, "Out Gain dB");
+    sliderSetup                     ( outputGainSlider, Slider::SliderStyle::RotaryHorizontalVerticalDrag, true );
+    sliderLabelSetup                ( outputGainLabel, "Out Gain dB" );
+    outputGainSlider.setLookAndFeel ( &dBLookAndFeel );
     
     
     //=== Compressor Sliders ===
     
     // Threshold
-    sliderSetup(thresholdSlider, " dB", compSliderColor);
-    sliderLabelSetup(thresholdLabel, "Threshold");
+    sliderSetup                    ( thresholdSlider, Slider::SliderStyle::RotaryHorizontalVerticalDrag, true );
+    sliderLabelSetup               ( thresholdLabel, "Threshold" );
+    thresholdSlider.setLookAndFeel ( &dBLookAndFeel );
     
     // Ratio
-    sliderSetup(ratioSlider, ":1", compSliderColor);
-    sliderLabelSetup(ratioLabel, "Ratio");
+    sliderSetup                ( ratioSlider, Slider::SliderStyle::RotaryHorizontalVerticalDrag, true );
+    sliderLabelSetup           ( ratioLabel, "Ratio" );
+    ratioSlider.setLookAndFeel ( &compLookAndFeel );
     
     // Attack
-    sliderSetup(attackSlider, " ms", compSliderColor);
-    sliderLabelSetup(attackLabel, "Attack ms");
+    sliderSetup                 ( attackSlider, Slider::SliderStyle::RotaryHorizontalVerticalDrag, true );
+    sliderLabelSetup            ( attackLabel, "Attack ms" );
+    attackSlider.setLookAndFeel ( &compLookAndFeel );
     
     // Release
-    sliderSetup(releaseSlider, " ms", compSliderColor);
-    sliderLabelSetup(releaseLabel, "Release ms");
+    sliderSetup                  ( releaseSlider, Slider::SliderStyle::RotaryHorizontalVerticalDrag, true );
+    sliderLabelSetup             ( releaseLabel, "Release ms" );
+    releaseSlider.setLookAndFeel ( &compLookAndFeel );
     
     //=== Combo Box ===
-    peakRMSBox.addItem("Peak", 1);
-    peakRMSBox.addItem("RMS", 2);
-    peakRMSBox.setJustificationType(Justification::centred);
-    peakRMSBox.setSelectedItemIndex(0);
-    addAndMakeVisible(peakRMSBox);
+    peakRMSBox.addItem              ( "Peak", 1 );
+    peakRMSBox.addItem              ( "RMS", 2 );
+    peakRMSBox.setJustificationType ( Justification::centred );
+    peakRMSBox.setSelectedItemIndex ( 0 );
+    addAndMakeVisible               ( peakRMSBox );
     
     //
     //=== ATTACHMENTS ===
     //
     
     // Gain Sliders
-    inputGainSliderAttachment = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "inGain", inputGainSlider);
+    inputGainSliderAttachment      = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "inGain", inputGainSlider);
     sideChainGainSliderAttachement = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "sideInGain", sideChainGainSlider);
-    outputGainSliderAttachment = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "outGain", outputGainSlider);
+    outputGainSliderAttachment     = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "outGain", outputGainSlider);
     
     // Compressor Sliders
     thresholdSliderAttachment = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "threshold", thresholdSlider);
-    ratioSliderAttachment = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "ratio", ratioSlider);
-    attackSliderAttachment = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "attack", attackSlider);
-    releaseSliderAttachment = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "release", releaseSlider);
+    ratioSliderAttachment     = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "ratio", ratioSlider);
+    attackSliderAttachment    = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "attack", attackSlider);
+    releaseSliderAttachment   = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "release", releaseSlider);
     
     // Combo Boxes
     peakRMSAttachment = std::make_unique<AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.parameters, "peakRMS", peakRMSBox);
@@ -104,23 +118,15 @@ CenterDuckComp2AudioProcessorEditor::CenterDuckComp2AudioProcessorEditor (Center
     //=== METERING ===
     //
     
-    addAndMakeVisible(inLeftMeter);
-    addAndMakeVisible(inCenterMeter);
-    addAndMakeVisible(inRightMeter);
-    addAndMakeVisible(inSideMeter);
+    addAndMakeVisible( inLeftMeter );
+    addAndMakeVisible( inCenterMeter );
+    addAndMakeVisible( inRightMeter );
+    addAndMakeVisible( inSideMeter );
+    addAndMakeVisible( gainReduceMeter );
+    addAndMakeVisible( outLeftMeter );
+    addAndMakeVisible( outCenterMeter );
+    addAndMakeVisible( outRightMeter );
     
-    addAndMakeVisible(sidechainMeter);
-    addAndMakeVisible(gainReduceMeter);
-    
-    addAndMakeVisible(outLeftMeter);
-    addAndMakeVisible(outCenterMeter);
-    addAndMakeVisible(outRightMeter);
-    
-    //
-    //=== BACKGROUND ===
-    //
-    //addAndMakeVisible(background);
-    //addAndMakeVisible(background2);
     
     //
     //=== TIMER ===
@@ -138,81 +144,145 @@ CenterDuckComp2AudioProcessorEditor::~CenterDuckComp2AudioProcessorEditor()
 void CenterDuckComp2AudioProcessorEditor::paint (juce::Graphics& g)
 {
     g.fillAll(backgroundColor);
-    
-    g.setColour(textColor);
-
 }
 
 /// Timer Callback for drawing meters
 void CenterDuckComp2AudioProcessorEditor::timerCallback()
 {
-    inLeftMeter.meterProcess    ( audioProcessor.inLeftLevel, audioProcessor.getSampleRate() );
-    inCenterMeter.meterProcess  ( audioProcessor.inMidLevel, audioProcessor.getSampleRate() );
-    inRightMeter.meterProcess   ( audioProcessor.inRightLevel, audioProcessor.getSampleRate() );
-    inSideMeter.meterProcess    ( audioProcessor.inSideLevel, audioProcessor.getSampleRate() );
+    float SR = audioProcessor.getSampleRate();
     
-    sidechainMeter.meterProcess  (audioProcessor.sideChainLevel, audioProcessor.getSampleRate() );
-    gainReduceMeter.meterProcess (audioProcessor.gainReduction, audioProcessor.getSampleRate() );
+    inLeftMeter.vuMeterLevel     ( audioProcessor.inLeftLevel,    SR );
+    inCenterMeter.vuMeterLevel   ( audioProcessor.inMidLevel,     SR );
+    inRightMeter.vuMeterLevel    ( audioProcessor.inRightLevel,   SR );
+    inSideMeter.vuMeterLevel     ( audioProcessor.sideChainLevel, SR );
+    gainReduceMeter.vuMeterLevel ( audioProcessor.gainReduction,  SR );
+    outLeftMeter.vuMeterLevel    ( audioProcessor.outLeftLevel,   SR );
+    outCenterMeter.vuMeterLevel  ( audioProcessor.outMidLevel,    SR );
+    outRightMeter.vuMeterLevel   ( audioProcessor.outRightLevel,  SR );
     
-    outLeftMeter.meterProcess   (audioProcessor.outLeftLevel, audioProcessor.getSampleRate() );
-    outCenterMeter.meterProcess (audioProcessor.outMidLevel, audioProcessor.getSampleRate() );
-    outRightMeter.meterProcess  (audioProcessor.outRightLevel, audioProcessor.getSampleRate() );
 }
 
+// ***** ROUGH-UP: SIZES ARE ALL WRONG. COLORS ARE TEMP ******
 void CenterDuckComp2AudioProcessorEditor::resized()
 {
-    // Background
-    //auto area = getLocalBounds();
-    //background.setBounds(area.removeFromTop(100));
-    //background2.setBounds(area.removeFromBottom(25));
+    // Total Plugin Area
+    auto area = getLocalBounds();
     
-    // Sliders
-    inputGainSlider.setBounds( ( getWidth() * (1.0f / 8.0f) ) - (sliderSize * 0.5f), (getHeight() * 0.5f) - (sliderSize * 0.5f), sliderSize, sliderSize );
-    inputGainLabel.setBounds ( ( getWidth() * (1.0f / 8.0f) ) - (labelW * 0.5f), (getHeight() * 0.5f) - (labelH * 0.5f) - (sliderSize * 0.5f), labelW, labelH );
+    // Title Header
+    Rectangle<int> titleHeaderArea = area.removeFromTop( 75 );
     
-    sideChainGainSlider.setBounds( (getWidth() * (3.0f / 8.0f) ) - (sliderSize * 0.5f), (getHeight() * 0.25f ) - (sliderSize * 0.5f), sliderSize, sliderSize );
-    sideChainGainLabel.setBounds( (getWidth() * (3.0f / 8.0f) ) - (labelW * 0.5f), (getHeight() * 0.25f ) - (labelH * 0.5f) - (sliderSize * 0.5f), labelW, labelH );
+    titleHeader.setBounds( titleHeaderArea );
     
-    outputGainSlider.setBounds( (getWidth() * (7.0f / 8.0f) ) - (sliderSize * 0.5f), (getHeight() * 0.5f) - (sliderSize * 0.5f), sliderSize, sliderSize );
-    outputGainLabel.setBounds( (getWidth() * (7.0f / 8.0f) ) - (labelW * 0.5f), (getHeight() * 0.5f) - (labelH * 0.5f) - (sliderSize * 0.5f), labelW, labelH );
+    // Input Section (Left Side)
+    Rectangle<int> inputArea     = area.removeFromLeft      ( getLocalBounds().getWidth() * 0.33f );
+    Rectangle<int> inMetersArea  = inputArea.removeFromLeft ( inputArea.getWidth() * 0.5f );
+    Rectangle<int> inControlArea = inputArea;
     
-    thresholdSlider.setBounds( (getWidth() * (3.0f / 8.0f) ) - (sliderSize * 0.5f), (getHeight() * 0.75f ) - (sliderSize * 0.5f), sliderSize, sliderSize );
-    thresholdLabel.setBounds( (getWidth() * (3.0f / 8.0f) ) - (labelW * 0.5f), (getHeight() * 0.75f) - (labelH * 0.5f) - (sliderSize * 0.5f), labelW, labelH );
+    float inMeterWidth = inMetersArea.getWidth() * 0.33f;
     
-    ratioSlider.setBounds( (getWidth() * (4.0f / 8.0f) ) - (ratioSliderSize * 0.5f), (getHeight() * 0.5f) - (ratioSliderSize * 0.5f), ratioSliderSize, ratioSliderSize );
-    ratioLabel.setBounds( (getWidth() * (4.0f / 8.0f) ) - (labelW * 0.5f), (getHeight() * 0.5f) - (labelH * 0.5f) - (ratioSliderSize * 0.5f), labelW, labelH );
+    Rectangle<int> inMeterLArea = inMetersArea.removeFromLeft ( inMeterWidth );
+    Rectangle<int> inMeterCArea = inMetersArea.removeFromLeft ( inMeterWidth );
+    Rectangle<int> inMeterRArea = inMetersArea;
     
-    attackSlider.setBounds( (getWidth() * (5.0f / 8.0f) ) - (sliderSize * 0.5f), (getHeight() * 0.25f) - (sliderSize * 0.5f), sliderSize, sliderSize );
-    attackLabel.setBounds( (getWidth() * (5.0f / 8.0f) ) - (labelW * 0.5f), (getHeight() * 0.25f) - (labelH * 0.5f) - (sliderSize * 0.5f), labelW, labelH );
+    inLeftMeter.setBounds   ( inMeterLArea );
+    inCenterMeter.setBounds ( inMeterCArea );
+    inRightMeter.setBounds  ( inMeterRArea );
     
-    releaseSlider.setBounds( (getWidth() * (5.0f / 8.0f) ) - (sliderSize * 0.5f), (getHeight() * 0.75f) - (sliderSize * 0.5f), sliderSize, sliderSize );
-    releaseLabel.setBounds( (getWidth() * (5.0f / 8.0f) ) - (labelW * 0.5f), (getHeight() * 0.75f) - (labelH * 0.5f) - (sliderSize * 0.5f), labelW, labelH );
+    Rectangle<int> inGainLabelArea  = inControlArea.removeFromTop    ( labelH );
+    Rectangle<int> peakRMSBoxArea   = inControlArea.removeFromBottom ( labelH );
+    Rectangle<int> inGainSliderArea = inControlArea.removeFromTop    ( inControlArea.getHeight() * 0.5f );
     
-    // Combo Box
-    peakRMSBox.setBounds( getWidth() * (6.0f / 8.0f), getHeight() * 0.5f, 100, 25);
+    inputGainLabel.setBounds  ( inGainLabelArea );
+    inputGainSlider.setBounds ( inGainSliderArea );
+    peakRMSBox.setBounds      ( peakRMSBoxArea );
     
-    // Meter Vals
-    inLeftMeter.setBounds   ( getWidth() * (1.0f / 10.0f), getHeight() / 2.0f, inLeftMeter.getMeterWidth(), inLeftMeter.getMeterHeight() );
-    inCenterMeter.setBounds ( getWidth() * (2.0f / 10.0f), getHeight() / 2.0f, inCenterMeter.getMeterWidth(), inCenterMeter.getMeterHeight() );
-    inRightMeter.setBounds  ( getWidth() * (3.0f / 10.0f), getHeight() / 2.0f, inRightMeter.getMeterWidth(), inRightMeter.getMeterHeight() );
-    inSideMeter.setBounds   ( getWidth() * (4.0f / 10.0f), getHeight() / 2.0f, inSideMeter.getMeterWidth(), inSideMeter.getMeterHeight() );
+    // Output Section (Right Side)
+    Rectangle<int> outputArea     = area.removeFromRight       ( getLocalBounds().getWidth() * 0.33f );
+    Rectangle<int> outMetersArea  = outputArea.removeFromRight ( outputArea.getWidth() * 0.5f );
+    Rectangle<int> outControlArea = outputArea;
     
-    sidechainMeter.setBounds  ( getWidth() * (5.0f / 10.0f), getHeight() / 2.0f, sidechainMeter.getMeterWidth(), sidechainMeter.getMeterHeight() );
-    gainReduceMeter.setBounds ( getWidth() * (6.0f / 10.0f), getHeight() / 2.0f, gainReduceMeter.getMeterWidth(), gainReduceMeter.getMeterHeight() );
+    float outMeterWidth = outMetersArea.getWidth() * 0.33f;
     
-    outLeftMeter.setBounds   ( getWidth() * (7.0f / 10.0f), getHeight() / 2.0f, outLeftMeter.getMeterWidth(), outLeftMeter.getMeterHeight() );
-    outCenterMeter.setBounds ( getWidth() * (8.0f / 10.0f), getHeight() / 2.0f, outCenterMeter.getMeterWidth(), outCenterMeter.getMeterHeight() );
-    outRightMeter.setBounds  ( getWidth() * (9.0f / 10.0f), getHeight() / 2.0f, outRightMeter.getMeterWidth(), outRightMeter.getMeterHeight() );
+    Rectangle<int> outMeterLArea = outMetersArea.removeFromLeft ( outMeterWidth );
+    Rectangle<int> outMeterCArea = outMetersArea.removeFromLeft ( outMeterWidth );
+    Rectangle<int> outMeterRArea = outMetersArea;
+    
+    outLeftMeter.setBounds   ( outMeterLArea );
+    outCenterMeter.setBounds ( outMeterCArea );
+    outRightMeter.setBounds  ( outMeterRArea );
+    
+    Rectangle<int> outGainLabelArea  = outControlArea.removeFromTop    ( labelH );
+    Rectangle<int> outGainSpacerArea = outControlArea.removeFromBottom ( labelH );
+    Rectangle<int> outGainSliderArea = outControlArea.removeFromTop    ( outControlArea.getHeight() * 0.5f );
+    
+    outputGainLabel.setBounds  ( outGainLabelArea );
+    outputGainSlider.setBounds ( outGainSliderArea );
+    
+    // Compressor Section (Center)
+    Rectangle<int> compressorArea = area;
+    
+    float compSectionsWidth = compressorArea.getWidth()  * 0.25f;
+    float compHeightDivs    = compressorArea.getHeight() * 0.33f;
+    
+    Rectangle<int> scControlArea     = compressorArea.removeFromLeft ( compSectionsWidth );
+    Rectangle<int> scGainMeterArea   = compressorArea.removeFromLeft ( compSectionsWidth );
+    Rectangle<int> gainReductionArea = compressorArea.removeFromLeft ( compSectionsWidth );
+    Rectangle<int> compControlArea   = compressorArea;
+    
+    // Sidechain Congrol area (left: SC Gain & Threshold)
+    Rectangle<int> scArea      = scControlArea.removeFromTop ( compHeightDivs );
+    Rectangle<int> scSpaceArea = scControlArea.removeFromTop ( compHeightDivs );
+    Rectangle<int> threshArea  = scControlArea;
+    
+    Rectangle<int> scGainLabelArea = scArea.removeFromTop     ( labelH );
+    Rectangle<int> threshLabelArea = threshArea.removeFromTop ( labelH );
+    
+    sideChainGainLabel.setBounds  ( scGainLabelArea );
+    sideChainGainSlider.setBounds ( scArea );
+    thresholdLabel.setBounds      ( threshLabelArea );
+    thresholdSlider.setBounds     ( threshArea );
+    
+    // SC Metering
+    inSideMeter.setBounds     ( scGainMeterArea );
+    gainReduceMeter.setBounds ( gainReductionArea );    // *** NOT VISIBLE BECAUSE CLASS NOT DEFINED FROM PARENT YET
+    
+    // Comp Control area (right: Ratio, attack release)
+    Rectangle<int> ratioArea   = compControlArea.removeFromTop ( compHeightDivs );
+    Rectangle<int> attackArea  = compControlArea.removeFromTop ( compHeightDivs );
+    Rectangle<int> releaseArea = compControlArea;
+    
+    Rectangle<int> ratioLabelArea   = ratioArea.removeFromTop   ( labelH );
+    Rectangle<int> attackLabelArea  = attackArea.removeFromTop  ( labelH );
+    Rectangle<int> releaseLabelArea = releaseArea.removeFromTop ( labelH );
+    
+    ratioLabel.setBounds    ( ratioLabelArea );
+    ratioSlider.setBounds   ( ratioArea );
+    attackLabel.setBounds   ( attackLabelArea );
+    attackSlider.setBounds  ( attackArea );
+    releaseLabel.setBounds  ( releaseLabelArea );
+    releaseSlider.setBounds ( releaseArea );
+    
+    
 }
 
 
 /// Sets up Slider object instances in constructor. sliderInstance is the slider to set up, suffix is textValueSuffix, sliderFillColor is the slider color below the thumb
-void CenterDuckComp2AudioProcessorEditor::sliderSetup(Slider& sliderInstance, String suffix, Colour sliderFillColor)
+void CenterDuckComp2AudioProcessorEditor::sliderSetup(Slider& sliderInstance, Slider::SliderStyle style, bool showTextBox)
 {
-    sliderInstance.setSliderStyle(Slider::SliderStyle::RotaryHorizontalVerticalDrag);
-    sliderInstance.setTextBoxStyle(Slider::TextBoxBelow, false, textBoxW, textBoxH);
-    sliderInstance.setTextValueSuffix(suffix);
-    sliderInstance.setColour(Slider::rotarySliderFillColourId, sliderFillColor);
+    sliderInstance.setSliderStyle(style);
+    
+    // If slider has a textbox, draw it, otherwise, don't
+    if (showTextBox)
+    {
+        sliderInstance.setTextBoxStyle ( Slider::TextBoxBelow, false, 40, 20 );
+        sliderInstance.setColour       ( Slider::textBoxOutlineColourId, Colour( (uint8)0, (uint8)0, (uint8)0, (uint8)0 ) );
+        sliderInstance.setColour       ( Slider::textBoxTextColourId, textColor );
+    }
+    else
+    {
+        sliderInstance.setTextBoxStyle( Slider::NoTextBox, false, 0, 0 );
+    }
+    
     addAndMakeVisible(sliderInstance);
 }
 

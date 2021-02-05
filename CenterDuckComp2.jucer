@@ -13,10 +13,14 @@
       <FILE id="tADjRh" name="PluginEditor.cpp" compile="1" resource="0"
             file="Source/PluginEditor.cpp"/>
       <FILE id="JHINT4" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
+      <FILE id="SxMdnA" name="OtherLookAndFeel.cpp" compile="1" resource="0"
+            file="Source/OtherLookAndFeel.cpp"/>
+      <FILE id="dSiZj8" name="OtherLookAndFeel.h" compile="0" resource="0"
+            file="Source/OtherLookAndFeel.h"/>
+      <FILE id="uSfyab" name="TitleHeader.cpp" compile="1" resource="0" file="Source/TitleHeader.cpp"/>
+      <FILE id="sWErYJ" name="TitleHeader.h" compile="0" resource="0" file="Source/TitleHeader.h"/>
       <FILE id="dRQASo" name="VUMeter.cpp" compile="1" resource="0" file="Source/VUMeter.cpp"/>
       <FILE id="yQDMes" name="VUMeter.h" compile="0" resource="0" file="Source/VUMeter.h"/>
-      <FILE id="MBjr3w" name="Background.cpp" compile="1" resource="0" file="Source/Background.cpp"/>
-      <FILE id="pj2gz6" name="Background.h" compile="0" resource="0" file="Source/Background.h"/>
     </GROUP>
   </MAINGROUP>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"/>

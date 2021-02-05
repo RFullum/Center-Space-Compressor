@@ -23,6 +23,7 @@ CenterDuckComp2AudioProcessor::CenterDuckComp2AudioProcessor()
                        ),
 #endif
 
+
 //
 // ParameterFloats:
 // id, description, min, max, default
@@ -50,7 +51,11 @@ parameters(*this, nullptr, "ParameterTree", {
                                           NormalisableRange<float>(-100.0f, 12.0f, 0.01f, 4.0f, false), 0.0f, "dB"),
     
     std::make_unique<AudioParameterChoice>("peakRMS", "Peak/RMS", StringArray( {"Peak", "RMS"} ), 0)
-})
+}),
+
+inMidLevel(0.0f), inLeftLevel(0.0f), inRightLevel(0.0f), inSideLevel(0.0f),
+sideChainLevel(0.0f), outLeftLevel(0.0f), outMidLevel(0.0f), outRightLevel(0.0f),
+gainReduction(0.0f)
 
 {
     inputGainParam       = parameters.getRawParameterValue("inGain");
