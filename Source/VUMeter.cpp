@@ -12,9 +12,10 @@
 #include "VUMeter.h"
 
 //==============================================================================
-VUMeter::VUMeter() :  meterLevel(0.0f), levelClipping(false), heightMult(0.0f),
-                      SR(44100.0f), decayRateRise(0.0005f), decayRateFall(0.001f),
-                      decayFactorRise(decayRateRise * SR), decayFactorFall(decayRateFall * SR)
+VUMeter::VUMeter() :  heightMult(0.0f), levelClipping(false), SR(44100.0f),
+                      decayRateRise(0.0005f), decayRateFall(0.001f),
+                      decayFactorRise(decayRateRise * SR), decayFactorFall(decayRateFall * SR),
+                      meterLevel(0.0f)
 {
 }
 
@@ -28,7 +29,12 @@ VUMeter::~VUMeter()
 
 void VUMeter::vuMeterLevel(float level, float sampleRate)
 {
-    float multiplier = (level < 1.0f) ? level : 1.0f;
+    // Convert to dB to get proper response curve. Normalize for resize() bounds
+    float multiplier = jmap( Decibels::gainToDecibels(level), -100.0f, 0.0f, 0.0f, 1.0f );
+    
+    // limit values: cap at 1.0f
+    if (multiplier > 1.0f)
+        multiplier = 1.0f;
     
     // If sample rate changes, update SR and decay factors
     if (SR != sampleRate)
@@ -40,7 +46,7 @@ void VUMeter::vuMeterLevel(float level, float sampleRate)
     
     heightMultiplier(multiplier);
     
-    levelClipping = (level < 1.0f) ? false : true;
+    levelClipping = (multiplier < 1.0f) ? false : true;
     
     resized();
     repaint();
@@ -106,10 +112,34 @@ void VUMeter::resized()
 }
 
 //===========================================================================
+//===========================================================================
+//===========================================================================
 
 
 ReduceMeter::ReduceMeter()  {}
 ReduceMeter::~ReduceMeter() {}
+
+void ReduceMeter::vuMeterLevel(float level, float sampleRate)
+{
+    // Limit value: clip at 1.0f
+    float multiplier = (level < 1.0f) ? level : 1.0f;
+    
+    // If sample rate changes, update SR and decay factors
+    if (SR != sampleRate)
+    {
+        SR = sampleRate;
+        decayFactorRise = decayRateRise * SR;
+        decayFactorFall = decayRateFall * SR;
+    }
+    
+    heightMultiplier(multiplier);
+    
+    levelClipping = false;
+    
+    resized();
+    repaint();
+}
+
 
 void ReduceMeter::resized()
 {

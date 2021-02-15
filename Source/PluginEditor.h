@@ -57,6 +57,7 @@ private:
     Slider outputGainSlider;
     
     Slider thresholdSlider;
+    //Slider thresholdMeterSlider;
     Slider ratioSlider;
     Slider attackSlider;
     Slider releaseSlider;
@@ -89,6 +90,7 @@ private:
     std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> outputGainSliderAttachment;
     
     std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> thresholdSliderAttachment;
+    //std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> thresholdSliderMeterAttachment;
     std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> ratioSliderAttachment;
     std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> attackSliderAttachment;
     std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> releaseSliderAttachment;

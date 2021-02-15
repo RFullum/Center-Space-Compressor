@@ -74,6 +74,9 @@ CenterDuckComp2AudioProcessorEditor::CenterDuckComp2AudioProcessorEditor (Center
     sliderLabelSetup               ( thresholdLabel, "Threshold" );
     thresholdSlider.setLookAndFeel ( &dBLookAndFeel );
     
+    //sliderSetup                         ( thresholdMeterSlider, Slider::SliderStyle::LinearVertical, false);
+    //thresholdMeterSlider.setLookAndFeel ( &dBLookAndFeel );
+    
     // Ratio
     sliderSetup                ( ratioSlider, Slider::SliderStyle::RotaryHorizontalVerticalDrag, true );
     sliderLabelSetup           ( ratioLabel, "Ratio" );
@@ -101,18 +104,19 @@ CenterDuckComp2AudioProcessorEditor::CenterDuckComp2AudioProcessorEditor (Center
     //
     
     // Gain Sliders
-    inputGainSliderAttachment      = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "inGain", inputGainSlider);
-    sideChainGainSliderAttachement = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "sideInGain", sideChainGainSlider);
-    outputGainSliderAttachment     = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "outGain", outputGainSlider);
+    inputGainSliderAttachment      = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>( audioProcessor.parameters, "inGain", inputGainSlider );
+    sideChainGainSliderAttachement = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>( audioProcessor.parameters, "sideInGain", sideChainGainSlider );
+    outputGainSliderAttachment     = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>( audioProcessor.parameters, "outGain", outputGainSlider );
     
     // Compressor Sliders
-    thresholdSliderAttachment = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "threshold", thresholdSlider);
-    ratioSliderAttachment     = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "ratio", ratioSlider);
-    attackSliderAttachment    = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "attack", attackSlider);
-    releaseSliderAttachment   = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "release", releaseSlider);
+    thresholdSliderAttachment      = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>( audioProcessor.parameters, "threshold", thresholdSlider );
+    //thresholdSliderMeterAttachment = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>( audioProcessor.parameters, "threshold", thresholdMeterSlider );
+    ratioSliderAttachment          = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>( audioProcessor.parameters, "ratio", ratioSlider );
+    attackSliderAttachment         = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>( audioProcessor.parameters, "attack", attackSlider );
+    releaseSliderAttachment        = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>( audioProcessor.parameters, "release", releaseSlider );
     
     // Combo Boxes
-    peakRMSAttachment = std::make_unique<AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.parameters, "peakRMS", peakRMSBox);
+    peakRMSAttachment = std::make_unique<AudioProcessorValueTreeState::ComboBoxAttachment>( audioProcessor.parameters, "peakRMS", peakRMSBox );
     
     //
     //=== METERING ===
@@ -249,8 +253,9 @@ void CenterDuckComp2AudioProcessorEditor::resized()
     thresholdSlider.setBounds     ( threshArea );
     
     // SC Metering
+    //thresholdMeterSlider.setBounds( scGainMeterArea.removeFromLeft( 10 ) );
     inSideMeter.setBounds     ( scGainMeterArea );
-    gainReduceMeter.setBounds ( gainReductionArea );    // *** NOT VISIBLE BECAUSE CLASS NOT DEFINED FROM PARENT YET
+    gainReduceMeter.setBounds ( gainReductionArea );
     
     // Comp Control area (right: Ratio, attack release)
     Rectangle<int> ratioArea   = compControlArea.removeFromTop ( compHeightDivs );

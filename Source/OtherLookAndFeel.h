@@ -16,8 +16,9 @@
 class OtherLookAndFeel : public LookAndFeel_V4
 {
 public:
-    /// Constructor
+    /// Constructor & Destructor
     OtherLookAndFeel();
+    ~OtherLookAndFeel();
     
     /// Draws rotary slider as round knob
     void drawRotarySlider(Graphics &g, int x, int y, int width, int height, float sliderPos,
@@ -40,3 +41,4 @@ private:
     Colour dialColor;
     Colour tickColor;
 };
+

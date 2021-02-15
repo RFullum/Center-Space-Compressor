@@ -27,7 +27,7 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
     
-    void vuMeterLevel(float level, float sampleRate);
+    virtual void vuMeterLevel(float level, float sampleRate);
     
 protected:
     // Rectangle
@@ -38,12 +38,11 @@ protected:
     // Member Variables
     float heightMult;
     
-private:
+protected:
     /// Multiplies meterHeight by mult (mult is typically gain level 0-1)
     void heightMultiplier(float mult);
     
-    // Member Variables
-    float meterLevel;
+    // Member Varialbes
     bool levelClipping;
     
     float SR;
@@ -51,6 +50,12 @@ private:
     float decayRateFall;        // = 0.001f; // in ms... in Seconds?
     float decayFactorRise;
     float decayFactorFall;      // for N in value *= (1 - 1/N), in samples
+    
+private:
+    // Member Variables
+    float meterLevel;
+    
+    
     
     // Colors 
     Colour brightGreen = Colour((uint8)89, (uint8)255, (uint8)0, (uint8)255);
@@ -67,6 +72,8 @@ class ReduceMeter : public VUMeter
 public:
     ReduceMeter();
     ~ReduceMeter();
+    
+    void vuMeterLevel(float level, float sampleRate) override;
     
     void resized() override;
 };
