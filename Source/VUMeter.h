@@ -29,20 +29,23 @@ public:
     
     void vuMeterLevel(float level, float sampleRate);
     
-private:
-    /// Multiplies meterHeight by mult (mult is typically gain level 0-1)
-    void heightMultiplier(float mult);
-    
+protected:
     // Rectangle
     Rectangle<int> meterBack;
     Rectangle<int> meterLight;
     Rectangle<int> clipBack;
     
     // Member Variables
+    float heightMult;
+    
+private:
+    /// Multiplies meterHeight by mult (mult is typically gain level 0-1)
+    void heightMultiplier(float mult);
+    
+    // Member Variables
     float meterLevel;
     bool levelClipping;
     
-    float heightMult;
     float SR;
     float decayRateRise;        // = 0.0005f;
     float decayRateFall;        // = 0.001f; // in ms... in Seconds?
@@ -62,5 +65,8 @@ private:
 class ReduceMeter : public VUMeter
 {
 public:
+    ReduceMeter();
+    ~ReduceMeter();
+    
     void resized() override;
 };

@@ -168,13 +168,15 @@ void CenterDuckComp2AudioProcessorEditor::resized()
     // Total Plugin Area
     auto area = getLocalBounds();
     
+    float flanksSize = 0.25f;
+    
     // Title Header
     Rectangle<int> titleHeaderArea = area.removeFromTop( 75 );
     
     titleHeader.setBounds( titleHeaderArea );
     
     // Input Section (Left Side)
-    Rectangle<int> inputArea     = area.removeFromLeft      ( getLocalBounds().getWidth() * 0.33f );
+    Rectangle<int> inputArea     = area.removeFromLeft      ( getLocalBounds().getWidth() * flanksSize );
     Rectangle<int> inMetersArea  = inputArea.removeFromLeft ( inputArea.getWidth() * 0.5f );
     Rectangle<int> inControlArea = inputArea;
     
@@ -197,7 +199,7 @@ void CenterDuckComp2AudioProcessorEditor::resized()
     peakRMSBox.setBounds      ( peakRMSBoxArea );
     
     // Output Section (Right Side)
-    Rectangle<int> outputArea     = area.removeFromRight       ( getLocalBounds().getWidth() * 0.33f );
+    Rectangle<int> outputArea     = area.removeFromRight       ( getLocalBounds().getWidth() * flanksSize );
     Rectangle<int> outMetersArea  = outputArea.removeFromRight ( outputArea.getWidth() * 0.5f );
     Rectangle<int> outControlArea = outputArea;
     
@@ -221,12 +223,16 @@ void CenterDuckComp2AudioProcessorEditor::resized()
     // Compressor Section (Center)
     Rectangle<int> compressorArea = area;
     
-    float compSectionsWidth = compressorArea.getWidth()  * 0.25f;
+    float compSectionsWidth = compressorArea.getWidth();// * 0.25f;
     float compHeightDivs    = compressorArea.getHeight() * 0.33f;
     
-    Rectangle<int> scControlArea     = compressorArea.removeFromLeft ( compSectionsWidth );
-    Rectangle<int> scGainMeterArea   = compressorArea.removeFromLeft ( compSectionsWidth );
-    Rectangle<int> gainReductionArea = compressorArea.removeFromLeft ( compSectionsWidth );
+    float scOuterWeight       = 0.7f;                           // Weight of control areas of SC section combined 0.0f to 1.0f
+    float scControlAreaWeight = scOuterWeight * 0.5f;           // Weight of control areas individually
+    float scMeterAreaWeight   = (1.0f - scOuterWeight) * 0.5f;  // Weight of each meter individually
+    
+    Rectangle<int> scControlArea     = compressorArea.removeFromLeft ( compSectionsWidth * scControlAreaWeight );
+    Rectangle<int> scGainMeterArea   = compressorArea.removeFromLeft ( compSectionsWidth * scMeterAreaWeight   );
+    Rectangle<int> gainReductionArea = compressorArea.removeFromLeft ( compSectionsWidth * scMeterAreaWeight   );
     Rectangle<int> compControlArea   = compressorArea;
     
     // Sidechain Congrol area (left: SC Gain & Threshold)
@@ -274,7 +280,7 @@ void CenterDuckComp2AudioProcessorEditor::sliderSetup(Slider& sliderInstance, Sl
     // If slider has a textbox, draw it, otherwise, don't
     if (showTextBox)
     {
-        sliderInstance.setTextBoxStyle ( Slider::TextBoxBelow, false, 40, 20 );
+        sliderInstance.setTextBoxStyle ( Slider::TextBoxBelow, false, 50, 20 );
         sliderInstance.setColour       ( Slider::textBoxOutlineColourId, Colour( (uint8)0, (uint8)0, (uint8)0, (uint8)0 ) );
         sliderInstance.setColour       ( Slider::textBoxTextColourId, textColor );
     }

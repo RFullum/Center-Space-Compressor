@@ -88,7 +88,7 @@ void VUMeter::paint (juce::Graphics& g)
 
 void VUMeter::resized()
 {
-    int reducer = 2;
+    int reducer    = 2;
     auto totalArea = getLocalBounds();
     
     // Create Clipping Light Area
@@ -108,7 +108,27 @@ void VUMeter::resized()
 //===========================================================================
 
 
+ReduceMeter::ReduceMeter()  {}
+ReduceMeter::~ReduceMeter() {}
+
 void ReduceMeter::resized()
 {
     //meterLevel.setBounds( xPos, yPos, meterWidth, meterHeight * heightMult );
+    int reducer    = 2;
+    auto totalArea = getLocalBounds();
+    
+    // Create Clipping Light Area
+    Rectangle<int> reducedArea = totalArea.reduced         ( reducer );
+    Rectangle<int> clipArea    = reducedArea.removeFromTop ( reducedArea.getHeight() * 0.2f );
+    
+    clipBack.setBounds( clipArea.getX(), clipArea.getY(), clipArea.getWidth(), clipArea.getHeight() );
+    
+    // Create Gain Reduction Meter area
+    Rectangle<int> reductionMeterArea = reducedArea;
+    
+    meterBack.setBounds  ( reductionMeterArea.getX(), reductionMeterArea.getY(),
+                           reductionMeterArea.getWidth(), reductionMeterArea.getHeight() );
+    meterLight.setBounds ( reductionMeterArea.getX(), reductionMeterArea.getY(),
+                           reductionMeterArea.getWidth(), reductionMeterArea.getHeight() * heightMult );
+    
 }
