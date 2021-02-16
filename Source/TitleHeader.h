@@ -25,12 +25,19 @@ public:
     void resized() override;
     
     /// Sets the background color
-    void setBackgroundColor(Colour bg);
+    void setBackgroundColor(Colour& bg);
+    
+    /// Sets the textColor
+    void setTextColor(Colour& textC);
 
 private:
     Colour backgroundColor;
     Colour textColor;
     
+    Rectangle<int> fullumMusicArea;
+    Rectangle<int> centerArea;
+    Rectangle<int> duckArea;
+    Rectangle<int> compressorArea;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TitleHeader)
 };

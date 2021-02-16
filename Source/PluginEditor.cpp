@@ -18,6 +18,11 @@ CenterDuckComp2AudioProcessorEditor::CenterDuckComp2AudioProcessorEditor (Center
                                         dBSliderColor   (Colour( (uint8)255, (uint8)89,  (uint8)0,   (uint8)255 ) ),
                                         compSliderColor (Colour( (uint8)89,  (uint8)255, (uint8)0,   (uint8)255 ) ),
                                         buttonColor     (Colour( (uint8)19,  (uint8)145, (uint8)63,  (uint8)255 ) ),
+                                        onyx            (Colour( (uint8)53,  (uint8)59,  (uint8)60,  (uint8)255 ) ),
+                                        lightSlateGrey  (Colour( (uint8)130, (uint8)146, (uint8)152, (uint8)255 ) ),
+                                        magicMint       (Colour( (uint8)174, (uint8)255, (uint8)216, (uint8)255 ) ),
+                                        fieryRose       (Colour( (uint8)255, (uint8)104, (uint8)114, (uint8)255 ) ),
+                                        orangePeel      (Colour( (uint8)252, (uint8)151, (uint8)0,   (uint8)255 ) ),
                                         sliderSize(125.0f), ratioSliderSize(175.0f), textBoxW(50.0f), textBoxH(25.0f),
                                         labelSize(50.0f), labelW(100.0f), labelH(25.0f),
                                         audioProcessor (p)
@@ -28,13 +33,14 @@ CenterDuckComp2AudioProcessorEditor::CenterDuckComp2AudioProcessorEditor (Center
     setSize (1000, 500);
     
     // Custom Look And Feel
-    compLookAndFeel.setDialColor (compSliderColor);
-    compLookAndFeel.setTickColor (Colours::black);
-    dBLookAndFeel.setDialColor   (dBSliderColor);
-    dBLookAndFeel.setTickColor   (Colours::darkblue);
+    compLookAndFeel.setDialColor ( fieryRose );
+    compLookAndFeel.setTickColor ( onyx );
+    dBLookAndFeel.setDialColor   ( orangePeel );
+    dBLookAndFeel.setTickColor   ( onyx );
     
     // Header
-    titleHeader.setBackgroundColor ( buttonColor );
+    titleHeader.setBackgroundColor ( onyx );
+    titleHeader.setTextColor       ( magicMint );
     addAndMakeVisible              ( titleHeader );
     
     
@@ -43,10 +49,10 @@ CenterDuckComp2AudioProcessorEditor::CenterDuckComp2AudioProcessorEditor (Center
     //
     
     //=== Look and Feel (global) ===
-    getLookAndFeel().setColour(Slider::textBoxTextColourId, textColor);
+    getLookAndFeel().setColour(Slider::textBoxTextColourId, magicMint);
     getLookAndFeel().setColour(Slider::thumbColourId, buttonColor);
     getLookAndFeel().setColour(Slider::rotarySliderOutlineColourId, sliderTrack);
-    getLookAndFeel().setColour(Label::textColourId, textColor);
+    getLookAndFeel().setColour(Label::textColourId, magicMint);
     
     
     //=== Gain Sliders ===
@@ -147,7 +153,7 @@ CenterDuckComp2AudioProcessorEditor::~CenterDuckComp2AudioProcessorEditor()
 //==============================================================================
 void CenterDuckComp2AudioProcessorEditor::paint (juce::Graphics& g)
 {
-    g.fillAll(backgroundColor);
+    g.fillAll(onyx);
 }
 
 /// Timer Callback for drawing meters
@@ -181,7 +187,7 @@ void CenterDuckComp2AudioProcessorEditor::resized()
     
     // Input Section (Left Side)
     Rectangle<int> inputArea     = area.removeFromLeft      ( getLocalBounds().getWidth() * flanksSize );
-    Rectangle<int> inMetersArea  = inputArea.removeFromLeft ( inputArea.getWidth() * 0.5f );
+    Rectangle<int> inMetersArea  = inputArea.removeFromLeft ( inputArea.getWidth() * 0.5f ).reduced( 10, 30 );
     Rectangle<int> inControlArea = inputArea;
     
     float inMeterWidth = inMetersArea.getWidth() * 0.33f;
@@ -195,16 +201,17 @@ void CenterDuckComp2AudioProcessorEditor::resized()
     inRightMeter.setBounds  ( inMeterRArea );
     
     Rectangle<int> inGainLabelArea  = inControlArea.removeFromTop    ( labelH );
-    Rectangle<int> peakRMSBoxArea   = inControlArea.removeFromBottom ( labelH );
-    Rectangle<int> inGainSliderArea = inControlArea.removeFromTop    ( inControlArea.getHeight() * 0.5f );
+    Rectangle<int> inGainSliderArea = inControlArea.removeFromTop    ( inControlArea.getHeight() * 0.5f - labelH );
+    Rectangle<int> peakRMSBoxArea   = inControlArea.removeFromBottom ( labelH * 4.0f );
+    //Rectangle<int> inGainSliderArea = inControlArea.removeFromTop    ( inControlArea.getHeight() * 0.5f );
     
     inputGainLabel.setBounds  ( inGainLabelArea );
     inputGainSlider.setBounds ( inGainSliderArea );
-    peakRMSBox.setBounds      ( peakRMSBoxArea );
+    peakRMSBox.setBounds      ( peakRMSBoxArea.reduced( 8, 32) );
     
     // Output Section (Right Side)
     Rectangle<int> outputArea     = area.removeFromRight       ( getLocalBounds().getWidth() * flanksSize );
-    Rectangle<int> outMetersArea  = outputArea.removeFromRight ( outputArea.getWidth() * 0.5f );
+    Rectangle<int> outMetersArea  = outputArea.removeFromRight ( outputArea.getWidth() * 0.5f ).reduced( 10, 30 );
     Rectangle<int> outControlArea = outputArea;
     
     float outMeterWidth = outMetersArea.getWidth() * 0.33f;
@@ -234,10 +241,12 @@ void CenterDuckComp2AudioProcessorEditor::resized()
     float scControlAreaWeight = scOuterWeight * 0.5f;           // Weight of control areas individually
     float scMeterAreaWeight   = (1.0f - scOuterWeight) * 0.5f;  // Weight of each meter individually
     
-    Rectangle<int> scControlArea     = compressorArea.removeFromLeft ( compSectionsWidth * scControlAreaWeight );
-    Rectangle<int> scGainMeterArea   = compressorArea.removeFromLeft ( compSectionsWidth * scMeterAreaWeight   );
-    Rectangle<int> gainReductionArea = compressorArea.removeFromLeft ( compSectionsWidth * scMeterAreaWeight   );
-    Rectangle<int> compControlArea   = compressorArea;
+    Rectangle<int> scControlArea         = compressorArea.removeFromLeft        ( compSectionsWidth * scControlAreaWeight );
+    Rectangle<int> compControlArea       = compressorArea.removeFromRight       ( compSectionsWidth * scControlAreaWeight );
+    Rectangle<int> compressorAreaReduced = compressorArea.reduced               ( 10, 30 );
+    Rectangle<int> scGainMeterArea       = compressorAreaReduced.removeFromLeft ( compressorAreaReduced.getWidth() * 0.5f   );
+    Rectangle<int> gainReductionArea     = compressorAreaReduced;   //.removeFromLeft ( compSectionsWidth * scMeterAreaWeight   );
+    
     
     // Sidechain Congrol area (left: SC Gain & Threshold)
     Rectangle<int> scArea      = scControlArea.removeFromTop ( compHeightDivs );
@@ -287,7 +296,7 @@ void CenterDuckComp2AudioProcessorEditor::sliderSetup(Slider& sliderInstance, Sl
     {
         sliderInstance.setTextBoxStyle ( Slider::TextBoxBelow, false, 50, 20 );
         sliderInstance.setColour       ( Slider::textBoxOutlineColourId, Colour( (uint8)0, (uint8)0, (uint8)0, (uint8)0 ) );
-        sliderInstance.setColour       ( Slider::textBoxTextColourId, textColor );
+        sliderInstance.setColour       ( Slider::textBoxTextColourId, magicMint );
     }
     else
     {

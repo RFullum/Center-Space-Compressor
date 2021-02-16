@@ -35,6 +35,12 @@ public:
     Colour dBSliderColor;
     Colour compSliderColor;
     Colour buttonColor;
+    
+    Colour onyx;
+    Colour lightSlateGrey;
+    Colour magicMint;
+    Colour fieryRose;
+    Colour orangePeel;
 
 private:
     // Custom look and feel
