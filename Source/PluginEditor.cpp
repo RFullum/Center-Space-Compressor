@@ -203,7 +203,6 @@ void CenterDuckComp2AudioProcessorEditor::resized()
     Rectangle<int> inGainLabelArea  = inControlArea.removeFromTop    ( labelH );
     Rectangle<int> inGainSliderArea = inControlArea.removeFromTop    ( inControlArea.getHeight() * 0.5f - labelH );
     Rectangle<int> peakRMSBoxArea   = inControlArea.removeFromBottom ( labelH * 4.0f );
-    //Rectangle<int> inGainSliderArea = inControlArea.removeFromTop    ( inControlArea.getHeight() * 0.5f );
     
     inputGainLabel.setBounds  ( inGainLabelArea );
     inputGainSlider.setBounds ( inGainSliderArea );
@@ -225,7 +224,7 @@ void CenterDuckComp2AudioProcessorEditor::resized()
     outRightMeter.setBounds  ( outMeterRArea );
     
     Rectangle<int> outGainLabelArea  = outControlArea.removeFromTop    ( labelH );
-    Rectangle<int> outGainSpacerArea = outControlArea.removeFromBottom ( labelH );
+    Rectangle<int> outGainSpacerArea = outControlArea.removeFromBottom ( labelH );      // Empty Spacer
     Rectangle<int> outGainSliderArea = outControlArea.removeFromTop    ( outControlArea.getHeight() * 0.5f );
     
     outputGainLabel.setBounds  ( outGainLabelArea );
@@ -239,18 +238,17 @@ void CenterDuckComp2AudioProcessorEditor::resized()
     
     float scOuterWeight       = 0.7f;                           // Weight of control areas of SC section combined 0.0f to 1.0f
     float scControlAreaWeight = scOuterWeight * 0.5f;           // Weight of control areas individually
-    float scMeterAreaWeight   = (1.0f - scOuterWeight) * 0.5f;  // Weight of each meter individually
     
     Rectangle<int> scControlArea         = compressorArea.removeFromLeft        ( compSectionsWidth * scControlAreaWeight );
     Rectangle<int> compControlArea       = compressorArea.removeFromRight       ( compSectionsWidth * scControlAreaWeight );
     Rectangle<int> compressorAreaReduced = compressorArea.reduced               ( 10, 30 );
     Rectangle<int> scGainMeterArea       = compressorAreaReduced.removeFromLeft ( compressorAreaReduced.getWidth() * 0.5f   );
-    Rectangle<int> gainReductionArea     = compressorAreaReduced;   //.removeFromLeft ( compSectionsWidth * scMeterAreaWeight   );
+    Rectangle<int> gainReductionArea     = compressorAreaReduced;
     
     
     // Sidechain Congrol area (left: SC Gain & Threshold)
     Rectangle<int> scArea      = scControlArea.removeFromTop ( compHeightDivs );
-    Rectangle<int> scSpaceArea = scControlArea.removeFromTop ( compHeightDivs );
+    Rectangle<int> scSpaceArea = scControlArea.removeFromTop ( compHeightDivs );    // Empty Spacer
     Rectangle<int> threshArea  = scControlArea;
     
     Rectangle<int> scGainLabelArea = scArea.removeFromTop     ( labelH );
