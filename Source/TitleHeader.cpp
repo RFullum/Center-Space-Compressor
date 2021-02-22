@@ -60,3 +60,30 @@ void TitleHeader::setTextColor(Colour& textC)
 {
     textColor = textC;
 }
+
+
+
+//==============================================================================
+//==============================================================================
+//==============================================================================
+
+
+
+void TitleFooter::paint(juce::Graphics& g)
+{
+    g.fillAll   (backgroundColor);
+    g.setColour ( textColor );
+    
+    g.setFont  ( Font("Helvetica", 14, 0) );
+    g.drawText ( "Version 1.0", versionArea.reduced( 12, 6 ), Justification::left );
+    g.drawText ( "www.FullumMusic.com", urlArea.reduced( 12, 6 ), Justification::right );
+}
+
+
+void TitleFooter::resized()
+{
+    auto totalArea = getLocalBounds();
+    
+    versionArea = totalArea.removeFromLeft( totalArea.getWidth() * 0.5f );
+    urlArea     = totalArea;
+}

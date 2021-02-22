@@ -49,6 +49,7 @@ private:
     
     // Title Header
     TitleHeader titleHeader;
+    TitleFooter titleFooter;
     
     /// Sets up Slider object instances in constructor. sliderInstance is the slider to set up, suffix is textValueSuffix, sliderFillColor is the slider color below the thumb
     void sliderSetup(Slider& sliderInstance, Slider::SliderStyle style, bool showTextBox);

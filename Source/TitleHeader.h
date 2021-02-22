@@ -29,11 +29,12 @@ public:
     
     /// Sets the textColor
     void setTextColor(Colour& textC);
-
-private:
+    
+protected:
     Colour backgroundColor;
     Colour textColor;
-    
+
+private:
     Rectangle<int> fullumMusicArea;
     Rectangle<int> centerArea;
     Rectangle<int> duckArea;
@@ -41,3 +42,21 @@ private:
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TitleHeader)
 };
+
+
+//==============================================================================
+//==============================================================================
+//==============================================================================
+
+class TitleFooter : public TitleHeader
+{
+public:
+    void paint(juce::Graphics&) override;
+    void resized() override;
+private:
+    Rectangle<int> versionArea;
+    Rectangle<int> urlArea;
+};
+
+
+

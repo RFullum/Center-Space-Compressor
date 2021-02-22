@@ -38,10 +38,16 @@ CenterDuckComp2AudioProcessorEditor::CenterDuckComp2AudioProcessorEditor (Center
     dBLookAndFeel.setDialColor   ( orangePeel );
     dBLookAndFeel.setTickColor   ( onyx );
     
-    // Header
+    // Headers
     titleHeader.setBackgroundColor ( onyx );
     titleHeader.setTextColor       ( magicMint );
     addAndMakeVisible              ( titleHeader );
+    
+    titleFooter.setBackgroundColor ( onyx );
+    titleFooter.setTextColor       ( magicMint );
+    addAndMakeVisible              ( titleFooter );
+    
+    
     
     
     //
@@ -180,10 +186,16 @@ void CenterDuckComp2AudioProcessorEditor::resized()
     
     float flanksSize = 0.25f;
     
+    // Header & Footer
+    
     // Title Header
     Rectangle<int> titleHeaderArea = area.removeFromTop( 75 );
     
     titleHeader.setBounds( titleHeaderArea );
+    
+    Rectangle<int> titleFooterArea = area.removeFromBottom( 15 );
+    
+    titleFooter.setBounds( titleFooterArea );
     
     // Input Section (Left Side)
     Rectangle<int> inputArea     = area.removeFromLeft      ( getLocalBounds().getWidth() * flanksSize );
