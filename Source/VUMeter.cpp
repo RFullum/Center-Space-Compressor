@@ -69,12 +69,6 @@ void VUMeter::heightMultiplier(float mult)
 
 void VUMeter::paint (juce::Graphics& g)
 {
-    Colour clipBackRed    = Colour( (uint8)97,  (uint8)9,   (uint8)5 );
-    Colour clippingRed    = Colour( (uint8)255, (uint8)52,  (uint8)41 );
-    Colour levelBackGreen = Colour( (uint8)10,  (uint8)87,  (uint8)9 );
-    Colour levelGreen     = Colour( (uint8)27,  (uint8)255, (uint8)23 );
-    
-    
     // Clipping? Bright red, else dark red
     if (levelClipping)
         g.setColour ( clippingRed );
@@ -109,6 +103,16 @@ void VUMeter::resized()
     meterBack.setBounds  ( vuMeterArea.getX(), vuMeterArea.getY(), vuMeterArea.getWidth(), vuMeterArea.getHeight() );
     meterLight.setBounds ( vuMeterArea.getX(), vuMeterArea.getY() + vuMeterArea.getHeight(),
                            vuMeterArea.getWidth(), -vuMeterArea.getHeight() * heightMult );
+}
+
+
+/// Sets the colors of the level and clipping meter
+void VUMeter::setColors(Colour& levelColor, Colour& clipColor)
+{
+    clipBackRed    = clipColor.darker();
+    clippingRed    = clipColor;
+    levelBackGreen = levelColor.darker();
+    levelGreen     = levelColor;
 }
 
 //===========================================================================

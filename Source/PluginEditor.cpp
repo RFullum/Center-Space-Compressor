@@ -134,6 +134,15 @@ CenterDuckComp2AudioProcessorEditor::CenterDuckComp2AudioProcessorEditor (Center
     //=== METERING ===
     //
     
+    inLeftMeter.setColors     ( magicMint, fieryRose );
+    inCenterMeter.setColors   ( magicMint, fieryRose );
+    inRightMeter.setColors    ( magicMint, fieryRose );
+    inSideMeter.setColors     ( magicMint, fieryRose );
+    gainReduceMeter.setColors ( magicMint, fieryRose );
+    outLeftMeter.setColors    ( magicMint, fieryRose );
+    outCenterMeter.setColors  ( magicMint, fieryRose );
+    outRightMeter.setColors   ( magicMint, fieryRose );
+    
     addAndMakeVisible( inLeftMeter );
     addAndMakeVisible( inCenterMeter );
     addAndMakeVisible( inRightMeter );

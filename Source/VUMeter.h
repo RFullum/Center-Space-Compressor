@@ -29,6 +29,9 @@ public:
     
     virtual void vuMeterLevel(float level, float sampleRate);
     
+    /// Sets the colors of the level and clipping meter
+    void setColors(Colour& levelColor, Colour& clipColor);
+    
 protected:
     // Rectangle
     Rectangle<int> meterBack;
@@ -38,7 +41,6 @@ protected:
     // Member Variables
     float heightMult;
     
-protected:
     /// Multiplies meterHeight by mult (mult is typically gain level 0-1)
     void heightMultiplier(float mult);
     
@@ -56,9 +58,12 @@ private:
     float meterLevel;
     
     
+    // Colors
+    Colour clipBackRed;
+    Colour clippingRed;
+    Colour levelBackGreen;
+    Colour levelGreen;
     
-    // Colors 
-    Colour brightGreen = Colour((uint8)89, (uint8)255, (uint8)0, (uint8)255);
     
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (VUMeter)
