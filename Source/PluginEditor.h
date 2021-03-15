@@ -29,13 +29,6 @@ public:
     void timerCallback() override;
     
     // Colors
-    Colour backgroundColor;
-    Colour sliderTrack;
-    Colour textColor;
-    Colour dBSliderColor;
-    Colour compSliderColor;
-    Colour buttonColor;
-    
     Colour onyx;
     Colour lightSlateGrey;
     Colour magicMint;
@@ -55,7 +48,7 @@ private:
     void sliderSetup(Slider& sliderInstance, Slider::SliderStyle style, bool showTextBox);
     
     /// Sets up Label for the Slider instances. Takes the labelInstance and the text for setText
-    void sliderLabelSetup(Label& labelInstance, String labelText);
+    void sliderLabelSetup(Label& labelInstance, String labelText, Colour& labelColor);
     
     
     // Sliders

@@ -15,7 +15,8 @@
 VUMeter::VUMeter() :  heightMult(0.0f), levelClipping(false), SR(44100.0f),
                       decayRateRise(0.0005f), decayRateFall(0.001f),
                       decayFactorRise(decayRateRise * SR), decayFactorFall(decayRateFall * SR),
-                      meterLevel(0.0f)
+                      meterLevel(0.0f),
+                      clippingRed(Colour( (uint8)255, (uint8)10, (uint8)27, (uint8)255 ) )
 {
 }
 
@@ -110,7 +111,7 @@ void VUMeter::resized()
 void VUMeter::setColors(Colour& levelColor, Colour& clipColor)
 {
     clipBackRed    = clipColor.darker();
-    clippingRed    = clipColor;
+    //clippingRed    = clipColor.brighter();
     levelBackGreen = levelColor.darker();
     levelGreen     = levelColor;
 }

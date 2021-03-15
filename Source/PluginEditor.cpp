@@ -12,12 +12,6 @@
 //==============================================================================
 CenterDuckComp2AudioProcessorEditor::CenterDuckComp2AudioProcessorEditor (CenterDuckComp2AudioProcessor& p)
                                       : AudioProcessorEditor (&p),
-                                        backgroundColor (Colour( (uint8)33,  (uint8)77,  (uint8)143, (uint8)255 ) ),
-                                        sliderTrack     (Colour( (uint8)39,  (uint8)19,  (uint8)92,  (uint8)255 ) ),
-                                        textColor       (Colour( (uint8)188, (uint8)204, (uint8)230, (uint8)255 ) ),
-                                        dBSliderColor   (Colour( (uint8)255, (uint8)89,  (uint8)0,   (uint8)255 ) ),
-                                        compSliderColor (Colour( (uint8)89,  (uint8)255, (uint8)0,   (uint8)255 ) ),
-                                        buttonColor     (Colour( (uint8)19,  (uint8)145, (uint8)63,  (uint8)255 ) ),
                                         onyx            (Colour( (uint8)53,  (uint8)59,  (uint8)60,  (uint8)255 ) ),
                                         lightSlateGrey  (Colour( (uint8)130, (uint8)146, (uint8)152, (uint8)255 ) ),
                                         magicMint       (Colour( (uint8)174, (uint8)255, (uint8)216, (uint8)255 ) ),
@@ -55,27 +49,24 @@ CenterDuckComp2AudioProcessorEditor::CenterDuckComp2AudioProcessorEditor (Center
     //
     
     //=== Look and Feel (global) ===
-    getLookAndFeel().setColour(Slider::textBoxTextColourId, magicMint);
-    getLookAndFeel().setColour(Slider::thumbColourId, buttonColor);
-    getLookAndFeel().setColour(Slider::rotarySliderOutlineColourId, sliderTrack);
-    getLookAndFeel().setColour(Label::textColourId, magicMint);
+    getLookAndFeel().setColour(Label::textColourId, magicMint );
     
     
     //=== Gain Sliders ===
     
     // Input Gain
     sliderSetup                    ( inputGainSlider, Slider::SliderStyle::RotaryHorizontalVerticalDrag, true );
-    sliderLabelSetup               ( inputGainLabel, "In Gain dB" );
+    sliderLabelSetup               ( inputGainLabel, "In Gain dB", orangePeel );
     inputGainSlider.setLookAndFeel ( &dBLookAndFeel );
     
     // SideChain Input Gain
     sliderSetup                        ( sideChainGainSlider, Slider::SliderStyle::RotaryHorizontalVerticalDrag, true );
-    sliderLabelSetup                   ( sideChainGainLabel, "SCh Gain dB" );
+    sliderLabelSetup                   ( sideChainGainLabel, "SCh Gain dB", orangePeel );
     sideChainGainSlider.setLookAndFeel ( &dBLookAndFeel );
     
     // Output Gain
     sliderSetup                     ( outputGainSlider, Slider::SliderStyle::RotaryHorizontalVerticalDrag, true );
-    sliderLabelSetup                ( outputGainLabel, "Out Gain dB" );
+    sliderLabelSetup                ( outputGainLabel, "Out Gain dB", orangePeel );
     outputGainSlider.setLookAndFeel ( &dBLookAndFeel );
     
     
@@ -83,25 +74,22 @@ CenterDuckComp2AudioProcessorEditor::CenterDuckComp2AudioProcessorEditor (Center
     
     // Threshold
     sliderSetup                    ( thresholdSlider, Slider::SliderStyle::RotaryHorizontalVerticalDrag, true );
-    sliderLabelSetup               ( thresholdLabel, "Threshold" );
+    sliderLabelSetup               ( thresholdLabel, "Threshold dB", orangePeel );
     thresholdSlider.setLookAndFeel ( &dBLookAndFeel );
-    
-    //sliderSetup                         ( thresholdMeterSlider, Slider::SliderStyle::LinearVertical, false);
-    //thresholdMeterSlider.setLookAndFeel ( &dBLookAndFeel );
     
     // Ratio
     sliderSetup                ( ratioSlider, Slider::SliderStyle::RotaryHorizontalVerticalDrag, true );
-    sliderLabelSetup           ( ratioLabel, "Ratio" );
+    sliderLabelSetup           ( ratioLabel, "Ratio", fieryRose );
     ratioSlider.setLookAndFeel ( &compLookAndFeel );
     
     // Attack
     sliderSetup                 ( attackSlider, Slider::SliderStyle::RotaryHorizontalVerticalDrag, true );
-    sliderLabelSetup            ( attackLabel, "Attack ms" );
+    sliderLabelSetup            ( attackLabel, "Attack ms", fieryRose );
     attackSlider.setLookAndFeel ( &compLookAndFeel );
     
     // Release
     sliderSetup                  ( releaseSlider, Slider::SliderStyle::RotaryHorizontalVerticalDrag, true );
-    sliderLabelSetup             ( releaseLabel, "Release ms" );
+    sliderLabelSetup             ( releaseLabel, "Release ms", fieryRose );
     releaseSlider.setLookAndFeel ( &compLookAndFeel );
     
     //=== Combo Box ===
@@ -109,6 +97,9 @@ CenterDuckComp2AudioProcessorEditor::CenterDuckComp2AudioProcessorEditor (Center
     peakRMSBox.addItem              ( "RMS", 2 );
     peakRMSBox.setJustificationType ( Justification::centred );
     peakRMSBox.setSelectedItemIndex ( 0 );
+    peakRMSBox.setColour            ( ComboBox::backgroundColourId, onyx );
+    peakRMSBox.setColour            ( ComboBox::arrowColourId, magicMint );
+    peakRMSBox.setColour            ( ComboBox::outlineColourId, lightSlateGrey );
     addAndMakeVisible               ( peakRMSBox );
     
     //
@@ -315,7 +306,8 @@ void CenterDuckComp2AudioProcessorEditor::sliderSetup(Slider& sliderInstance, Sl
     {
         sliderInstance.setTextBoxStyle ( Slider::TextBoxBelow, false, 50, 20 );
         sliderInstance.setColour       ( Slider::textBoxOutlineColourId, Colour( (uint8)0, (uint8)0, (uint8)0, (uint8)0 ) );
-        sliderInstance.setColour       ( Slider::textBoxTextColourId, magicMint );
+        sliderInstance.setColour       ( Slider::textBoxTextColourId, Colours::white );
+        
     }
     else
     {
@@ -326,9 +318,12 @@ void CenterDuckComp2AudioProcessorEditor::sliderSetup(Slider& sliderInstance, Sl
 }
 
 /// Sets up Label for the Slider instances. Takes the labelInstance and the text for setText
-void CenterDuckComp2AudioProcessorEditor::sliderLabelSetup(Label& labelInstance, String labelText)
+void CenterDuckComp2AudioProcessorEditor::sliderLabelSetup(Label& labelInstance, String labelText, Colour& labelColor)
 {
-    labelInstance.setText(labelText, dontSendNotification);
-    labelInstance.setJustificationType(Justification::centred);
-    addAndMakeVisible(labelInstance);
+    labelInstance.setText              ( labelText, dontSendNotification  );
+    labelInstance.setJustificationType ( Justification::centred           );
+    labelInstance.setColour            ( Label::textColourId,
+                                         labelColor.brighter().brighter() );
+    labelInstance.setFont              ( Font( "futura", 20.0f, 0 )       );
+    addAndMakeVisible                  ( labelInstance                    );
 }
