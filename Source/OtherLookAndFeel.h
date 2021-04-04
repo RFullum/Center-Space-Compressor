@@ -32,13 +32,16 @@ public:
                                            const Slider::SliderStyle style, Slider& slider) override;
     
     /// Sets the color of the dial (knob)
-    void setDialColor(Colour dialC);
+    void setDialColor(Colour& dialC);
     
     /// Sets the colorof the tick on the dial
-    void setTickColor(Colour tickC);
+    void setTickColor(Colour& tickC);
+    
+    void setBackColor(Colour& backC);
     
 private:
     Colour dialColor;
     Colour tickColor;
+    Colour backColor;
 };
 

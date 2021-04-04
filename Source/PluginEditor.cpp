@@ -27,10 +27,12 @@ CenterDuckComp2AudioProcessorEditor::CenterDuckComp2AudioProcessorEditor (Center
     setSize (1000, 500);
     
     // Custom Look And Feel
-    compLookAndFeel.setDialColor ( fieryRose );
-    compLookAndFeel.setTickColor ( onyx );
+    compLookAndFeel.setDialColor ( fieryRose  );
+    compLookAndFeel.setTickColor ( onyx       );
+    compLookAndFeel.setBackColor ( magicMint  );
     dBLookAndFeel.setDialColor   ( orangePeel );
-    dBLookAndFeel.setTickColor   ( onyx );
+    dBLookAndFeel.setTickColor   ( onyx       );
+    dBLookAndFeel.setBackColor   ( magicMint  );
     
     // Headers
     titleHeader.setBackgroundColor ( onyx );
