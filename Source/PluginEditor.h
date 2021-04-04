@@ -48,7 +48,7 @@ private:
     void sliderSetup(Slider& sliderInstance, Slider::SliderStyle style, bool showTextBox);
     
     /// Sets up Label for the Slider instances. Takes the labelInstance and the text for setText
-    void sliderLabelSetup(Label& labelInstance, String labelText, Colour& labelColor);
+    void sliderLabelSetup(Label& labelInstance, String labelText, Colour& labelColor, float fontSize);
     
     
     // Sliders

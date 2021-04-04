@@ -55,20 +55,22 @@ CenterDuckComp2AudioProcessorEditor::CenterDuckComp2AudioProcessorEditor (Center
     
     
     //=== Gain Sliders ===
+    float largeFontSize = 27.0f;
+    float smallFontSize = 22.0f;
     
     // Input Gain
     sliderSetup                    ( inputGainSlider, Slider::SliderStyle::RotaryHorizontalVerticalDrag, true );
-    sliderLabelSetup               ( inputGainLabel, "In Gain dB", orangePeel );
+    sliderLabelSetup               ( inputGainLabel, "In Gain dB", orangePeel, largeFontSize );
     inputGainSlider.setLookAndFeel ( &dBLookAndFeel );
     
     // SideChain Input Gain
     sliderSetup                        ( sideChainGainSlider, Slider::SliderStyle::RotaryHorizontalVerticalDrag, true );
-    sliderLabelSetup                   ( sideChainGainLabel, "SCh Gain dB", orangePeel );
+    sliderLabelSetup                   ( sideChainGainLabel, "SCh Gain dB", orangePeel, smallFontSize );
     sideChainGainSlider.setLookAndFeel ( &dBLookAndFeel );
     
     // Output Gain
     sliderSetup                     ( outputGainSlider, Slider::SliderStyle::RotaryHorizontalVerticalDrag, true );
-    sliderLabelSetup                ( outputGainLabel, "Out Gain dB", orangePeel );
+    sliderLabelSetup                ( outputGainLabel, "Out Gain dB", orangePeel, largeFontSize );
     outputGainSlider.setLookAndFeel ( &dBLookAndFeel );
     
     
@@ -76,22 +78,22 @@ CenterDuckComp2AudioProcessorEditor::CenterDuckComp2AudioProcessorEditor (Center
     
     // Threshold
     sliderSetup                    ( thresholdSlider, Slider::SliderStyle::RotaryHorizontalVerticalDrag, true );
-    sliderLabelSetup               ( thresholdLabel, "Threshold dB", orangePeel );
+    sliderLabelSetup               ( thresholdLabel, "Threshold dB", orangePeel, smallFontSize );
     thresholdSlider.setLookAndFeel ( &dBLookAndFeel );
     
     // Ratio
     sliderSetup                ( ratioSlider, Slider::SliderStyle::RotaryHorizontalVerticalDrag, true );
-    sliderLabelSetup           ( ratioLabel, "Ratio", fieryRose );
+    sliderLabelSetup           ( ratioLabel, "Ratio", fieryRose, smallFontSize );
     ratioSlider.setLookAndFeel ( &compLookAndFeel );
     
     // Attack
     sliderSetup                 ( attackSlider, Slider::SliderStyle::RotaryHorizontalVerticalDrag, true );
-    sliderLabelSetup            ( attackLabel, "Attack ms", fieryRose );
+    sliderLabelSetup            ( attackLabel, "Attack ms", fieryRose, smallFontSize );
     attackSlider.setLookAndFeel ( &compLookAndFeel );
     
     // Release
     sliderSetup                  ( releaseSlider, Slider::SliderStyle::RotaryHorizontalVerticalDrag, true );
-    sliderLabelSetup             ( releaseLabel, "Release ms", fieryRose );
+    sliderLabelSetup             ( releaseLabel, "Release ms", fieryRose, smallFontSize );
     releaseSlider.setLookAndFeel ( &compLookAndFeel );
     
     //=== Combo Box ===
@@ -306,7 +308,7 @@ void CenterDuckComp2AudioProcessorEditor::sliderSetup(Slider& sliderInstance, Sl
     // If slider has a textbox, draw it, otherwise, don't
     if (showTextBox)
     {
-        sliderInstance.setTextBoxStyle ( Slider::TextBoxBelow, false, 50, 20 );
+        sliderInstance.setTextBoxStyle ( Slider::TextBoxBelow, false, 50, 15 ); 
         sliderInstance.setColour       ( Slider::textBoxOutlineColourId, Colour( (uint8)0, (uint8)0, (uint8)0, (uint8)0 ) );
         sliderInstance.setColour       ( Slider::textBoxTextColourId, Colours::white );
         
@@ -320,12 +322,11 @@ void CenterDuckComp2AudioProcessorEditor::sliderSetup(Slider& sliderInstance, Sl
 }
 
 /// Sets up Label for the Slider instances. Takes the labelInstance and the text for setText
-void CenterDuckComp2AudioProcessorEditor::sliderLabelSetup(Label& labelInstance, String labelText, Colour& labelColor)
+void CenterDuckComp2AudioProcessorEditor::sliderLabelSetup(Label& labelInstance, String labelText, Colour& labelColor, float fontSize)
 {
-    labelInstance.setText              ( labelText, dontSendNotification  );
-    labelInstance.setJustificationType ( Justification::centred           );
-    labelInstance.setColour            ( Label::textColourId,
-                                         labelColor.brighter().brighter() );
-    labelInstance.setFont              ( Font( "futura", 20.0f, 0 )       );
-    addAndMakeVisible                  ( labelInstance                    );
+    labelInstance.setText              ( labelText, dontSendNotification     );
+    labelInstance.setJustificationType ( Justification::centred              );
+    labelInstance.setColour            ( Label::textColourId, Colours::white );
+    labelInstance.setFont              ( Font( "futura", fontSize, 0 )       );
+    addAndMakeVisible                  ( labelInstance                       );
 }
