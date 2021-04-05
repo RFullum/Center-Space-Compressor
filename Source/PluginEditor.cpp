@@ -118,7 +118,6 @@ CenterDuckComp2AudioProcessorEditor::CenterDuckComp2AudioProcessorEditor (Center
     
     // Compressor Sliders
     thresholdSliderAttachment      = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>( audioProcessor.parameters, "threshold", thresholdSlider );
-    //thresholdSliderMeterAttachment = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>( audioProcessor.parameters, "threshold", thresholdMeterSlider );
     ratioSliderAttachment          = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>( audioProcessor.parameters, "ratio", ratioSlider );
     attackSliderAttachment         = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>( audioProcessor.parameters, "attack", attackSlider );
     releaseSliderAttachment        = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>( audioProcessor.parameters, "release", releaseSlider );
@@ -250,7 +249,7 @@ void CenterDuckComp2AudioProcessorEditor::resized()
     // Compressor Section (Center)
     Rectangle<int> compressorArea = area;
     
-    float compSectionsWidth = compressorArea.getWidth();// * 0.25f;
+    float compSectionsWidth = compressorArea.getWidth();
     float compHeightDivs    = compressorArea.getHeight() * 0.33f;
     
     float scOuterWeight       = 0.7f;                           // Weight of control areas of SC section combined 0.0f to 1.0f
@@ -259,7 +258,7 @@ void CenterDuckComp2AudioProcessorEditor::resized()
     Rectangle<int> scControlArea         = compressorArea.removeFromLeft        ( compSectionsWidth * scControlAreaWeight );
     Rectangle<int> compControlArea       = compressorArea.removeFromRight       ( compSectionsWidth * scControlAreaWeight );
     Rectangle<int> compressorAreaReduced = compressorArea.reduced               ( 10, 30 );
-    Rectangle<int> scGainMeterArea       = compressorAreaReduced.removeFromLeft ( compressorAreaReduced.getWidth() * 0.5f   );
+    Rectangle<int> scGainMeterArea       = compressorAreaReduced.removeFromLeft ( compressorAreaReduced.getWidth() * 0.5f );
     Rectangle<int> gainReductionArea     = compressorAreaReduced;
     
     
@@ -277,14 +276,13 @@ void CenterDuckComp2AudioProcessorEditor::resized()
     thresholdSlider.setBounds     ( threshArea );
     
     // SC Metering
-    //thresholdMeterSlider.setBounds( scGainMeterArea.removeFromLeft( 10 ) );
-    inSideMeter.setBounds     ( scGainMeterArea );
+    inSideMeter.setBounds     ( scGainMeterArea   );
     gainReduceMeter.setBounds ( gainReductionArea );
     
     // Comp Control area (right: Ratio, attack release)
-    Rectangle<int> ratioArea   = compControlArea.removeFromTop ( compHeightDivs );
-    Rectangle<int> attackArea  = compControlArea.removeFromTop ( compHeightDivs );
-    Rectangle<int> releaseArea = compControlArea;
+    Rectangle<int> ratioArea   = compControlArea.removeFromTop ( compHeightDivs ).reduced ( 0, 5 );
+    Rectangle<int> attackArea  = compControlArea.removeFromTop ( compHeightDivs ).reduced ( 0, 5 );
+    Rectangle<int> releaseArea = compControlArea.reduced       ( 0, 5 );
     
     Rectangle<int> ratioLabelArea   = ratioArea.removeFromTop   ( labelH );
     Rectangle<int> attackLabelArea  = attackArea.removeFromTop  ( labelH );
