@@ -192,7 +192,7 @@ void CenterDuckComp2AudioProcessorEditor::resized()
     
     // Header & Footer
     
-    // Title Header
+    // Title Header & Footer
     Rectangle<int> titleHeaderArea = area.removeFromTop( 75 );
     
     titleHeader.setBounds( titleHeaderArea );
@@ -240,8 +240,8 @@ void CenterDuckComp2AudioProcessorEditor::resized()
     outRightMeter.setBounds  ( outMeterRArea );
     
     Rectangle<int> outGainLabelArea  = outControlArea.removeFromTop    ( labelH );
-    Rectangle<int> outGainSpacerArea = outControlArea.removeFromBottom ( labelH );      // Empty Spacer
-    Rectangle<int> outGainSliderArea = outControlArea.removeFromTop    ( outControlArea.getHeight() * 0.5f );
+    Rectangle<int> outGainSliderArea = outControlArea.removeFromTop    ( outControlArea.getHeight() * 0.5f - labelH );
+    Rectangle<int> outGainSpacerArea = outControlArea.removeFromBottom ( labelH * 4.0f );
     
     outputGainLabel.setBounds  ( outGainLabelArea );
     outputGainSlider.setBounds ( outGainSliderArea );
@@ -308,7 +308,7 @@ void CenterDuckComp2AudioProcessorEditor::sliderSetup(Slider& sliderInstance, Sl
     // If slider has a textbox, draw it, otherwise, don't
     if (showTextBox)
     {
-        sliderInstance.setTextBoxStyle ( Slider::TextBoxBelow, false, 50, 15 ); 
+        sliderInstance.setTextBoxStyle ( Slider::TextBoxBelow, false, 50, 15 );
         sliderInstance.setColour       ( Slider::textBoxOutlineColourId, Colour( (uint8)0, (uint8)0, (uint8)0, (uint8)0 ) );
         sliderInstance.setColour       ( Slider::textBoxTextColourId, Colours::white );
         
