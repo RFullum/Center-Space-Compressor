@@ -40,6 +40,8 @@ private:
     OtherLookAndFeel compLookAndFeel;
     OtherLookAndFeel dBLookAndFeel;
     
+    BoxLookAndFeel boxLookAndFeel;
+    
     // Title Header
     TitleHeader titleHeader;
     TitleFooter titleFooter;

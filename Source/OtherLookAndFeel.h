@@ -20,7 +20,7 @@ public:
     OtherLookAndFeel();
     ~OtherLookAndFeel();
     
-    /// Draws rotary slider as round knob
+    /// Draws rotary slider as round knob with outer ring and circular tick
     void drawRotarySlider(Graphics &g, int x, int y, int width, int height, float sliderPos,
                           float rotaryStartAngle, float rotaryEndAngle, Slider &slider) override;
     
@@ -34,10 +34,14 @@ public:
     /// Sets the color of the dial (knob)
     void setDialColor(Colour& dialC);
     
-    /// Sets the colorof the tick on the dial
+    /// Sets the color of the tick on the dial
     void setTickColor(Colour& tickC);
     
+    /// Sets the color of the outer ring
     void setBackColor(Colour& backC);
+    
+    /// Sets font for Slider Text Box
+    Font getLabelFont (Label& label) override;
     
 private:
     Colour dialColor;
@@ -45,3 +49,22 @@ private:
     Colour backColor;
 };
 
+
+
+// ==================================================================================================
+// ==================================================================================================
+
+
+class BoxLookAndFeel : public LookAndFeel_V4
+{
+public:
+    BoxLookAndFeel();
+    ~BoxLookAndFeel();
+    
+    /// Overrides ComboBox lookAndFeel: increases dropdown font size, arrow weight, outline weight, color to white
+    void drawComboBox (Graphics& g, int width, int height, bool, int, int, int, int, ComboBox& box) override;
+    
+    /// Overrides to make minimum ComboBox Font size 18
+    Font getComboBoxFont (ComboBox& box) override;
+private:
+};

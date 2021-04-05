@@ -21,6 +21,7 @@ OtherLookAndFeel::OtherLookAndFeel() :
 // Destructor
 OtherLookAndFeel::~OtherLookAndFeel()  {}
 
+/// Draws rotary slider as round knob with outer ring and circular tick
 void OtherLookAndFeel::drawRotarySlider(Graphics &g, int x, int y, int width, int height, float sliderPos,
                                         float rotaryStartAngle, float rotaryEndAngle, Slider &slider)
 {
@@ -75,8 +76,12 @@ void OtherLookAndFeel::drawRotarySlider(Graphics &g, int x, int y, int width, in
 }
 
 
-
-// ============
+/// Sets font for Slider Text Box
+Font OtherLookAndFeel::getLabelFont (Label& label)
+{
+    //return label.getFont();
+    return Font ( "futura", 17.0f, 0 );
+}
 
 void OtherLookAndFeel::drawLinearSlider (Graphics& g, int x, int y, int width, int height,
                                         float sliderPos,
@@ -133,8 +138,6 @@ void OtherLookAndFeel::drawLinearSlider (Graphics& g, int x, int y, int width, i
             maxPoint = { kx, ky };
         }
 
-        //auto thumbWidth = getSliderThumbRadius (slider);
-
         valueTrack.startNewSubPath (minPoint);
         valueTrack.lineTo (isThreeVal ? thumbPoint : maxPoint);
         g.setColour (slider.findColour (Slider::trackColourId));
@@ -143,7 +146,6 @@ void OtherLookAndFeel::drawLinearSlider (Graphics& g, int x, int y, int width, i
         if (! isTwoVal)
         {
             g.setColour (slider.findColour (Slider::thumbColourId));
-            //g.fillEllipse (Rectangle<float> (static_cast<float> (thumbWidth), static_cast<float> (thumbWidth)).withCentre (isThreeVal ? thumbPoint : maxPoint));
             g.fillRect( Rectangle<float> (static_cast<float> (trackWidth), 6.0f).withCentre (isThreeVal ? thumbPoint : maxPoint));
         }
 
@@ -193,3 +195,41 @@ void OtherLookAndFeel::setBackColor(Colour& backC)
     backColor = backC;
 }
 
+
+
+// ==================================================================================================
+// ==================================================================================================
+
+BoxLookAndFeel::BoxLookAndFeel()
+{}
+
+BoxLookAndFeel::~BoxLookAndFeel()
+{}
+
+
+void BoxLookAndFeel::drawComboBox (Graphics& g, int width, int height, bool, int, int, int, int, ComboBox& box)
+{
+    auto cornerSize = box.findParentComponentOfClass<ChoicePropertyComponent>() != nullptr ? 0.0f : 3.0f;
+    Rectangle<int> boxBounds (0, 0, width, height);
+
+    g.setColour (box.findColour (ComboBox::backgroundColourId));
+    g.fillRoundedRectangle (boxBounds.toFloat(), cornerSize);
+    
+    g.setColour( Colours::white );
+    g.drawRoundedRectangle (boxBounds.toFloat().reduced (0.5f, 0.5f), cornerSize, 3.0f);
+
+    Rectangle<int> arrowZone (width - 30, 0, 20, height);
+    Path path;
+    path.startNewSubPath ((float) arrowZone.getX() + 3.0f, (float) arrowZone.getCentreY() - 2.0f);
+    path.lineTo ((float) arrowZone.getCentreX(), (float) arrowZone.getCentreY() + 3.0f);
+    path.lineTo ((float) arrowZone.getRight() - 3.0f, (float) arrowZone.getCentreY() - 2.0f);
+
+    g.setColour (box.findColour (ComboBox::arrowColourId).withAlpha ((box.isEnabled() ? 0.9f : 0.2f)));
+    g.strokePath (path, PathStrokeType (3.0f));
+}
+
+/// Overrides to make minimum ComboBox Font size 18
+Font BoxLookAndFeel::getComboBoxFont (ComboBox& box)
+{
+    return { jmin (18.0f, (float) box.getHeight() * 0.85f) };
+}

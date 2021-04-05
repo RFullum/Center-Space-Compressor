@@ -102,8 +102,9 @@ CenterDuckComp2AudioProcessorEditor::CenterDuckComp2AudioProcessorEditor (Center
     peakRMSBox.setJustificationType ( Justification::centred );
     peakRMSBox.setSelectedItemIndex ( 0 );
     peakRMSBox.setColour            ( ComboBox::backgroundColourId, onyx );
-    peakRMSBox.setColour            ( ComboBox::arrowColourId, magicMint );
+    peakRMSBox.setColour            ( ComboBox::arrowColourId, Colours::white );
     peakRMSBox.setColour            ( ComboBox::outlineColourId, lightSlateGrey );
+    peakRMSBox.setLookAndFeel       ( &boxLookAndFeel );
     addAndMakeVisible               ( peakRMSBox );
     
     //
@@ -289,12 +290,12 @@ void CenterDuckComp2AudioProcessorEditor::resized()
     Rectangle<int> attackLabelArea  = attackArea.removeFromTop  ( labelH );
     Rectangle<int> releaseLabelArea = releaseArea.removeFromTop ( labelH );
     
-    ratioLabel.setBounds    ( ratioLabelArea );
-    ratioSlider.setBounds   ( ratioArea );
-    attackLabel.setBounds   ( attackLabelArea );
-    attackSlider.setBounds  ( attackArea );
+    ratioLabel.setBounds    ( ratioLabelArea   );
+    ratioSlider.setBounds   ( ratioArea        );
+    attackLabel.setBounds   ( attackLabelArea  );
+    attackSlider.setBounds  ( attackArea       );
     releaseLabel.setBounds  ( releaseLabelArea );
-    releaseSlider.setBounds ( releaseArea );
+    releaseSlider.setBounds ( releaseArea      );
     
     
 }
