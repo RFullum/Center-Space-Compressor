@@ -24,7 +24,7 @@ CenterDuckComp2AudioProcessorEditor::CenterDuckComp2AudioProcessorEditor (Center
     //
     // INITIAL CONSTRUCTOR SETUP
     //
-    setSize (1000, 500);
+    setSize (1100, 540);
     
     // Custom Look And Feel
     compLookAndFeel.setDialColor ( fieryRose  );
