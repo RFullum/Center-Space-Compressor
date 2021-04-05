@@ -110,10 +110,10 @@ void VUMeter::resized()
 /// Sets the colors of the level and clipping meter
 void VUMeter::setColors(Colour& levelColor, Colour& clipColor)
 {
-    clipBackRed    = clipColor.darker();
+    clipBackRed    = clipColor.darker().darker();
     //clippingRed    = clipColor.brighter();
-    levelBackGreen = levelColor.darker();
-    levelGreen     = levelColor;
+    levelBackGreen = levelColor.darker().darker();
+    levelGreen     = levelColor.brighter().brighter();
 }
 
 //===========================================================================
