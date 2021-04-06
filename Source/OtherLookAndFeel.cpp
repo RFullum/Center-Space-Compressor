@@ -13,9 +13,9 @@
 
 /// Constructor
 OtherLookAndFeel::OtherLookAndFeel() :
-    dialColor( Colour( (uint8)125, (uint8)125,  (uint8)125 ) ),
-    tickColor( Colour( (uint8)0,   (uint8)0,    (uint8)0   ) ),
-    backColor( Colour( (uint8)255, (uint8)255,  (uint8)255 ) )
+    dialColor( Colour( (uint8)125, (uint8)125, (uint8)125 ) ),
+    tickColor( Colour( (uint8)0,   (uint8)0,   (uint8)0   ) ),
+    backColor( Colour( (uint8)255, (uint8)255, (uint8)255 ) )
 {}
 
 // Destructor
@@ -200,7 +200,8 @@ void OtherLookAndFeel::setBackColor(Colour& backC)
 // ==================================================================================================
 // ==================================================================================================
 
-BoxLookAndFeel::BoxLookAndFeel()
+BoxLookAndFeel::BoxLookAndFeel() :
+    outlineColor( Colours::white )
 {}
 
 BoxLookAndFeel::~BoxLookAndFeel()
@@ -215,7 +216,7 @@ void BoxLookAndFeel::drawComboBox (Graphics& g, int width, int height, bool, int
     g.setColour (box.findColour (ComboBox::backgroundColourId));
     g.fillRoundedRectangle (boxBounds.toFloat(), cornerSize);
     
-    g.setColour( Colours::white );
+    g.setColour( outlineColor );
     g.drawRoundedRectangle (boxBounds.toFloat().reduced (0.5f, 0.5f), cornerSize, 3.0f);
 
     Rectangle<int> arrowZone (width - 30, 0, 20, height);
@@ -232,4 +233,10 @@ void BoxLookAndFeel::drawComboBox (Graphics& g, int width, int height, bool, int
 Font BoxLookAndFeel::getComboBoxFont (ComboBox& box)
 {
     return { jmin (18.0f, (float) box.getHeight() * 0.85f) };
+}
+
+
+void BoxLookAndFeel::setOutlineColor(Colour &outline)
+{
+    outlineColor = outline;
 }

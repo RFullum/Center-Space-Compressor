@@ -66,5 +66,8 @@ public:
     
     /// Overrides to make minimum ComboBox Font size 18
     Font getComboBoxFont (ComboBox& box) override;
+    
+    void setOutlineColor(Colour& outline);
 private:
+    Colour outlineColor;
 };

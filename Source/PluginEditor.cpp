@@ -34,6 +34,8 @@ CenterDuckComp2AudioProcessorEditor::CenterDuckComp2AudioProcessorEditor (Center
     dBLookAndFeel.setTickColor   ( onyx       );
     dBLookAndFeel.setBackColor   ( magicMint  );
     
+    boxLookAndFeel.setOutlineColor ( magicMint );
+    
     // Headers
     titleHeader.setBackgroundColor ( onyx );
     titleHeader.setTextColor       ( magicMint );
