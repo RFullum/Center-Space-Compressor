@@ -30,7 +30,7 @@ public:
     virtual void vuMeterLevel(float level, float sampleRate);
     
     /// Sets the colors of the level and clipping meter
-    void setColors(Colour& levelColor, Colour& clipColor);
+    void setColors(Colour& levelColor, Colour& clipColor, Colour& backingGrey);
     
 protected:
     // Rectangle
