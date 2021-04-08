@@ -225,7 +225,8 @@ void BoxLookAndFeel::drawComboBox (Graphics& g, int width, int height, bool, int
     path.lineTo ((float) arrowZone.getCentreX(), (float) arrowZone.getCentreY() + 3.0f);
     path.lineTo ((float) arrowZone.getRight() - 3.0f, (float) arrowZone.getCentreY() - 2.0f);
 
-    g.setColour (box.findColour (ComboBox::arrowColourId).withAlpha ((box.isEnabled() ? 0.9f : 0.2f)));
+    //g.setColour (box.findColour (ComboBox::arrowColourId).withAlpha ((box.isEnabled() ? 0.9f : 0.2f)));
+    g.setColour  ( outlineColor );
     g.strokePath (path, PathStrokeType (3.0f));
 }
 
