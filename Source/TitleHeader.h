@@ -30,15 +30,34 @@ public:
     /// Sets the textColor
     void setTextColor(Colour& textC);
     
+    /// Sets the designColor
+    void setDesignColor(Colour& designC);
+    
 protected:
     Colour backgroundColor;
     Colour textColor;
+    Colour designColor;
 
 private:
     Rectangle<int> fullumMusicArea;
     Rectangle<int> centerArea;
-    Rectangle<int> duckArea;
-    Rectangle<int> compressorArea;
+    Rectangle<int> spaceArea;
+    
+    Rectangle<int> block1L;
+    Rectangle<int> block4L;
+    Rectangle<int> block7L;
+    Rectangle<int> block10L;
+    Rectangle<int> block13L;
+    
+    Rectangle<int> block1R;
+    Rectangle<int> block4R;
+    Rectangle<int> block7R;
+    Rectangle<int> block10R;
+    Rectangle<int> block13R;
+    
+    
+    //Rectangle<int> duckArea;
+    //Rectangle<int> compressorArea;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TitleHeader)
 };

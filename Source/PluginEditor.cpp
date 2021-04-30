@@ -38,7 +38,8 @@ CenterDuckComp2AudioProcessorEditor::CenterDuckComp2AudioProcessorEditor (Center
     
     // Headers
     titleHeader.setBackgroundColor ( onyx );
-    titleHeader.setTextColor       ( magicMint );
+    titleHeader.setDesignColor     ( fieryRose );
+    titleHeader.setTextColor       ( orangePeel  );
     addAndMakeVisible              ( titleHeader );
     
     titleFooter.setBackgroundColor ( onyx );
