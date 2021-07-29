@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="QLdizl" name="CenterDuckComp2" projectType="audioplug" useAppConfig="0"
-              addUsingNamespaceToJuceHeader="1" displaySplashScreen="1" jucerFormatVersion="1">
-  <MAINGROUP id="Y4Yg1X" name="CenterDuckComp2">
+<JUCERPROJECT id="QLdizl" name="Center Space" projectType="audioplug" useAppConfig="0"
+              addUsingNamespaceToJuceHeader="1" displaySplashScreen="1" jucerFormatVersion="1"
+              version="0.1" companyName="FullumMusic" companyWebsite="www.fullummusic.com">
+  <MAINGROUP id="Y4Yg1X" name="Center Space">
     <GROUP id="{CC2CFA38-3F01-7550-2805-9124FD426BA7}" name="Source">
       <FILE id="cKEaoU" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
