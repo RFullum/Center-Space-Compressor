@@ -16,6 +16,15 @@ TitleHeader::TitleHeader() : backgroundColor ( Colour( (uint8)125, (uint8)125,  
                              textColor       ( Colour( (uint8)235, (uint8)52,   (uint8)222)  ),
                              designColor     ( Colour( (uint8)125, (uint8)0,    (uint8)125)  )
 {
+    // Load logo png data into Image object
+    Image logoImage = ImageCache::getFromMemory ( BinaryData::Fullum_brandcolours_output_png, BinaryData::Fullum_brandcolours_output_pngSize );
+    
+    if (logoImage.isValid())
+    {
+        logoComponent.setImage ( logoImage, RectanglePlacement::xRight | RectanglePlacement::yMid );
+    }
+    
+    addAndMakeVisible ( logoComponent );
 }
 
 TitleHeader::~TitleHeader()
@@ -28,7 +37,8 @@ void TitleHeader::paint (juce::Graphics& g)
     g.setColour ( textColor );
     
     g.setFont   ( Font("technoid", 60.0f, 0) );
-    g.drawText  ( "FULLUMMUSIC", fullumMusicArea.reduced( 6, 0 ), Justification::right );
+    //g.drawText  ( "FULLUMMUSIC", fullumMusicArea.reduced( 6, 0 ), Justification::right );
+    
     
     g.setFont  ( Font("helvetica", 53.0f, 0) );
     g.drawText ( "CENTER", centerArea, Justification::verticallyCentred );
@@ -59,6 +69,8 @@ void TitleHeader::resized()
     
     fullumMusicArea = totalArea.removeFromRight( totalArea.getWidth() * 0.5f );
     
+    logoComponent.setBounds ( fullumMusicArea.reduced( 12, 0 ) );
+    
     Rectangle<int> pluginTitleArea = totalArea;
     Rectangle<int> titlePadLeft    = totalArea.removeFromLeft ( 8.0f );
     Rectangle<int> titleLeftArea   = totalArea.removeFromLeft ( pluginTitleArea.getWidth() * 0.5f );
@@ -72,8 +84,8 @@ void TitleHeader::resized()
     centerArea.setBounds ( titleLeftArea.getX(),  titleLeftArea.getY(),  titleLeftArea.getWidth(),  titleLeftArea.getHeight()  );
     spaceArea.setBounds  ( titleRightArea.getX(), titleRightArea.getY(), titleRightArea.getWidth(), titleRightArea.getHeight() );
     
-    int designPadTop = 15;
-    int designPadBottom = 23;
+    int designPadTop = 31;
+    int designPadBottom = 40;
     
     Rectangle<int> titleDesignLPadTop = titleDesignL.removeFromTop( designPadTop );
     Rectangle<int> titleDesignRPadTop = titleDesignR.removeFromTop( designPadTop );

@@ -55,6 +55,8 @@ private:
     Rectangle<int> block10R;
     Rectangle<int> block13R;
     
+    ImageComponent logoComponent;
+    
     
     //Rectangle<int> duckArea;
     //Rectangle<int> compressorArea;

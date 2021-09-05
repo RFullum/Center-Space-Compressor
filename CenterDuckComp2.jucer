@@ -22,6 +22,10 @@
       <FILE id="sWErYJ" name="TitleHeader.h" compile="0" resource="0" file="Source/TitleHeader.h"/>
       <FILE id="dRQASo" name="VUMeter.cpp" compile="1" resource="0" file="Source/VUMeter.cpp"/>
       <FILE id="yQDMes" name="VUMeter.h" compile="0" resource="0" file="Source/VUMeter.h"/>
+      <GROUP id="{B130DD43-1636-C253-90D8-622035FAD232}" name="Graphics">
+        <FILE id="kSvzDg" name="Fullum_brandcolours_output.png" compile="0"
+              resource="1" file="Source/Graphics/Fullum_brandcolours_output.png"/>
+      </GROUP>
     </GROUP>
   </MAINGROUP>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"/>

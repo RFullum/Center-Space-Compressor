@@ -196,7 +196,7 @@ void CenterDuckComp2AudioProcessorEditor::resized()
     // Header & Footer
     
     // Title Header & Footer
-    Rectangle<int> titleHeaderArea = area.removeFromTop( 75 );
+    Rectangle<int> titleHeaderArea = area.removeFromTop( 121 ).removeFromBottom( 109 );
     
     titleHeader.setBounds( titleHeaderArea );
     
