@@ -42,7 +42,7 @@ parameters(*this, nullptr, "ParameterTree", {
     std::make_unique<AudioParameterFloat>("attack", "Attack ms",
                                           NormalisableRange<float>(0.01f, 2000.0f, 0.01f, 0.15f, false), 0.2f, "ms"),
     std::make_unique<AudioParameterFloat>("release", "Release ms",
-                                          NormalisableRange<float>(0.1f, 2000.0f, 0.01f, 0.15f, false), 2.0f, "ms"),
+                                          NormalisableRange<float>(1.0f, 2000.0f, 0.01f, 0.15f, false), 2.0f, "ms"),
     std::make_unique<AudioParameterFloat>("threshold", "Threshold dB",
                                           NormalisableRange<float>(-100.0f, 12.0f, 0.01f, 4.0f, false), 0.0f, "dB"),
     std::make_unique<AudioParameterFloat>("ratio", "Ratio",

@@ -185,7 +185,7 @@ void CenterDuckComp2AudioProcessorEditor::timerCallback()
     
 }
 
-// ***** ROUGH-UP: SIZES ARE ALL WRONG. COLORS ARE TEMP ******
+
 void CenterDuckComp2AudioProcessorEditor::resized()
 {
     // Total Plugin Area
