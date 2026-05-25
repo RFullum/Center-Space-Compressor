@@ -16,7 +16,7 @@ VUMeter::VUMeter() :  heightMult(0.0f), levelClipping(false), SR(44100.0f),
                       decayRateRise(0.0005f), decayRateFall(0.001f),
                       decayFactorRise(decayRateRise * SR), decayFactorFall(decayRateFall * SR),
                       meterLevel(0.0f),
-                      clippingRed(Colour( (uint8)255, (uint8)10, (uint8)27, (uint8)255 ) )
+                      clippingRed(juce::Colour( (juce::uint8)255, (juce::uint8)10, (juce::uint8)27, (juce::uint8)255 ) )
 {
 }
 
@@ -31,7 +31,7 @@ VUMeter::~VUMeter()
 void VUMeter::vuMeterLevel(float level, float sampleRate)
 {
     // Convert to dB to get proper response curve. Normalize for resize() bounds
-    float multiplier = jmap( Decibels::gainToDecibels(level), -100.0f, 0.0f, 0.0f, 1.0f );
+    float multiplier = juce::jmap(juce::Decibels::gainToDecibels(level), -100.0f, 0.0f, 0.0f, 1.0f );
     
     // limit values: cap at 1.0f
     if (multiplier > 1.0f)
@@ -93,13 +93,13 @@ void VUMeter::resized()
     auto totalArea = getLocalBounds();
     
     // Create Clipping Light Area
-    Rectangle<int> reducedArea = totalArea.reduced         ( reducer );
-    Rectangle<int> clipArea    = reducedArea.removeFromTop ( reducedArea.getHeight() * 0.2f );
+    juce::Rectangle<int> reducedArea = totalArea.reduced         ( reducer );
+    juce::Rectangle<int> clipArea    = reducedArea.removeFromTop ( reducedArea.getHeight() * 0.2f );
     
     clipBack.setBounds( clipArea.getX(), clipArea.getY(), clipArea.getWidth(), clipArea.getHeight() );
     
     // Create Level Meter Area
-    Rectangle<int> vuMeterArea = reducedArea;
+    juce::Rectangle<int> vuMeterArea = reducedArea;
     
     meterBack.setBounds  ( vuMeterArea.getX(), vuMeterArea.getY(), vuMeterArea.getWidth(), vuMeterArea.getHeight() );
     meterLight.setBounds ( vuMeterArea.getX(), vuMeterArea.getY() + vuMeterArea.getHeight(),
@@ -108,7 +108,7 @@ void VUMeter::resized()
 
 
 /// Sets the colors of the level and clipping meter
-void VUMeter::setColors(Colour& levelColor, Colour& clipColor, Colour& backingGrey)
+void VUMeter::setColors(juce::Colour& levelColor, juce::Colour& clipColor, juce::Colour& backingGrey)
 {
     clipBackRed    = clipColor.darker().darker();
     //clippingRed    = clipColor.brighter();
@@ -154,13 +154,13 @@ void ReduceMeter::resized()
     auto totalArea = getLocalBounds();
     
     // Create Clipping Light Area
-    Rectangle<int> reducedArea = totalArea.reduced         ( reducer );
-    Rectangle<int> clipArea    = reducedArea.removeFromTop ( reducedArea.getHeight() * 0.2f );
+    juce::Rectangle<int> reducedArea = totalArea.reduced         ( reducer );
+    juce::Rectangle<int> clipArea    = reducedArea.removeFromTop ( reducedArea.getHeight() * 0.2f );
     
     clipBack.setBounds( clipArea.getX(), clipArea.getY(), clipArea.getWidth(), clipArea.getHeight() );
     
     // Create Gain Reduction Meter area
-    Rectangle<int> reductionMeterArea = reducedArea;
+    juce::Rectangle<int> reductionMeterArea = reducedArea;
     
     meterBack.setBounds  ( reductionMeterArea.getX(), reductionMeterArea.getY(),
                            reductionMeterArea.getWidth(), reductionMeterArea.getHeight() );

@@ -30,13 +30,13 @@ public:
     virtual void vuMeterLevel(float level, float sampleRate);
     
     /// Sets the colors of the level and clipping meter
-    void setColors(Colour& levelColor, Colour& clipColor, Colour& backingGrey);
+    void setColors(juce::Colour& levelColor, juce::Colour& clipColor, juce::Colour& backingGrey);
     
 protected:
     // Rectangle
-    Rectangle<int> meterBack;
-    Rectangle<int> meterLight;
-    Rectangle<int> clipBack;
+    juce::Rectangle<int> meterBack;
+    juce::Rectangle<int> meterLight;
+    juce::Rectangle<int> clipBack;
     
     // Member Variables
     float heightMult;
@@ -59,10 +59,10 @@ private:
     
     
     // Colors
-    Colour clipBackRed;
-    Colour clippingRed;
-    Colour levelBackGreen;
-    Colour levelGreen;
+    juce::Colour clipBackRed;
+    juce::Colour clippingRed;
+    juce::Colour levelBackGreen;
+    juce::Colour levelGreen;
     
     
     

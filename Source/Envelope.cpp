@@ -21,7 +21,7 @@ Envelope::Envelope() : sampleRate(44100.0f), attack(0.1f), release(0.2f),
 void Envelope::setSampleRate(float SR)
 {
     sampleRate = SR;
-    expFactor  = -2.0f * MathConstants<float>::pi * 1000.0f / sampleRate;
+    expFactor  = -2.0f * juce::MathConstants<float>::pi * 1000.0f / sampleRate;
 }
 
 /// returns sampleRate

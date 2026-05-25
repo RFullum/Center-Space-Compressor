@@ -11,12 +11,12 @@
 
 //==============================================================================
 CenterDuckComp2AudioProcessorEditor::CenterDuckComp2AudioProcessorEditor (CenterDuckComp2AudioProcessor& p)
-                                      : AudioProcessorEditor (&p),
-                                        onyx            (Colour( (uint8)53,  (uint8)59,  (uint8)60,  (uint8)255 ) ),
-                                        lightSlateGrey  (Colour( (uint8)130, (uint8)146, (uint8)152, (uint8)255 ) ),
-                                        magicMint       (Colour( (uint8)174, (uint8)255, (uint8)216, (uint8)255 ) ),
-                                        fieryRose       (Colour( (uint8)255, (uint8)104, (uint8)114, (uint8)255 ) ),
-                                        orangePeel      (Colour( (uint8)252, (uint8)151, (uint8)0,   (uint8)255 ) ),
+                                      : juce::AudioProcessorEditor (&p),
+                                        onyx            (juce::Colour( (juce::uint8)53,  (juce::uint8)59,  (juce::uint8)60,  (juce::uint8)255 ) ),
+                                        lightSlateGrey  (juce::Colour( (juce::uint8)130, (juce::uint8)146, (juce::uint8)152, (juce::uint8)255 ) ),
+                                        magicMint       (juce::Colour( (juce::uint8)174, (juce::uint8)255, (juce::uint8)216, (juce::uint8)255 ) ),
+                                        fieryRose       (juce::Colour( (juce::uint8)255, (juce::uint8)104, (juce::uint8)114, (juce::uint8)255 ) ),
+                                        orangePeel      (juce::Colour( (juce::uint8)252, (juce::uint8)151, (juce::uint8)0,   (juce::uint8)255 ) ),
                                         sliderSize(125.0f), ratioSliderSize(175.0f), textBoxW(50.0f), textBoxH(25.0f),
                                         labelSize(50.0f), labelW(100.0f), labelH(25.0f),
                                         audioProcessor (p)
@@ -54,59 +54,59 @@ CenterDuckComp2AudioProcessorEditor::CenterDuckComp2AudioProcessorEditor (Center
     //
     
     //=== Look and Feel (global) ===
-    getLookAndFeel().setColour(Label::textColourId, magicMint );
-    
-    
+    getLookAndFeel().setColour(juce::Label::textColourId, magicMint );
+
+
     //=== Gain Sliders ===
     float largeFontSize = 27.0f;
     float smallFontSize = 22.0f;
-    
+
     // Input Gain
-    sliderSetup                    ( inputGainSlider, Slider::SliderStyle::RotaryHorizontalVerticalDrag, true );
+    sliderSetup                    ( inputGainSlider, juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag, true );
     sliderLabelSetup               ( inputGainLabel, "In Gain dB", orangePeel, largeFontSize );
     inputGainSlider.setLookAndFeel ( &dBLookAndFeel );
-    
+
     // SideChain Input Gain
-    sliderSetup                        ( sideChainGainSlider, Slider::SliderStyle::RotaryHorizontalVerticalDrag, true );
+    sliderSetup                        ( sideChainGainSlider, juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag, true );
     sliderLabelSetup                   ( sideChainGainLabel, "SCh Gain dB", orangePeel, smallFontSize );
     sideChainGainSlider.setLookAndFeel ( &dBLookAndFeel );
-    
+
     // Output Gain
-    sliderSetup                     ( outputGainSlider, Slider::SliderStyle::RotaryHorizontalVerticalDrag, true );
+    sliderSetup                     ( outputGainSlider, juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag, true );
     sliderLabelSetup                ( outputGainLabel, "Out Gain dB", orangePeel, largeFontSize );
     outputGainSlider.setLookAndFeel ( &dBLookAndFeel );
-    
-    
+
+
     //=== Compressor Sliders ===
-    
+
     // Threshold
-    sliderSetup                    ( thresholdSlider, Slider::SliderStyle::RotaryHorizontalVerticalDrag, true );
+    sliderSetup                    ( thresholdSlider, juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag, true );
     sliderLabelSetup               ( thresholdLabel, "Threshold dB", orangePeel, smallFontSize );
     thresholdSlider.setLookAndFeel ( &dBLookAndFeel );
-    
+
     // Ratio
-    sliderSetup                ( ratioSlider, Slider::SliderStyle::RotaryHorizontalVerticalDrag, true );
+    sliderSetup                ( ratioSlider, juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag, true );
     sliderLabelSetup           ( ratioLabel, "Ratio", fieryRose, smallFontSize );
     ratioSlider.setLookAndFeel ( &compLookAndFeel );
-    
+
     // Attack
-    sliderSetup                 ( attackSlider, Slider::SliderStyle::RotaryHorizontalVerticalDrag, true );
+    sliderSetup                 ( attackSlider, juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag, true );
     sliderLabelSetup            ( attackLabel, "Attack ms", fieryRose, smallFontSize );
     attackSlider.setLookAndFeel ( &compLookAndFeel );
-    
+
     // Release
-    sliderSetup                  ( releaseSlider, Slider::SliderStyle::RotaryHorizontalVerticalDrag, true );
+    sliderSetup                  ( releaseSlider, juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag, true );
     sliderLabelSetup             ( releaseLabel, "Release ms", fieryRose, smallFontSize );
     releaseSlider.setLookAndFeel ( &compLookAndFeel );
-    
+
     //=== Combo Box ===
     peakRMSBox.addItem              ( "Peak", 1 );
     peakRMSBox.addItem              ( "RMS", 2 );
-    peakRMSBox.setJustificationType ( Justification::centred );
+    peakRMSBox.setJustificationType ( juce::Justification::centred );
     peakRMSBox.setSelectedItemIndex ( 0 );
-    peakRMSBox.setColour            ( ComboBox::backgroundColourId, onyx );
-    peakRMSBox.setColour            ( ComboBox::arrowColourId, Colours::white );
-    peakRMSBox.setColour            ( ComboBox::outlineColourId, lightSlateGrey );
+    peakRMSBox.setColour            ( juce::ComboBox::backgroundColourId, onyx );
+    peakRMSBox.setColour            ( juce::ComboBox::arrowColourId, juce::Colours::white );
+    peakRMSBox.setColour            ( juce::ComboBox::outlineColourId, lightSlateGrey );
     peakRMSBox.setLookAndFeel       ( &boxLookAndFeel );
     addAndMakeVisible               ( peakRMSBox );
     
@@ -115,18 +115,18 @@ CenterDuckComp2AudioProcessorEditor::CenterDuckComp2AudioProcessorEditor (Center
     //
     
     // Gain Sliders
-    inputGainSliderAttachment      = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>( audioProcessor.parameters, "inGain", inputGainSlider );
-    sideChainGainSliderAttachement = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>( audioProcessor.parameters, "sideInGain", sideChainGainSlider );
-    outputGainSliderAttachment     = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>( audioProcessor.parameters, "outGain", outputGainSlider );
-    
+    inputGainSliderAttachment      = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>( audioProcessor.parameters, "inGain", inputGainSlider );
+    sideChainGainSliderAttachement = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>( audioProcessor.parameters, "sideInGain", sideChainGainSlider );
+    outputGainSliderAttachment     = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>( audioProcessor.parameters, "outGain", outputGainSlider );
+
     // Compressor Sliders
-    thresholdSliderAttachment      = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>( audioProcessor.parameters, "threshold", thresholdSlider );
-    ratioSliderAttachment          = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>( audioProcessor.parameters, "ratio", ratioSlider );
-    attackSliderAttachment         = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>( audioProcessor.parameters, "attack", attackSlider );
-    releaseSliderAttachment        = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>( audioProcessor.parameters, "release", releaseSlider );
-    
+    thresholdSliderAttachment      = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>( audioProcessor.parameters, "threshold", thresholdSlider );
+    ratioSliderAttachment          = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>( audioProcessor.parameters, "ratio", ratioSlider );
+    attackSliderAttachment         = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>( audioProcessor.parameters, "attack", attackSlider );
+    releaseSliderAttachment        = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>( audioProcessor.parameters, "release", releaseSlider );
+
     // Combo Boxes
-    peakRMSAttachment = std::make_unique<AudioProcessorValueTreeState::ComboBoxAttachment>( audioProcessor.parameters, "peakRMS", peakRMSBox );
+    peakRMSAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>( audioProcessor.parameters, "peakRMS", peakRMSBox );
     
     //
     //=== METERING ===
@@ -154,13 +154,13 @@ CenterDuckComp2AudioProcessorEditor::CenterDuckComp2AudioProcessorEditor (Center
     //
     //=== TIMER ===
     //
-    Timer::startTimerHz(60);
+    juce::Timer::startTimerHz(60);
 
 }
 
 CenterDuckComp2AudioProcessorEditor::~CenterDuckComp2AudioProcessorEditor()
 {
-    Timer::stopTimer();
+    juce::Timer::stopTimer();
 }
 
 //==============================================================================
@@ -196,61 +196,61 @@ void CenterDuckComp2AudioProcessorEditor::resized()
     // Header & Footer
     
     // Title Header & Footer
-    Rectangle<int> titleHeaderArea = area.removeFromTop( 121 ).removeFromBottom( 109 );
+    juce::Rectangle<int> titleHeaderArea = area.removeFromTop( 121 ).removeFromBottom( 109 );
     
     titleHeader.setBounds( titleHeaderArea );
     
-    Rectangle<int> titleFooterArea = area.removeFromBottom( 15 );
+    juce::Rectangle<int> titleFooterArea = area.removeFromBottom( 15 );
     
     titleFooter.setBounds( titleFooterArea );
     
     // Input Section (Left Side)
-    Rectangle<int> inputArea     = area.removeFromLeft      ( getLocalBounds().getWidth() * flanksSize );
-    Rectangle<int> inMetersArea  = inputArea.removeFromLeft ( inputArea.getWidth() * 0.5f ).reduced( 10, 30 );
-    Rectangle<int> inControlArea = inputArea;
+    juce::Rectangle<int> inputArea     = area.removeFromLeft      ( getLocalBounds().getWidth() * flanksSize );
+    juce::Rectangle<int> inMetersArea  = inputArea.removeFromLeft ( inputArea.getWidth() * 0.5f ).reduced( 10, 30 );
+    juce::Rectangle<int> inControlArea = inputArea;
     
     float inMeterWidth = inMetersArea.getWidth() * 0.33f;
     
-    Rectangle<int> inMeterLArea = inMetersArea.removeFromLeft ( inMeterWidth );
-    Rectangle<int> inMeterCArea = inMetersArea.removeFromLeft ( inMeterWidth );
-    Rectangle<int> inMeterRArea = inMetersArea;
+    juce::Rectangle<int> inMeterLArea = inMetersArea.removeFromLeft ( inMeterWidth );
+    juce::Rectangle<int> inMeterCArea = inMetersArea.removeFromLeft ( inMeterWidth );
+    juce::Rectangle<int> inMeterRArea = inMetersArea;
     
     inLeftMeter.setBounds   ( inMeterLArea );
     inCenterMeter.setBounds ( inMeterCArea );
     inRightMeter.setBounds  ( inMeterRArea );
     
-    Rectangle<int> inGainLabelArea  = inControlArea.removeFromTop    ( labelH );
-    Rectangle<int> inGainSliderArea = inControlArea.removeFromTop    ( inControlArea.getHeight() * 0.5f - labelH );
-    Rectangle<int> peakRMSBoxArea   = inControlArea.removeFromBottom ( labelH * 4.0f );
+    juce::Rectangle<int> inGainLabelArea  = inControlArea.removeFromTop    ( labelH );
+    juce::Rectangle<int> inGainSliderArea = inControlArea.removeFromTop    ( inControlArea.getHeight() * 0.5f - labelH );
+    juce::Rectangle<int> peakRMSBoxArea   = inControlArea.removeFromBottom ( labelH * 4.0f );
     
     inputGainLabel.setBounds  ( inGainLabelArea );
     inputGainSlider.setBounds ( inGainSliderArea );
     peakRMSBox.setBounds      ( peakRMSBoxArea.reduced( 8, 32) );
     
     // Output Section (Right Side)
-    Rectangle<int> outputArea     = area.removeFromRight       ( getLocalBounds().getWidth() * flanksSize );
-    Rectangle<int> outMetersArea  = outputArea.removeFromRight ( outputArea.getWidth() * 0.5f ).reduced( 10, 30 );
-    Rectangle<int> outControlArea = outputArea;
+    juce::Rectangle<int> outputArea     = area.removeFromRight       ( getLocalBounds().getWidth() * flanksSize );
+    juce::Rectangle<int> outMetersArea  = outputArea.removeFromRight ( outputArea.getWidth() * 0.5f ).reduced( 10, 30 );
+    juce::Rectangle<int> outControlArea = outputArea;
     
     float outMeterWidth = outMetersArea.getWidth() * 0.33f;
     
-    Rectangle<int> outMeterLArea = outMetersArea.removeFromLeft ( outMeterWidth );
-    Rectangle<int> outMeterCArea = outMetersArea.removeFromLeft ( outMeterWidth );
-    Rectangle<int> outMeterRArea = outMetersArea;
+    juce::Rectangle<int> outMeterLArea = outMetersArea.removeFromLeft ( outMeterWidth );
+    juce::Rectangle<int> outMeterCArea = outMetersArea.removeFromLeft ( outMeterWidth );
+    juce::Rectangle<int> outMeterRArea = outMetersArea;
     
     outLeftMeter.setBounds   ( outMeterLArea );
     outCenterMeter.setBounds ( outMeterCArea );
     outRightMeter.setBounds  ( outMeterRArea );
     
-    Rectangle<int> outGainLabelArea  = outControlArea.removeFromTop    ( labelH );
-    Rectangle<int> outGainSliderArea = outControlArea.removeFromTop    ( outControlArea.getHeight() * 0.5f - labelH );
-    Rectangle<int> outGainSpacerArea = outControlArea.removeFromBottom ( labelH * 4.0f );
+    juce::Rectangle<int> outGainLabelArea  = outControlArea.removeFromTop    ( labelH );
+    juce::Rectangle<int> outGainSliderArea = outControlArea.removeFromTop    ( outControlArea.getHeight() * 0.5f - labelH );
+    juce::Rectangle<int> outGainSpacerArea = outControlArea.removeFromBottom ( labelH * 4.0f );
     
     outputGainLabel.setBounds  ( outGainLabelArea );
     outputGainSlider.setBounds ( outGainSliderArea );
     
     // Compressor Section (Center)
-    Rectangle<int> compressorArea = area;
+    juce::Rectangle<int> compressorArea = area;
     
     float compSectionsWidth = compressorArea.getWidth();
     float compHeightDivs    = compressorArea.getHeight() * 0.33f;
@@ -258,20 +258,20 @@ void CenterDuckComp2AudioProcessorEditor::resized()
     float scOuterWeight       = 0.7f;                           // Weight of control areas of SC section combined 0.0f to 1.0f
     float scControlAreaWeight = scOuterWeight * 0.5f;           // Weight of control areas individually
     
-    Rectangle<int> scControlArea         = compressorArea.removeFromLeft        ( compSectionsWidth * scControlAreaWeight );
-    Rectangle<int> compControlArea       = compressorArea.removeFromRight       ( compSectionsWidth * scControlAreaWeight );
-    Rectangle<int> compressorAreaReduced = compressorArea.reduced               ( 10, 30 );
-    Rectangle<int> scGainMeterArea       = compressorAreaReduced.removeFromLeft ( compressorAreaReduced.getWidth() * 0.5f );
-    Rectangle<int> gainReductionArea     = compressorAreaReduced;
+    juce::Rectangle<int> scControlArea         = compressorArea.removeFromLeft        ( compSectionsWidth * scControlAreaWeight );
+    juce::Rectangle<int> compControlArea       = compressorArea.removeFromRight       ( compSectionsWidth * scControlAreaWeight );
+    juce::Rectangle<int> compressorAreaReduced = compressorArea.reduced               ( 10, 30 );
+    juce::Rectangle<int> scGainMeterArea       = compressorAreaReduced.removeFromLeft ( compressorAreaReduced.getWidth() * 0.5f );
+    juce::Rectangle<int> gainReductionArea     = compressorAreaReduced;
     
     
     // Sidechain Congrol area (left: SC Gain & Threshold)
-    Rectangle<int> scArea      = scControlArea.removeFromTop ( compHeightDivs );
-    Rectangle<int> scSpaceArea = scControlArea.removeFromTop ( compHeightDivs );    // Empty Spacer
-    Rectangle<int> threshArea  = scControlArea;
+    juce::Rectangle<int> scArea      = scControlArea.removeFromTop ( compHeightDivs );
+    juce::Rectangle<int> scSpaceArea = scControlArea.removeFromTop ( compHeightDivs );    // Empty Spacer
+    juce::Rectangle<int> threshArea  = scControlArea;
     
-    Rectangle<int> scGainLabelArea = scArea.removeFromTop     ( labelH );
-    Rectangle<int> threshLabelArea = threshArea.removeFromTop ( labelH );
+    juce::Rectangle<int> scGainLabelArea = scArea.removeFromTop     ( labelH );
+    juce::Rectangle<int> threshLabelArea = threshArea.removeFromTop ( labelH );
     
     sideChainGainLabel.setBounds  ( scGainLabelArea );
     sideChainGainSlider.setBounds ( scArea );
@@ -283,13 +283,13 @@ void CenterDuckComp2AudioProcessorEditor::resized()
     gainReduceMeter.setBounds ( gainReductionArea );
     
     // Comp Control area (right: Ratio, attack release)
-    Rectangle<int> ratioArea   = compControlArea.removeFromTop ( compHeightDivs ).reduced ( 0, 5 );
-    Rectangle<int> attackArea  = compControlArea.removeFromTop ( compHeightDivs ).reduced ( 0, 5 );
-    Rectangle<int> releaseArea = compControlArea.reduced       ( 0, 5 );
+    juce::Rectangle<int> ratioArea   = compControlArea.removeFromTop ( compHeightDivs ).reduced ( 0, 5 );
+    juce::Rectangle<int> attackArea  = compControlArea.removeFromTop ( compHeightDivs ).reduced ( 0, 5 );
+    juce::Rectangle<int> releaseArea = compControlArea.reduced       ( 0, 5 );
     
-    Rectangle<int> ratioLabelArea   = ratioArea.removeFromTop   ( labelH );
-    Rectangle<int> attackLabelArea  = attackArea.removeFromTop  ( labelH );
-    Rectangle<int> releaseLabelArea = releaseArea.removeFromTop ( labelH );
+    juce::Rectangle<int> ratioLabelArea   = ratioArea.removeFromTop   ( labelH );
+    juce::Rectangle<int> attackLabelArea  = attackArea.removeFromTop  ( labelH );
+    juce::Rectangle<int> releaseLabelArea = releaseArea.removeFromTop ( labelH );
     
     ratioLabel.setBounds    ( ratioLabelArea   );
     ratioSlider.setBounds   ( ratioArea        );
@@ -303,32 +303,32 @@ void CenterDuckComp2AudioProcessorEditor::resized()
 
 
 /// Sets up Slider object instances in constructor. sliderInstance is the slider to set up, suffix is textValueSuffix, sliderFillColor is the slider color below the thumb
-void CenterDuckComp2AudioProcessorEditor::sliderSetup(Slider& sliderInstance, Slider::SliderStyle style, bool showTextBox)
+void CenterDuckComp2AudioProcessorEditor::sliderSetup(juce::Slider& sliderInstance, juce::Slider::SliderStyle style, bool showTextBox)
 {
     sliderInstance.setSliderStyle(style);
-    
+
     // If slider has a textbox, draw it, otherwise, don't
     if (showTextBox)
     {
-        sliderInstance.setTextBoxStyle ( Slider::TextBoxBelow, false, 50, 15 );
-        sliderInstance.setColour       ( Slider::textBoxOutlineColourId, Colour( (uint8)0, (uint8)0, (uint8)0, (uint8)0 ) );
-        sliderInstance.setColour       ( Slider::textBoxTextColourId, Colours::white );
-        
+        sliderInstance.setTextBoxStyle ( juce::Slider::TextBoxBelow, false, 50, 15 );
+        sliderInstance.setColour       ( juce::Slider::textBoxOutlineColourId, juce::Colour( (juce::uint8)0, (juce::uint8)0, (juce::uint8)0, (juce::uint8)0 ) );
+        sliderInstance.setColour       ( juce::Slider::textBoxTextColourId, juce::Colours::white );
+
     }
     else
     {
-        sliderInstance.setTextBoxStyle( Slider::NoTextBox, false, 0, 0 );
+        sliderInstance.setTextBoxStyle( juce::Slider::NoTextBox, false, 0, 0 );
     }
-    
+
     addAndMakeVisible(sliderInstance);
 }
 
 /// Sets up Label for the Slider instances. Takes the labelInstance and the text for setText
-void CenterDuckComp2AudioProcessorEditor::sliderLabelSetup(Label& labelInstance, String labelText, Colour& labelColor, float fontSize)
+void CenterDuckComp2AudioProcessorEditor::sliderLabelSetup(juce::Label& labelInstance, juce::String labelText, juce::Colour& labelColor, float fontSize)
 {
-    labelInstance.setText              ( labelText, dontSendNotification     );
-    labelInstance.setJustificationType ( Justification::centred              );
-    labelInstance.setColour            ( Label::textColourId, Colours::white );
-    labelInstance.setFont              ( Font( "futura", fontSize, 0 )       );
-    addAndMakeVisible                  ( labelInstance                       );
+    labelInstance.setText              ( labelText, juce::dontSendNotification     );
+    labelInstance.setJustificationType ( juce::Justification::centred              );
+    labelInstance.setColour            ( juce::Label::textColourId, juce::Colours::white );
+    labelInstance.setFont              ( juce::Font( "futura", fontSize, 0 )       );
+    addAndMakeVisible                  ( labelInstance                             );
 }

@@ -25,37 +25,37 @@ public:
     void resized() override;
     
     /// Sets the background color
-    void setBackgroundColor(Colour& bg);
+    void setBackgroundColor(juce::Colour& bg);
     
     /// Sets the textColor
-    void setTextColor(Colour& textC);
+    void setTextColor(juce::Colour& textC);
     
     /// Sets the designColor
-    void setDesignColor(Colour& designC);
+    void setDesignColor(juce::Colour& designC);
     
 protected:
-    Colour backgroundColor;
-    Colour textColor;
-    Colour designColor;
+    juce::Colour backgroundColor;
+    juce::Colour textColor;
+    juce::Colour designColor;
 
 private:
-    Rectangle<int> fullumMusicArea;
-    Rectangle<int> centerArea;
-    Rectangle<int> spaceArea;
+    juce::Rectangle<int> fullumMusicArea;
+    juce::Rectangle<int> centerArea;
+    juce::Rectangle<int> spaceArea;
     
-    Rectangle<int> block1L;
-    Rectangle<int> block4L;
-    Rectangle<int> block7L;
-    Rectangle<int> block10L;
-    Rectangle<int> block13L;
+    juce::Rectangle<int> block1L;
+    juce::Rectangle<int> block4L;
+    juce::Rectangle<int> block7L;
+    juce::Rectangle<int> block10L;
+    juce::Rectangle<int> block13L;
     
-    Rectangle<int> block1R;
-    Rectangle<int> block4R;
-    Rectangle<int> block7R;
-    Rectangle<int> block10R;
-    Rectangle<int> block13R;
+    juce::Rectangle<int> block1R;
+    juce::Rectangle<int> block4R;
+    juce::Rectangle<int> block7R;
+    juce::Rectangle<int> block10R;
+    juce::Rectangle<int> block13R;
     
-    ImageComponent logoComponent;
+    juce::ImageComponent logoComponent;
     
     
     //Rectangle<int> duckArea;
@@ -75,8 +75,8 @@ public:
     void paint(juce::Graphics&) override;
     void resized() override;
 private:
-    Rectangle<int> versionArea;
-    Rectangle<int> urlArea;
+    juce::Rectangle<int> versionArea;
+    juce::Rectangle<int> urlArea;
 };
 
 

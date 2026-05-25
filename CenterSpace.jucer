@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <JUCERPROJECT id="QLdizl" name="Center Space" projectType="audioplug" useAppConfig="0"
-              addUsingNamespaceToJuceHeader="1" displaySplashScreen="1" jucerFormatVersion="1"
-              version="1.0" companyName="FullumMusic" companyWebsite="www.fullummusic.com">
+              addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1"
+              version="2.0.0" companyName="FullumMusic" companyWebsite="www.fullummusic.com"
+              pluginName="Center Space" pluginDesc="Sidechain compressor that only compresses the center of the stereo field"
+              pluginManufacturerCode="FulM" pluginCode="Crsp" cppLanguageStandard="20">
   <MAINGROUP id="Y4Yg1X" name="Center Space">
     <GROUP id="{CC2CFA38-3F01-7550-2805-9124FD426BA7}" name="Source">
       <FILE id="cKEaoU" name="PluginProcessor.cpp" compile="1" resource="0"

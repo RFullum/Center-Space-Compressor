@@ -55,7 +55,7 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
     
     // Parameters
-    AudioProcessorValueTreeState parameters;
+    juce::AudioProcessorValueTreeState parameters;
     
     float inMidLevel;//     = 0.0f;
     float inLeftLevel;//    = 0.0f;
@@ -83,7 +83,7 @@ private:
     Envelope env;
     
     // Decibels for conversions
-    static Decibels decibels;
+    static juce::Decibels decibels;
     
     
     //==============================================================================

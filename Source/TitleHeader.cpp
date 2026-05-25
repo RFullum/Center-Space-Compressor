@@ -12,16 +12,16 @@
 #include "TitleHeader.h"
 
 //==============================================================================
-TitleHeader::TitleHeader() : backgroundColor ( Colour( (uint8)125, (uint8)125,  (uint8)125 ) ),
-                             textColor       ( Colour( (uint8)235, (uint8)52,   (uint8)222)  ),
-                             designColor     ( Colour( (uint8)125, (uint8)0,    (uint8)125)  )
+TitleHeader::TitleHeader() : backgroundColor ( juce::Colour( (juce::uint8)125, (juce::uint8)125,  (juce::uint8)125 ) ),
+                             textColor       ( juce::Colour( (juce::uint8)235, (juce::uint8)52,   (juce::uint8)222)  ),
+                             designColor     ( juce::Colour( (juce::uint8)125, (juce::uint8)0,    (juce::uint8)125)  )
 {
     // Load logo png data into Image object
-    Image logoImage = ImageCache::getFromMemory ( BinaryData::Fullum_brandcolours_output_png, BinaryData::Fullum_brandcolours_output_pngSize );
+    juce::Image logoImage = juce::ImageCache::getFromMemory ( BinaryData::Fullum_brandcolours_output_png, BinaryData::Fullum_brandcolours_output_pngSize );
     
     if (logoImage.isValid())
     {
-        logoComponent.setImage ( logoImage, RectanglePlacement::xRight | RectanglePlacement::yMid );
+        logoComponent.setImage ( logoImage, juce::RectanglePlacement::xRight | juce::RectanglePlacement::yMid );
     }
     
     addAndMakeVisible ( logoComponent );
@@ -36,13 +36,13 @@ void TitleHeader::paint (juce::Graphics& g)
     g.fillAll   ( backgroundColor );
     g.setColour ( textColor );
     
-    g.setFont   ( Font("technoid", 60.0f, 0) );
+    g.setFont   ( juce::Font("technoid", 60.0f, 0) );
     //g.drawText  ( "FULLUMMUSIC", fullumMusicArea.reduced( 6, 0 ), Justification::right );
     
     
-    g.setFont  ( Font("helvetica", 53.0f, 0) );
-    g.drawText ( "CENTER", centerArea, Justification::verticallyCentred );
-    g.drawText ( "SPACE",  spaceArea,  Justification::verticallyCentred );
+    g.setFont  ( juce::Font("helvetica", 53.0f, 0) );
+    g.drawText ( "CENTER", centerArea, juce::Justification::verticallyCentred );
+    g.drawText ( "SPACE",  spaceArea,  juce::Justification::verticallyCentred );
     
     g.setColour( designColor );
     g.fillRect ( block1L  );
@@ -71,15 +71,15 @@ void TitleHeader::resized()
     
     logoComponent.setBounds ( fullumMusicArea.reduced( 12, 0 ) );
     
-    Rectangle<int> pluginTitleArea = totalArea;
-    Rectangle<int> titlePadLeft    = totalArea.removeFromLeft ( 8.0f );
-    Rectangle<int> titleLeftArea   = totalArea.removeFromLeft ( pluginTitleArea.getWidth() * 0.5f );
-    Rectangle<int> titleRightArea  = totalArea;
+    juce::Rectangle<int> pluginTitleArea = totalArea;
+    juce::Rectangle<int> titlePadLeft    = totalArea.removeFromLeft ( 8.0f );
+    juce::Rectangle<int> titleLeftArea   = totalArea.removeFromLeft ( pluginTitleArea.getWidth() * 0.5f );
+    juce::Rectangle<int> titleRightArea  = totalArea;
     
-    //Rectangle<int> designPadL = titleLeftArea.removeFromBottom  ( 5 );
-    //Rectangle<int> designPadR = titleRightArea.removeFromBottom ( 5 );
-    Rectangle<int> titleDesignL = titleLeftArea.removeFromRight ( titleLeftArea.getWidth() * 0.2f  );
-    Rectangle<int> titleDesignR = titleRightArea.removeFromLeft ( titleRightArea.getWidth() * 0.2f );
+    //juce::Rectangle<int> designPadL = titleLeftArea.removeFromBottom  ( 5 );
+    //juce::Rectangle<int> designPadR = titleRightArea.removeFromBottom ( 5 );
+    juce::Rectangle<int> titleDesignL = titleLeftArea.removeFromRight ( titleLeftArea.getWidth() * 0.2f  );
+    juce::Rectangle<int> titleDesignR = titleRightArea.removeFromLeft ( titleRightArea.getWidth() * 0.2f );
     
     centerArea.setBounds ( titleLeftArea.getX(),  titleLeftArea.getY(),  titleLeftArea.getWidth(),  titleLeftArea.getHeight()  );
     spaceArea.setBounds  ( titleRightArea.getX(), titleRightArea.getY(), titleRightArea.getWidth(), titleRightArea.getHeight() );
@@ -87,31 +87,31 @@ void TitleHeader::resized()
     int designPadTop = 31;
     int designPadBottom = 40;
     
-    Rectangle<int> titleDesignLPadTop = titleDesignL.removeFromTop( designPadTop );
-    Rectangle<int> titleDesignRPadTop = titleDesignR.removeFromTop( designPadTop );
-    Rectangle<int> titleDesignLPadBottom = titleDesignL.removeFromBottom( designPadBottom );
-    Rectangle<int> titleDesignRPadBottom = titleDesignR.removeFromBottom( designPadBottom );
+    juce::Rectangle<int> titleDesignLPadTop = titleDesignL.removeFromTop( designPadTop );
+    juce::Rectangle<int> titleDesignRPadTop = titleDesignR.removeFromTop( designPadTop );
+    juce::Rectangle<int> titleDesignLPadBottom = titleDesignL.removeFromBottom( designPadBottom );
+    juce::Rectangle<int> titleDesignRPadBottom = titleDesignR.removeFromBottom( designPadBottom );
     
     float blockWidth = titleDesignL.getWidth() * 0.125f;
     float blockHeight = titleDesignL.getHeight() / 9.0f;
     
-    Rectangle<int> section1L   = titleDesignL.removeFromLeft   ( blockWidth  );
-    Rectangle<int> section2La  = titleDesignL.removeFromTop    ( blockHeight );
-    Rectangle<int> section2Lb  = titleDesignL.removeFromBottom ( blockHeight );
-    Rectangle<int> section3L   = titleDesignL.removeFromLeft   ( blockWidth  );
-    Rectangle<int> section4L   = titleDesignL.removeFromLeft   ( blockWidth  );
-    Rectangle<int> section5La  = titleDesignL.removeFromTop    ( blockHeight );
-    Rectangle<int> section5Lb  = titleDesignL.removeFromBottom ( blockHeight );
-    Rectangle<int> section6L   = titleDesignL.removeFromLeft   ( blockWidth  );
-    Rectangle<int> section7L   = titleDesignL.removeFromLeft   ( blockWidth  );
-    Rectangle<int> section8La  = titleDesignL.removeFromTop    ( blockHeight );
-    Rectangle<int> section8Lb  = titleDesignL.removeFromBottom ( blockHeight );
-    Rectangle<int> section9L   = titleDesignL.removeFromLeft   ( blockWidth  );
-    Rectangle<int> section10L  = titleDesignL.removeFromLeft   ( blockWidth  );
-    Rectangle<int> section11La = titleDesignL.removeFromTop    ( blockHeight );
-    Rectangle<int> section11Lb = titleDesignL.removeFromBottom ( blockHeight );
-    Rectangle<int> section12L  = titleDesignL.removeFromLeft   ( blockWidth  );
-    Rectangle<int> section13L  = titleDesignL;
+    juce::Rectangle<int> section1L   = titleDesignL.removeFromLeft   ( blockWidth  );
+    juce::Rectangle<int> section2La  = titleDesignL.removeFromTop    ( blockHeight );
+    juce::Rectangle<int> section2Lb  = titleDesignL.removeFromBottom ( blockHeight );
+    juce::Rectangle<int> section3L   = titleDesignL.removeFromLeft   ( blockWidth  );
+    juce::Rectangle<int> section4L   = titleDesignL.removeFromLeft   ( blockWidth  );
+    juce::Rectangle<int> section5La  = titleDesignL.removeFromTop    ( blockHeight );
+    juce::Rectangle<int> section5Lb  = titleDesignL.removeFromBottom ( blockHeight );
+    juce::Rectangle<int> section6L   = titleDesignL.removeFromLeft   ( blockWidth  );
+    juce::Rectangle<int> section7L   = titleDesignL.removeFromLeft   ( blockWidth  );
+    juce::Rectangle<int> section8La  = titleDesignL.removeFromTop    ( blockHeight );
+    juce::Rectangle<int> section8Lb  = titleDesignL.removeFromBottom ( blockHeight );
+    juce::Rectangle<int> section9L   = titleDesignL.removeFromLeft   ( blockWidth  );
+    juce::Rectangle<int> section10L  = titleDesignL.removeFromLeft   ( blockWidth  );
+    juce::Rectangle<int> section11La = titleDesignL.removeFromTop    ( blockHeight );
+    juce::Rectangle<int> section11Lb = titleDesignL.removeFromBottom ( blockHeight );
+    juce::Rectangle<int> section12L  = titleDesignL.removeFromLeft   ( blockWidth  );
+    juce::Rectangle<int> section13L  = titleDesignL;
     
     block1L.setBounds  ( section1L.getX(),  section1L.getY(),  section1L.getWidth(),  section1L.getHeight()  );
     block4L.setBounds  ( section4L.getX(),  section4L.getY(),  section4L.getWidth(),  section4L.getHeight()  );
@@ -120,23 +120,23 @@ void TitleHeader::resized()
     block13L.setBounds ( section13L.getX(), section13L.getY(), section13L.getWidth(), section13L.getHeight() );
     
     
-    Rectangle<int> section1R   = titleDesignR.removeFromRight  ( blockWidth  );
-    Rectangle<int> section2Ra  = titleDesignR.removeFromTop    ( blockHeight );
-    Rectangle<int> section2Rb  = titleDesignR.removeFromBottom ( blockHeight );
-    Rectangle<int> section3R   = titleDesignR.removeFromRight  ( blockWidth  );
-    Rectangle<int> section4R   = titleDesignR.removeFromRight  ( blockWidth  );
-    Rectangle<int> section5Ra  = titleDesignR.removeFromTop    ( blockHeight );
-    Rectangle<int> section5Rb  = titleDesignR.removeFromBottom ( blockHeight );
-    Rectangle<int> section6R   = titleDesignR.removeFromRight  ( blockWidth  );
-    Rectangle<int> section7R   = titleDesignR.removeFromRight  ( blockWidth  );
-    Rectangle<int> section8Ra  = titleDesignR.removeFromTop    ( blockHeight );
-    Rectangle<int> section8Rb  = titleDesignR.removeFromBottom ( blockHeight );
-    Rectangle<int> section9R   = titleDesignR.removeFromRight  ( blockWidth  );
-    Rectangle<int> section10R  = titleDesignR.removeFromRight  ( blockWidth  );
-    Rectangle<int> section11Ra = titleDesignR.removeFromTop    ( blockHeight );
-    Rectangle<int> section11Rb = titleDesignR.removeFromBottom ( blockHeight );
-    Rectangle<int> section12R  = titleDesignR.removeFromRight  ( blockWidth  );
-    Rectangle<int> section13R  = titleDesignR;
+    juce::Rectangle<int> section1R   = titleDesignR.removeFromRight  ( blockWidth  );
+    juce::Rectangle<int> section2Ra  = titleDesignR.removeFromTop    ( blockHeight );
+    juce::Rectangle<int> section2Rb  = titleDesignR.removeFromBottom ( blockHeight );
+    juce::Rectangle<int> section3R   = titleDesignR.removeFromRight  ( blockWidth  );
+    juce::Rectangle<int> section4R   = titleDesignR.removeFromRight  ( blockWidth  );
+    juce::Rectangle<int> section5Ra  = titleDesignR.removeFromTop    ( blockHeight );
+    juce::Rectangle<int> section5Rb  = titleDesignR.removeFromBottom ( blockHeight );
+    juce::Rectangle<int> section6R   = titleDesignR.removeFromRight  ( blockWidth  );
+    juce::Rectangle<int> section7R   = titleDesignR.removeFromRight  ( blockWidth  );
+    juce::Rectangle<int> section8Ra  = titleDesignR.removeFromTop    ( blockHeight );
+    juce::Rectangle<int> section8Rb  = titleDesignR.removeFromBottom ( blockHeight );
+    juce::Rectangle<int> section9R   = titleDesignR.removeFromRight  ( blockWidth  );
+    juce::Rectangle<int> section10R  = titleDesignR.removeFromRight  ( blockWidth  );
+    juce::Rectangle<int> section11Ra = titleDesignR.removeFromTop    ( blockHeight );
+    juce::Rectangle<int> section11Rb = titleDesignR.removeFromBottom ( blockHeight );
+    juce::Rectangle<int> section12R  = titleDesignR.removeFromRight  ( blockWidth  );
+    juce::Rectangle<int> section13R  = titleDesignR;
     
     block1R.setBounds  ( section1R.getX(),  section1R.getY(),  section1R.getWidth(),  section1R.getHeight()  );
     block4R.setBounds  ( section4R.getX(),  section4R.getY(),  section4R.getWidth(),  section4R.getHeight()  );
@@ -152,17 +152,17 @@ void TitleHeader::resized()
     
 }
 
-void TitleHeader::setBackgroundColor(Colour& bg)
+void TitleHeader::setBackgroundColor(juce::Colour& bg)
 {
     backgroundColor = bg;
 }
 
-void TitleHeader::setTextColor(Colour& textC)
+void TitleHeader::setTextColor(juce::Colour& textC)
 {
     textColor = textC;
 }
 
-void TitleHeader::setDesignColor(Colour& designC)
+void TitleHeader::setDesignColor(juce::Colour& designC)
 {
     designColor = designC;
 }
@@ -179,9 +179,9 @@ void TitleFooter::paint(juce::Graphics& g)
     g.fillAll   (backgroundColor);
     g.setColour ( textColor );
     
-    g.setFont  ( Font("Helvetica", 14, 0) );
-    g.drawText ( "Version 1.0", versionArea.reduced( 12, 6 ), Justification::left );
-    g.drawText ( "www.FullumMusic.com", urlArea.reduced( 12, 6 ), Justification::right );
+    g.setFont  ( juce::Font("Helvetica", 14, 0) );
+    g.drawText ( "Version 1.0", versionArea.reduced( 12, 6 ), juce::Justification::left );
+    g.drawText ( "www.FullumMusic.com", urlArea.reduced( 12, 6 ), juce::Justification::right );
 }
 
 

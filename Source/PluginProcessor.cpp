@@ -12,7 +12,7 @@
 //==============================================================================
 CenterDuckComp2AudioProcessor::CenterDuckComp2AudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
-     : AudioProcessor (BusesProperties()
+     : juce::AudioProcessor (BusesProperties()
                      #if ! JucePlugin_IsMidiEffect
                       #if ! JucePlugin_IsSynth
                        .withInput("Input",  juce::AudioChannelSet::stereo(), true)
@@ -35,22 +35,22 @@ CenterDuckComp2AudioProcessor::CenterDuckComp2AudioProcessor()
 // id, descript, choices (StringArray), default index of StringArray
 //
 parameters(*this, nullptr, "ParameterTree", {
-    std::make_unique<AudioParameterFloat>("inGain", "Input Gain dB",
-                                          NormalisableRange<float>(-100.0f, 12.0f, 0.01f, 4.0f, false), 0.0f, "dB"),
-    std::make_unique<AudioParameterFloat>("sideInGain", "Sidechain Input Gain dB",
-                                          NormalisableRange<float>(-100.0f, 12.0f, 0.01f, 4.0f, false), 0.0f, "dB"),
-    std::make_unique<AudioParameterFloat>("attack", "Attack ms",
-                                          NormalisableRange<float>(0.01f, 2000.0f, 0.01f, 0.15f, false), 0.2f, "ms"),
-    std::make_unique<AudioParameterFloat>("release", "Release ms",
-                                          NormalisableRange<float>(1.0f, 2000.0f, 0.01f, 0.15f, false), 2.0f, "ms"),
-    std::make_unique<AudioParameterFloat>("threshold", "Threshold dB",
-                                          NormalisableRange<float>(-100.0f, 12.0f, 0.01f, 4.0f, false), 0.0f, "dB"),
-    std::make_unique<AudioParameterFloat>("ratio", "Ratio",
-                                          NormalisableRange<float>(1.0f, 20.0f, 0.1f, 0.4f, false), 1.0f, ":1"),
-    std::make_unique<AudioParameterFloat>("outGain", "Output Gain dB",
-                                          NormalisableRange<float>(-100.0f, 12.0f, 0.01f, 4.0f, false), 0.0f, "dB"),
-    
-    std::make_unique<AudioParameterChoice>("peakRMS", "Peak/RMS", StringArray( {"Peak", "RMS"} ), 0)
+    std::make_unique<juce::AudioParameterFloat>("inGain", "Input Gain dB",
+                                          juce::NormalisableRange<float>(-100.0f, 12.0f, 0.01f, 4.0f, false), 0.0f, "dB"),
+    std::make_unique<juce::AudioParameterFloat>("sideInGain", "Sidechain Input Gain dB",
+                                          juce::NormalisableRange<float>(-100.0f, 12.0f, 0.01f, 4.0f, false), 0.0f, "dB"),
+    std::make_unique<juce::AudioParameterFloat>("attack", "Attack ms",
+                                          juce::NormalisableRange<float>(0.01f, 2000.0f, 0.01f, 0.15f, false), 0.2f, "ms"),
+    std::make_unique<juce::AudioParameterFloat>("release", "Release ms",
+                                          juce::NormalisableRange<float>(1.0f, 2000.0f, 0.01f, 0.15f, false), 2.0f, "ms"),
+    std::make_unique<juce::AudioParameterFloat>("threshold", "Threshold dB",
+                                          juce::NormalisableRange<float>(-100.0f, 12.0f, 0.01f, 4.0f, false), 0.0f, "dB"),
+    std::make_unique<juce::AudioParameterFloat>("ratio", "Ratio",
+                                          juce::NormalisableRange<float>(1.0f, 20.0f, 0.1f, 0.4f, false), 1.0f, ":1"),
+    std::make_unique<juce::AudioParameterFloat>("outGain", "Output Gain dB",
+                                          juce::NormalisableRange<float>(-100.0f, 12.0f, 0.01f, 4.0f, false), 0.0f, "dB"),
+
+    std::make_unique<juce::AudioParameterChoice>("peakRMS", "Peak/RMS", juce::StringArray( {"Peak", "RMS"} ), 0)
 }),
 
 inMidLevel(0.0f), inLeftLevel(0.0f), inRightLevel(0.0f), inSideLevel(0.0f),
@@ -164,13 +164,13 @@ bool CenterDuckComp2AudioProcessor::isBusesLayoutSupported (const BusesLayout& l
 void CenterDuckComp2AudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     // Metering
-    AudioBuffer<float> inLeftBuffer     (1, buffer.getNumSamples());
-    AudioBuffer<float> inMidBuffer      (1, buffer.getNumSamples());
-    AudioBuffer<float> inRightBuffer    (1, buffer.getNumSamples());
-    AudioBuffer<float> inSideBuffer     (1, buffer.getNumSamples());
-    
-    AudioBuffer<float> sidechainBuffer  (1, buffer.getNumSamples());
-    AudioBuffer<float> outMidBuffer     (1, buffer.getNumSamples());
+    juce::AudioBuffer<float> inLeftBuffer     (1, buffer.getNumSamples());
+    juce::AudioBuffer<float> inMidBuffer      (1, buffer.getNumSamples());
+    juce::AudioBuffer<float> inRightBuffer    (1, buffer.getNumSamples());
+    juce::AudioBuffer<float> inSideBuffer     (1, buffer.getNumSamples());
+
+    juce::AudioBuffer<float> sidechainBuffer  (1, buffer.getNumSamples());
+    juce::AudioBuffer<float> outMidBuffer     (1, buffer.getNumSamples());
     // Out Left and Out Right are channels 0 & 1 in processBlock's buffer
     
     inLeftBuffer.clear();
@@ -331,19 +331,19 @@ void CenterDuckComp2AudioProcessor::getStateInformation (juce::MemoryBlock& dest
 {
     // getStateInformation
     auto state = parameters.copyState();
-    std::unique_ptr<XmlElement> xml (state.createXml());
+    std::unique_ptr<juce::XmlElement> xml (state.createXml());
     copyXmlToBinary (*xml, destData);
 }
 
 void CenterDuckComp2AudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     // setStateInformation
-    std::unique_ptr<XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));
+    std::unique_ptr<juce::XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));
     if (xmlState.get() != nullptr)
     {
         if (xmlState->hasTagName (parameters.state.getType()))
         {
-            parameters.replaceState (ValueTree::fromXml (*xmlState));
+            parameters.replaceState (juce::ValueTree::fromXml (*xmlState));
         }
     }
 }
