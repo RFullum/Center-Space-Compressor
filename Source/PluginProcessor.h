@@ -14,12 +14,12 @@
 //==============================================================================
 /**
 */
-class CenterDuckComp2AudioProcessor  : public juce::AudioProcessor
+class CenterSpaceAudioProcessor  : public juce::AudioProcessor
 {
 public:
     //==============================================================================
-    CenterDuckComp2AudioProcessor();
-    ~CenterDuckComp2AudioProcessor() override;
+    CenterSpaceAudioProcessor();
+    ~CenterSpaceAudioProcessor() override;
 
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
@@ -87,5 +87,5 @@ private:
     
     
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CenterDuckComp2AudioProcessor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CenterSpaceAudioProcessor)
 };

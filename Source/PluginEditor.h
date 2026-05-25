@@ -17,11 +17,11 @@
 //==============================================================================
 /**
 */
-class CenterDuckComp2AudioProcessorEditor  : public juce::AudioProcessorEditor, public juce::Timer
+class CenterSpaceAudioProcessorEditor  : public juce::AudioProcessorEditor, public juce::Timer
 {
 public:
-    CenterDuckComp2AudioProcessorEditor (CenterDuckComp2AudioProcessor&);
-    ~CenterDuckComp2AudioProcessorEditor() override;
+    CenterSpaceAudioProcessorEditor (CenterSpaceAudioProcessor&);
+    ~CenterSpaceAudioProcessorEditor() override;
 
     //==============================================================================
     void paint (juce::Graphics&) override;
@@ -112,7 +112,7 @@ private:
     VUMeter outRightMeter;
     
     
-    CenterDuckComp2AudioProcessor& audioProcessor;
+    CenterSpaceAudioProcessor& audioProcessor;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CenterDuckComp2AudioProcessorEditor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CenterSpaceAudioProcessorEditor)
 };

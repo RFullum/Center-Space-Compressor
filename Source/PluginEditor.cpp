@@ -10,7 +10,7 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-CenterDuckComp2AudioProcessorEditor::CenterDuckComp2AudioProcessorEditor (CenterDuckComp2AudioProcessor& p)
+CenterSpaceAudioProcessorEditor::CenterSpaceAudioProcessorEditor (CenterSpaceAudioProcessor& p)
                                       : juce::AudioProcessorEditor (&p),
                                         onyx            (juce::Colour( (juce::uint8)53,  (juce::uint8)59,  (juce::uint8)60,  (juce::uint8)255 ) ),
                                         lightSlateGrey  (juce::Colour( (juce::uint8)130, (juce::uint8)146, (juce::uint8)152, (juce::uint8)255 ) ),
@@ -158,19 +158,19 @@ CenterDuckComp2AudioProcessorEditor::CenterDuckComp2AudioProcessorEditor (Center
 
 }
 
-CenterDuckComp2AudioProcessorEditor::~CenterDuckComp2AudioProcessorEditor()
+CenterSpaceAudioProcessorEditor::~CenterSpaceAudioProcessorEditor()
 {
     juce::Timer::stopTimer();
 }
 
 //==============================================================================
-void CenterDuckComp2AudioProcessorEditor::paint (juce::Graphics& g)
+void CenterSpaceAudioProcessorEditor::paint (juce::Graphics& g)
 {
     g.fillAll(onyx);
 }
 
 /// Timer Callback for drawing meters
-void CenterDuckComp2AudioProcessorEditor::timerCallback()
+void CenterSpaceAudioProcessorEditor::timerCallback()
 {
     float SR = audioProcessor.getSampleRate();
     
@@ -186,7 +186,7 @@ void CenterDuckComp2AudioProcessorEditor::timerCallback()
 }
 
 
-void CenterDuckComp2AudioProcessorEditor::resized()
+void CenterSpaceAudioProcessorEditor::resized()
 {
     // Total Plugin Area
     auto area = getLocalBounds();
@@ -303,7 +303,7 @@ void CenterDuckComp2AudioProcessorEditor::resized()
 
 
 /// Sets up Slider object instances in constructor. sliderInstance is the slider to set up, suffix is textValueSuffix, sliderFillColor is the slider color below the thumb
-void CenterDuckComp2AudioProcessorEditor::sliderSetup(juce::Slider& sliderInstance, juce::Slider::SliderStyle style, bool showTextBox)
+void CenterSpaceAudioProcessorEditor::sliderSetup(juce::Slider& sliderInstance, juce::Slider::SliderStyle style, bool showTextBox)
 {
     sliderInstance.setSliderStyle(style);
 
@@ -324,7 +324,7 @@ void CenterDuckComp2AudioProcessorEditor::sliderSetup(juce::Slider& sliderInstan
 }
 
 /// Sets up Label for the Slider instances. Takes the labelInstance and the text for setText
-void CenterDuckComp2AudioProcessorEditor::sliderLabelSetup(juce::Label& labelInstance, juce::String labelText, juce::Colour& labelColor, float fontSize)
+void CenterSpaceAudioProcessorEditor::sliderLabelSetup(juce::Label& labelInstance, juce::String labelText, juce::Colour& labelColor, float fontSize)
 {
     labelInstance.setText              ( labelText, juce::dontSendNotification     );
     labelInstance.setJustificationType ( juce::Justification::centred              );

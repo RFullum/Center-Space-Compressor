@@ -10,7 +10,7 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-CenterDuckComp2AudioProcessor::CenterDuckComp2AudioProcessor()
+CenterSpaceAudioProcessor::CenterSpaceAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
      : juce::AudioProcessor (BusesProperties()
                      #if ! JucePlugin_IsMidiEffect
@@ -68,17 +68,17 @@ gainReduction(0.0f)
     peakRMSChoice        = parameters.getRawParameterValue("peakRMS");
 }
 
-CenterDuckComp2AudioProcessor::~CenterDuckComp2AudioProcessor()
+CenterSpaceAudioProcessor::~CenterSpaceAudioProcessor()
 {
 }
 
 //==============================================================================
-const juce::String CenterDuckComp2AudioProcessor::getName() const
+const juce::String CenterSpaceAudioProcessor::getName() const
 {
     return JucePlugin_Name;
 }
 
-bool CenterDuckComp2AudioProcessor::acceptsMidi() const
+bool CenterSpaceAudioProcessor::acceptsMidi() const
 {
    #if JucePlugin_WantsMidiInput
     return true;
@@ -87,7 +87,7 @@ bool CenterDuckComp2AudioProcessor::acceptsMidi() const
    #endif
 }
 
-bool CenterDuckComp2AudioProcessor::producesMidi() const
+bool CenterSpaceAudioProcessor::producesMidi() const
 {
    #if JucePlugin_ProducesMidiOutput
     return true;
@@ -96,7 +96,7 @@ bool CenterDuckComp2AudioProcessor::producesMidi() const
    #endif
 }
 
-bool CenterDuckComp2AudioProcessor::isMidiEffect() const
+bool CenterSpaceAudioProcessor::isMidiEffect() const
 {
    #if JucePlugin_IsMidiEffect
     return true;
@@ -105,37 +105,37 @@ bool CenterDuckComp2AudioProcessor::isMidiEffect() const
    #endif
 }
 
-double CenterDuckComp2AudioProcessor::getTailLengthSeconds() const
+double CenterSpaceAudioProcessor::getTailLengthSeconds() const
 {
     return 0.0;
 }
 
-int CenterDuckComp2AudioProcessor::getNumPrograms()
+int CenterSpaceAudioProcessor::getNumPrograms()
 {
     return 1;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
                 // so this should be at least 1, even if you're not really implementing programs.
 }
 
-int CenterDuckComp2AudioProcessor::getCurrentProgram()
+int CenterSpaceAudioProcessor::getCurrentProgram()
 {
     return 0;
 }
 
-void CenterDuckComp2AudioProcessor::setCurrentProgram (int index)
+void CenterSpaceAudioProcessor::setCurrentProgram (int index)
 {
 }
 
-const juce::String CenterDuckComp2AudioProcessor::getProgramName (int index)
+const juce::String CenterSpaceAudioProcessor::getProgramName (int index)
 {
     return {};
 }
 
-void CenterDuckComp2AudioProcessor::changeProgramName (int index, const juce::String& newName)
+void CenterSpaceAudioProcessor::changeProgramName (int index, const juce::String& newName)
 {
 }
 
 //==============================================================================
-void CenterDuckComp2AudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
+void CenterSpaceAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     // Initial setup for Envelope instance
     env.setSampleRate  (sampleRate);
@@ -143,14 +143,14 @@ void CenterDuckComp2AudioProcessor::prepareToPlay (double sampleRate, int sample
     env.setReleaseTime (*releaseParam);
 }
 
-void CenterDuckComp2AudioProcessor::releaseResources()
+void CenterSpaceAudioProcessor::releaseResources()
 {
     // When playback stops, you can use this as an opportunity to free up any
     // spare memory, etc.
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
-bool CenterDuckComp2AudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
+bool CenterSpaceAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 {
     const auto& mainOutput = layouts.getMainOutputChannelSet();
     const auto& mainInput  = layouts.getMainInputChannelSet();
@@ -161,7 +161,7 @@ bool CenterDuckComp2AudioProcessor::isBusesLayoutSupported (const BusesLayout& l
 }
 #endif
 
-void CenterDuckComp2AudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
+void CenterSpaceAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     // Metering
     juce::AudioBuffer<float> inLeftBuffer     (1, buffer.getNumSamples());
@@ -315,19 +315,19 @@ void CenterDuckComp2AudioProcessor::processBlock (juce::AudioBuffer<float>& buff
 }
 
 //==============================================================================
-bool CenterDuckComp2AudioProcessor::hasEditor() const
+bool CenterSpaceAudioProcessor::hasEditor() const
 {
     return true; // (change this to false if you choose to not supply an editor)
 }
 
-juce::AudioProcessorEditor* CenterDuckComp2AudioProcessor::createEditor()
+juce::AudioProcessorEditor* CenterSpaceAudioProcessor::createEditor()
 {
-    return new CenterDuckComp2AudioProcessorEditor (*this);
+    return new CenterSpaceAudioProcessorEditor (*this);
     //return new GenericAudioProcessorEditor (*this);
 }
 
 //==============================================================================
-void CenterDuckComp2AudioProcessor::getStateInformation (juce::MemoryBlock& destData)
+void CenterSpaceAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
     // getStateInformation
     auto state = parameters.copyState();
@@ -335,7 +335,7 @@ void CenterDuckComp2AudioProcessor::getStateInformation (juce::MemoryBlock& dest
     copyXmlToBinary (*xml, destData);
 }
 
-void CenterDuckComp2AudioProcessor::setStateInformation (const void* data, int sizeInBytes)
+void CenterSpaceAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     // setStateInformation
     std::unique_ptr<juce::XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));
@@ -352,7 +352,7 @@ void CenterDuckComp2AudioProcessor::setStateInformation (const void* data, int s
 // This creates new instances of the plugin..
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
-    return new CenterDuckComp2AudioProcessor();
+    return new CenterSpaceAudioProcessor();
 }
 
 
