@@ -1,7 +1,3 @@
-# JUCE / Projucer
-**/Builds/
-**/JuceLibraryCode/
-
 # CMake
 build/
 cmake-build-*/

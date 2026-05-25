@@ -180,7 +180,7 @@ void TitleFooter::paint(juce::Graphics& g)
     g.setColour ( textColor );
     
     g.setFont  ( juce::Font("Helvetica", 14, 0) );
-    g.drawText ( "Version 1.0", versionArea.reduced( 12, 6 ), juce::Justification::left );
+    g.drawText ( "Version 2.0", versionArea.reduced( 12, 6 ), juce::Justification::left );
     g.drawText ( "www.FullumMusic.com", urlArea.reduced( 12, 6 ), juce::Justification::right );
 }
 
