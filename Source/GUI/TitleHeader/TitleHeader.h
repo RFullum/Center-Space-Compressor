@@ -30,9 +30,9 @@ public:
     void SetDesignColor(juce::Colour &designC);
 
 protected:
-    juce::Colour backgroundColor;
-    juce::Colour textColor;
-    juce::Colour designColor;
+    juce::Colour backgroundColor { (juce::uint8)125, (juce::uint8)125, (juce::uint8)125 };
+    juce::Colour textColor       { (juce::uint8)235, (juce::uint8)52,  (juce::uint8)222 };
+    juce::Colour designColor     { (juce::uint8)125, (juce::uint8)0,   (juce::uint8)125 };
 
 private:
     juce::Rectangle<int> fullumMusicArea;

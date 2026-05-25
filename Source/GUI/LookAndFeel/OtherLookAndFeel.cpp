@@ -12,12 +12,7 @@
 
 //==============================================================================
 
-OtherLookAndFeel::OtherLookAndFeel()
-: dialColor(juce::Colour((juce::uint8)125, (juce::uint8)125, (juce::uint8)125))
-, tickColor(juce::Colour((juce::uint8)0,   (juce::uint8)0,   (juce::uint8)0))
-, backColor(juce::Colour((juce::uint8)255, (juce::uint8)255, (juce::uint8)255))
-{}
-
+OtherLookAndFeel::OtherLookAndFeel()  {}
 OtherLookAndFeel::~OtherLookAndFeel() {}
 
 void OtherLookAndFeel::drawRotarySlider(juce::Graphics &g
@@ -210,10 +205,7 @@ void OtherLookAndFeel::SetBackColor(juce::Colour &backC)
 
 //==============================================================================
 
-BoxLookAndFeel::BoxLookAndFeel()
-: outlineColor(juce::Colours::white)
-{}
-
+BoxLookAndFeel::BoxLookAndFeel()  {}
 BoxLookAndFeel::~BoxLookAndFeel() {}
 
 void BoxLookAndFeel::drawComboBox(juce::Graphics &g, int width, int height, bool, int, int, int, int, juce::ComboBox &box)

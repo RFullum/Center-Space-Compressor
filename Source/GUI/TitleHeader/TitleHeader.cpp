@@ -15,9 +15,6 @@
 //==============================================================================
 
 TitleHeader::TitleHeader()
-: backgroundColor(juce::Colour((juce::uint8)125, (juce::uint8)125, (juce::uint8)125))
-, textColor      (juce::Colour((juce::uint8)235, (juce::uint8)52,  (juce::uint8)222))
-, designColor    (juce::Colour((juce::uint8)125, (juce::uint8)0,   (juce::uint8)125))
 {
     juce::Image logoImage = juce::ImageCache::getFromMemory(BinaryData::Fullum_brandcolours_output_png
                                                             , BinaryData::Fullum_brandcolours_output_pngSize);

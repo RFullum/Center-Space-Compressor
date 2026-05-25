@@ -36,20 +36,20 @@ protected:
     juce::Rectangle<int> meterLight;
     juce::Rectangle<int> clipBack;
 
-    float heightMult;
-    bool  levelClipping;
+    float heightMult    = 0.0f;
+    bool  levelClipping = false;
 
-    float SR;
-    float decayRateRise;
-    float decayRateFall;
-    float decayFactorRise;
-    float decayFactorFall;
+    float SR              = 44100.0f;
+    float decayRateRise   = 0.0005f;
+    float decayRateFall   = 0.001f;
+    float decayFactorRise = decayRateRise * SR;     // 22.05 @ 44.1k
+    float decayFactorFall = decayRateFall * SR;     // 44.1  @ 44.1k
 
 private:
-    float meterLevel;
+    float meterLevel = 0.0f;
 
     juce::Colour clipBackRed;
-    juce::Colour clippingRed;
+    juce::Colour clippingRed    { (juce::uint8)255, (juce::uint8)10, (juce::uint8)27, (juce::uint8)255 };
     juce::Colour levelBackGreen;
     juce::Colour levelGreen;
 

@@ -49,9 +49,9 @@ public:
     void SetBackColor(juce::Colour &backC);
 
 private:
-    juce::Colour dialColor;
-    juce::Colour tickColor;
-    juce::Colour backColor;
+    juce::Colour dialColor { (juce::uint8)125, (juce::uint8)125, (juce::uint8)125 };
+    juce::Colour tickColor { (juce::uint8)0,   (juce::uint8)0,   (juce::uint8)0   };
+    juce::Colour backColor { (juce::uint8)255, (juce::uint8)255, (juce::uint8)255 };
 };
 
 
@@ -69,5 +69,5 @@ public:
     void SetOutlineColor(juce::Colour &outline);
 
 private:
-    juce::Colour outlineColor;
+    juce::Colour outlineColor { juce::Colours::white };
 };

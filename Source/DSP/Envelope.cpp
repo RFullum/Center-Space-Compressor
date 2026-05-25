@@ -12,16 +12,7 @@
 
 //==============================================================================
 
-Envelope::Envelope()
-: sampleRate(44100.0f)
-, attack(0.1f)
-, release(0.2f)
-, expFactor(-0.142f)
-, cteAT(0.0f)
-, cteRL(0.0f)
-, inVal(0.0f)
-, prevVal(0.0f)
-{}
+Envelope::Envelope() {}
 
 void Envelope::SetSampleRate(float SR)
 {

@@ -29,11 +29,11 @@ public:
     void resized() override;
     void timerCallback() override;
 
-    juce::Colour onyx;
-    juce::Colour lightSlateGrey;
-    juce::Colour magicMint;
-    juce::Colour fieryRose;
-    juce::Colour orangePeel;
+    juce::Colour onyx           { (juce::uint8)53,  (juce::uint8)59,  (juce::uint8)60,  (juce::uint8)255 };
+    juce::Colour lightSlateGrey { (juce::uint8)130, (juce::uint8)146, (juce::uint8)152, (juce::uint8)255 };
+    juce::Colour magicMint      { (juce::uint8)174, (juce::uint8)255, (juce::uint8)216, (juce::uint8)255 };
+    juce::Colour fieryRose      { (juce::uint8)255, (juce::uint8)104, (juce::uint8)114, (juce::uint8)255 };
+    juce::Colour orangePeel     { (juce::uint8)252, (juce::uint8)151, (juce::uint8)0,   (juce::uint8)255 };
 
 private:
     void SliderSetup(juce::Slider &sliderInstance, juce::Slider::SliderStyle style, bool showTextBox);
@@ -55,10 +55,10 @@ private:
     juce::Slider attackSlider;
     juce::Slider releaseSlider;
 
-    float sliderSize;
-    float ratioSliderSize;
-    float textBoxW;
-    float textBoxH;
+    float sliderSize      = 125.0f;
+    float ratioSliderSize = 175.0f;
+    float textBoxW        = 50.0f;
+    float textBoxH        = 25.0f;
 
     juce::Label inputGainLabel;
     juce::Label sideChainGainLabel;
@@ -69,9 +69,9 @@ private:
     juce::Label attackLabel;
     juce::Label releaseLabel;
 
-    float labelSize;
-    float labelW;
-    float labelH;
+    float labelSize = 50.0f;
+    float labelW    = 100.0f;
+    float labelH    = 25.0f;
 
     juce::ComboBox peakRMSBox;
 

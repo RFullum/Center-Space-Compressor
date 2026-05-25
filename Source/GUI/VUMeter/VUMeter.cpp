@@ -14,18 +14,7 @@
 
 //==============================================================================
 
-VUMeter::VUMeter()
-: heightMult(0.0f)
-, levelClipping(false)
-, SR(44100.0f)
-, decayRateRise(0.0005f)
-, decayRateFall(0.001f)
-, decayFactorRise(decayRateRise * SR)
-, decayFactorFall(decayRateFall * SR)
-, meterLevel(0.0f)
-, clippingRed(juce::Colour((juce::uint8)255, (juce::uint8)10, (juce::uint8)27, (juce::uint8)255))
-{}
-
+VUMeter::VUMeter()  {}
 VUMeter::~VUMeter() {}
 
 void VUMeter::paint(juce::Graphics &g)

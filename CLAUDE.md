@@ -76,15 +76,30 @@ Match these exactly when writing or editing code.
 - **Tabs set to 4 spaces in Xcode.** Mix of tabs and spaces is acceptable when aligning — don't normalize indentation unless asked.
 - One blank line between methods inside a class; two blank lines between unrelated classes in the same file.
 
-### Initializer lists
+### Member initialization
 
-Comma-first, leading colon on its own line, aligned:
+**Default values go on the declaration in the header**, not in the constructor's init list:
 
 ```cpp
-MyClass::MyClass()
-: memberA(0)
-, memberB(1)
-, memberC(2)
+// in the .h
+private:
+    float sampleRate = 44100.0f;
+    int   blockSize  = 0;
+    std::atomic<float> *gainParam = nullptr;
+    juce::Colour bgColor { (juce::uint8)53, (juce::uint8)59, (juce::uint8)60, (juce::uint8)255 };
+```
+
+Reasons: cleaner default values stay next to the type, and you can't accidentally forget to initialize a new member when you add one — the header default catches it.
+
+**The constructor's init list is only for things that *must* go there:** base-class initialisation, references, `const` members, and members whose initial value depends on a constructor argument.
+
+When an init list is required, use comma-first, leading colon on its own line, aligned:
+
+```cpp
+MyClass::MyClass(int argA)
+: baseClass(somethingNeededHere)
+, memberThatDependsOnArg(argA * 2)
+, memberRef(getSomeReference())
 {}
 ```
 

@@ -28,12 +28,12 @@ public:
 private:
     float CalcCte(float timeMs);
 
-    float sampleRate;
-    float attack;
-    float release;
-    float expFactor;
-    float cteAT;
-    float cteRL;
-    float inVal;
-    float prevVal;
+    float sampleRate = 44100.0f;
+    float attack     = 0.1f;
+    float release    = 0.2f;
+    float expFactor  = -0.142f;
+    float cteAT      = 0.0f;
+    float cteRL      = 0.0f;
+    float inVal      = 0.0f;
+    float prevVal    = 0.0f;
 };

@@ -51,26 +51,26 @@ public:
 
     juce::AudioProcessorValueTreeState parameters;
 
-    float inMidLevel;
-    float inLeftLevel;
-    float inRightLevel;
-    float inSideLevel;
-    float sideChainLevel;
-    float outLeftLevel;
-    float outMidLevel;
-    float outRightLevel;
-    float gainReduction;
+    float inMidLevel     = 0.0f;
+    float inLeftLevel    = 0.0f;
+    float inRightLevel   = 0.0f;
+    float inSideLevel    = 0.0f;
+    float sideChainLevel = 0.0f;
+    float outLeftLevel   = 0.0f;
+    float outMidLevel    = 0.0f;
+    float outRightLevel  = 0.0f;
+    float gainReduction  = 0.0f;
 
 private:
-    std::atomic<float> *inputGainParam;
-    std::atomic<float> *sidechainInGainParam;
-    std::atomic<float> *attackParam;
-    std::atomic<float> *releaseParam;
-    std::atomic<float> *thresholdParam;
-    std::atomic<float> *ratioParam;
-    std::atomic<float> *outputGainParam;
+    std::atomic<float> *inputGainParam        = nullptr;
+    std::atomic<float> *sidechainInGainParam  = nullptr;
+    std::atomic<float> *attackParam           = nullptr;
+    std::atomic<float> *releaseParam          = nullptr;
+    std::atomic<float> *thresholdParam        = nullptr;
+    std::atomic<float> *ratioParam            = nullptr;
+    std::atomic<float> *outputGainParam       = nullptr;
 
-    std::atomic<float> *peakRMSChoice;
+    std::atomic<float> *peakRMSChoice         = nullptr;
 
     Envelope env;
 

@@ -14,18 +14,6 @@
 
 CenterSpaceAudioProcessorEditor::CenterSpaceAudioProcessorEditor(CenterSpaceAudioProcessor &p)
 : juce::AudioProcessorEditor(&p)
-, onyx          (juce::Colour((juce::uint8)53,  (juce::uint8)59,  (juce::uint8)60,  (juce::uint8)255))
-, lightSlateGrey(juce::Colour((juce::uint8)130, (juce::uint8)146, (juce::uint8)152, (juce::uint8)255))
-, magicMint     (juce::Colour((juce::uint8)174, (juce::uint8)255, (juce::uint8)216, (juce::uint8)255))
-, fieryRose     (juce::Colour((juce::uint8)255, (juce::uint8)104, (juce::uint8)114, (juce::uint8)255))
-, orangePeel    (juce::Colour((juce::uint8)252, (juce::uint8)151, (juce::uint8)0,   (juce::uint8)255))
-, sliderSize(125.0f)
-, ratioSliderSize(175.0f)
-, textBoxW(50.0f)
-, textBoxH(25.0f)
-, labelSize(50.0f)
-, labelW(100.0f)
-, labelH(25.0f)
 , audioProcessor(p)
 {
     setSize(1100, 540);
