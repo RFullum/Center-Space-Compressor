@@ -11,160 +11,153 @@
 #include <JuceHeader.h>
 #include "VUMeter.h"
 
+
 //==============================================================================
-VUMeter::VUMeter() :  heightMult(0.0f), levelClipping(false), SR(44100.0f),
-                      decayRateRise(0.0005f), decayRateFall(0.001f),
-                      decayFactorRise(decayRateRise * SR), decayFactorFall(decayRateFall * SR),
-                      meterLevel(0.0f),
-                      clippingRed(juce::Colour( (juce::uint8)255, (juce::uint8)10, (juce::uint8)27, (juce::uint8)255 ) )
-{
-}
 
+VUMeter::VUMeter()
+: heightMult(0.0f)
+, levelClipping(false)
+, SR(44100.0f)
+, decayRateRise(0.0005f)
+, decayRateFall(0.001f)
+, decayFactorRise(decayRateRise * SR)
+, decayFactorFall(decayRateFall * SR)
+, meterLevel(0.0f)
+, clippingRed(juce::Colour((juce::uint8)255, (juce::uint8)10, (juce::uint8)27, (juce::uint8)255))
+{}
 
-VUMeter::~VUMeter()
-{
-}
+VUMeter::~VUMeter() {}
 
-
-//===========================================================================
-
-void VUMeter::vuMeterLevel(float level, float sampleRate)
-{
-    // Convert to dB to get proper response curve. Normalize for resize() bounds
-    float multiplier = juce::jmap(juce::Decibels::gainToDecibels(level), -100.0f, 0.0f, 0.0f, 1.0f );
-    
-    // limit values: cap at 1.0f
-    if (multiplier > 1.0f)
-        multiplier = 1.0f;
-    
-    // If sample rate changes, update SR and decay factors
-    if (SR != sampleRate)
-    {
-        SR = sampleRate;
-        decayFactorRise = decayRateRise * SR;
-        decayFactorFall = decayRateFall * SR;
-    }
-    
-    heightMultiplier(multiplier);
-    
-    levelClipping = (multiplier < 1.0f) ? false : true;
-    
-    resized();
-    repaint();
-}
-
-
-/**
- Sets heightMult to mult if amplitude is increasing, or tails off the heightMult by decayFactor formula if decreasing.
- */
-void VUMeter::heightMultiplier(float mult)
-{   
-    if (mult > heightMult)
-        heightMult = mult * ( 1.0f - (1.0f / decayFactorRise) );
-    else
-        heightMult *= 1.0f - (1.0f / decayFactorFall);
-    
-    if (mult == 1.0f)
-        heightMult = 1.0f;
-}
-
-void VUMeter::paint (juce::Graphics& g)
+void VUMeter::paint(juce::Graphics &g)
 {
     // Clipping? Bright red, else dark red
     if (levelClipping)
-        g.setColour ( clippingRed );
+        g.setColour(clippingRed);
     else
-        g.setColour ( clipBackRed );
-    
-    g.fillRect ( clipBack );
-    
+        g.setColour(clipBackRed);
+
+    g.fillRect(clipBack);
+
     // Level meter background
-    g.setColour ( levelBackGreen );
-    g.fillRect  ( meterBack );
-    
+    g.setColour(levelBackGreen);
+    g.fillRect(meterBack);
+
     // Level meter VU
-    g.setColour ( levelGreen );
-    g.fillRect  ( meterLight );
+    g.setColour(levelGreen);
+    g.fillRect(meterLight);
 }
 
 void VUMeter::resized()
 {
-    int reducer    = 2;
-    auto totalArea = getLocalBounds();
-    
+    int  reducer = 2;
+    auto bounds  = getLocalBounds();
+
     // Create Clipping Light Area
-    juce::Rectangle<int> reducedArea = totalArea.reduced         ( reducer );
-    juce::Rectangle<int> clipArea    = reducedArea.removeFromTop ( reducedArea.getHeight() * 0.2f );
-    
-    clipBack.setBounds( clipArea.getX(), clipArea.getY(), clipArea.getWidth(), clipArea.getHeight() );
-    
+    juce::Rectangle<int> reducedArea = bounds.reduced(reducer);
+    juce::Rectangle<int> clipArea    = reducedArea.removeFromTop(reducedArea.getHeight() * 0.2f);
+
+    clipBack.setBounds(clipArea.getX(), clipArea.getY(), clipArea.getWidth(), clipArea.getHeight());
+
     // Create Level Meter Area
     juce::Rectangle<int> vuMeterArea = reducedArea;
-    
-    meterBack.setBounds  ( vuMeterArea.getX(), vuMeterArea.getY(), vuMeterArea.getWidth(), vuMeterArea.getHeight() );
-    meterLight.setBounds ( vuMeterArea.getX(), vuMeterArea.getY() + vuMeterArea.getHeight(),
-                           vuMeterArea.getWidth(), -vuMeterArea.getHeight() * heightMult );
+
+    meterBack.setBounds(vuMeterArea.getX(), vuMeterArea.getY(), vuMeterArea.getWidth(), vuMeterArea.getHeight());
+    meterLight.setBounds(vuMeterArea.getX()
+                         , vuMeterArea.getY() + vuMeterArea.getHeight()
+                         , vuMeterArea.getWidth()
+                         , -vuMeterArea.getHeight() * heightMult);
 }
 
-
-/// Sets the colors of the level and clipping meter
-void VUMeter::setColors(juce::Colour& levelColor, juce::Colour& clipColor, juce::Colour& backingGrey)
+void VUMeter::VuMeterLevel(float level, float sampleRate)
 {
-    clipBackRed    = clipColor.darker().darker();
-    //clippingRed    = clipColor.brighter();
-    //levelBackGreen = levelColor.darker().darker();
-    levelBackGreen = backingGrey;
-    levelGreen     = levelColor.brighter().brighter();
-}
+    // Convert to dB to get proper response curve. Normalize for resize() bounds
+    float multiplier = juce::jmap(juce::Decibels::gainToDecibels(level), -100.0f, 0.0f, 0.0f, 1.0f);
 
-//===========================================================================
-//===========================================================================
-//===========================================================================
+    // limit values: cap at 1.0f
+    if (multiplier > 1.0f)
+        multiplier = 1.0f;
 
-
-ReduceMeter::ReduceMeter()  {}
-ReduceMeter::~ReduceMeter() {}
-
-void ReduceMeter::vuMeterLevel(float level, float sampleRate)
-{
-    // Limit value: clip at 1.0f
-    float multiplier = (level < 1.0f) ? level : 1.0f;
-    
     // If sample rate changes, update SR and decay factors
     if (SR != sampleRate)
     {
-        SR = sampleRate;
+        SR              = sampleRate;
         decayFactorRise = decayRateRise * SR;
         decayFactorFall = decayRateFall * SR;
     }
-    
-    heightMultiplier(multiplier);
-    
-    levelClipping = false;
-    
+
+    HeightMultiplier(multiplier);
+
+    levelClipping = (multiplier < 1.0f) ? false : true;
+
     resized();
     repaint();
 }
 
+void VUMeter::SetColors(juce::Colour &levelColor, juce::Colour &clipColor, juce::Colour &backingGrey)
+{
+    clipBackRed    = clipColor.darker().darker();
+    levelBackGreen = backingGrey;
+    levelGreen     = levelColor.brighter().brighter();
+}
+
+void VUMeter::HeightMultiplier(float mult)
+{
+    if (mult > heightMult)
+        heightMult = mult * (1.0f - (1.0f / decayFactorRise));
+    else
+        heightMult *= 1.0f - (1.0f / decayFactorFall);
+
+    if (mult == 1.0f)
+        heightMult = 1.0f;
+}
+
+
+//==============================================================================
+
+ReduceMeter::ReduceMeter()  {}
+ReduceMeter::~ReduceMeter() {}
 
 void ReduceMeter::resized()
 {
-    //meterLevel.setBounds( xPos, yPos, meterWidth, meterHeight * heightMult );
-    int reducer    = 2;
-    auto totalArea = getLocalBounds();
-    
+    int  reducer = 2;
+    auto bounds  = getLocalBounds();
+
     // Create Clipping Light Area
-    juce::Rectangle<int> reducedArea = totalArea.reduced         ( reducer );
-    juce::Rectangle<int> clipArea    = reducedArea.removeFromTop ( reducedArea.getHeight() * 0.2f );
-    
-    clipBack.setBounds( clipArea.getX(), clipArea.getY(), clipArea.getWidth(), clipArea.getHeight() );
-    
+    juce::Rectangle<int> reducedArea = bounds.reduced(reducer);
+    juce::Rectangle<int> clipArea    = reducedArea.removeFromTop(reducedArea.getHeight() * 0.2f);
+
+    clipBack.setBounds(clipArea.getX(), clipArea.getY(), clipArea.getWidth(), clipArea.getHeight());
+
     // Create Gain Reduction Meter area
     juce::Rectangle<int> reductionMeterArea = reducedArea;
-    
-    meterBack.setBounds  ( reductionMeterArea.getX(), reductionMeterArea.getY(),
-                           reductionMeterArea.getWidth(), reductionMeterArea.getHeight() );
-    meterLight.setBounds ( reductionMeterArea.getX(), reductionMeterArea.getY(),
-                           reductionMeterArea.getWidth(), reductionMeterArea.getHeight() * heightMult );
-    
+
+    meterBack.setBounds(reductionMeterArea.getX()
+                        , reductionMeterArea.getY()
+                        , reductionMeterArea.getWidth()
+                        , reductionMeterArea.getHeight());
+    meterLight.setBounds(reductionMeterArea.getX()
+                         , reductionMeterArea.getY()
+                         , reductionMeterArea.getWidth()
+                         , reductionMeterArea.getHeight() * heightMult);
+}
+
+void ReduceMeter::VuMeterLevel(float level, float sampleRate)
+{
+    // Limit value: clip at 1.0f
+    float multiplier = (level < 1.0f) ? level : 1.0f;
+
+    // If sample rate changes, update SR and decay factors
+    if (SR != sampleRate)
+    {
+        SR              = sampleRate;
+        decayFactorRise = decayRateRise * SR;
+        decayFactorFall = decayRateFall * SR;
+    }
+
+    HeightMultiplier(multiplier);
+
+    levelClipping = false;
+
+    resized();
+    repaint();
 }

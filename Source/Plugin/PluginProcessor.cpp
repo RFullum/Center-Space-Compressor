@@ -9,54 +9,41 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
+
 //==============================================================================
+
 CenterSpaceAudioProcessor::CenterSpaceAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
-     : juce::AudioProcessor (BusesProperties()
-                     #if ! JucePlugin_IsMidiEffect
-                      #if ! JucePlugin_IsSynth
-                       .withInput("Input",  juce::AudioChannelSet::stereo(), true)
+: juce::AudioProcessor(BusesProperties()
+                      #if ! JucePlugin_IsMidiEffect
+                       #if ! JucePlugin_IsSynth
+                        .withInput ("Input",     juce::AudioChannelSet::stereo(), true)
+                       #endif
+                        .withOutput("Output",    juce::AudioChannelSet::stereo(), true)
+                        .withInput ("Sidechain", juce::AudioChannelSet::stereo(), true)
                       #endif
-                       .withOutput("Output", juce::AudioChannelSet::stereo(), true)
-                       .withInput("Sidechain", juce::AudioChannelSet::stereo(), true)
-                     #endif
-                       ),
+                       )
+,
 #endif
-
-
-//
-// ParameterFloats:
-// id, description, min, max, default
-// ~OR~
-// id, description, normalisableRange(min, max, increment, skew, symmetric),
-//                 default, param label, param category, string from value, string to value
-//
-// ParameterChoices:
-// id, descript, choices (StringArray), default index of StringArray
-//
-parameters(*this, nullptr, "ParameterTree", {
-    std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"inGain", 1}, "Input Gain dB",
-                                          juce::NormalisableRange<float>(-100.0f, 12.0f, 0.01f, 4.0f, false), 0.0f, "dB"),
-    std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"sideInGain", 1}, "Sidechain Input Gain dB",
-                                          juce::NormalisableRange<float>(-100.0f, 12.0f, 0.01f, 4.0f, false), 0.0f, "dB"),
-    std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"attack", 1}, "Attack ms",
-                                          juce::NormalisableRange<float>(0.01f, 2000.0f, 0.01f, 0.15f, false), 0.2f, "ms"),
-    std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"release", 1}, "Release ms",
-                                          juce::NormalisableRange<float>(1.0f, 2000.0f, 0.01f, 0.15f, false), 2.0f, "ms"),
-    std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"threshold", 1}, "Threshold dB",
-                                          juce::NormalisableRange<float>(-100.0f, 12.0f, 0.01f, 4.0f, false), 0.0f, "dB"),
-    std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"ratio", 1}, "Ratio",
-                                          juce::NormalisableRange<float>(1.0f, 20.0f, 0.1f, 0.4f, false), 1.0f, ":1"),
-    std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"outGain", 1}, "Output Gain dB",
-                                          juce::NormalisableRange<float>(-100.0f, 12.0f, 0.01f, 4.0f, false), 0.0f, "dB"),
-
-    std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{"peakRMS", 1}, "Peak/RMS", juce::StringArray( {"Peak", "RMS"} ), 0)
-}),
-
-inMidLevel(0.0f), inLeftLevel(0.0f), inRightLevel(0.0f), inSideLevel(0.0f),
-sideChainLevel(0.0f), outLeftLevel(0.0f), outMidLevel(0.0f), outRightLevel(0.0f),
-gainReduction(0.0f)
-
+  parameters(*this, nullptr, "ParameterTree", {
+      std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"inGain",     1}, "Input Gain dB",           juce::NormalisableRange<float>(-100.0f, 12.0f, 0.01f, 4.0f, false),  0.0f, "dB")
+    , std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"sideInGain", 1}, "Sidechain Input Gain dB", juce::NormalisableRange<float>(-100.0f, 12.0f, 0.01f, 4.0f, false),  0.0f, "dB")
+    , std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"attack",     1}, "Attack ms",               juce::NormalisableRange<float>(0.01f, 2000.0f, 0.01f, 0.15f, false), 0.2f, "ms")
+    , std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"release",    1}, "Release ms",              juce::NormalisableRange<float>(1.0f, 2000.0f, 0.01f, 0.15f, false),  2.0f, "ms")
+    , std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"threshold",  1}, "Threshold dB",            juce::NormalisableRange<float>(-100.0f, 12.0f, 0.01f, 4.0f, false),  0.0f, "dB")
+    , std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"ratio",      1}, "Ratio",                   juce::NormalisableRange<float>(1.0f, 20.0f, 0.1f, 0.4f, false),      1.0f, ":1")
+    , std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"outGain",    1}, "Output Gain dB",          juce::NormalisableRange<float>(-100.0f, 12.0f, 0.01f, 4.0f, false),  0.0f, "dB")
+    , std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{"peakRMS",   1}, "Peak/RMS",                juce::StringArray({"Peak", "RMS"}), 0)
+  })
+, inMidLevel(0.0f)
+, inLeftLevel(0.0f)
+, inRightLevel(0.0f)
+, inSideLevel(0.0f)
+, sideChainLevel(0.0f)
+, outLeftLevel(0.0f)
+, outMidLevel(0.0f)
+, outRightLevel(0.0f)
+, gainReduction(0.0f)
 {
     inputGainParam       = parameters.getRawParameterValue("inGain");
     sidechainInGainParam = parameters.getRawParameterValue("sideInGain");
@@ -68,11 +55,9 @@ gainReduction(0.0f)
     peakRMSChoice        = parameters.getRawParameterValue("peakRMS");
 }
 
-CenterSpaceAudioProcessor::~CenterSpaceAudioProcessor()
-{
-}
+CenterSpaceAudioProcessor::~CenterSpaceAudioProcessor() {}
 
-//==============================================================================
+
 const juce::String CenterSpaceAudioProcessor::getName() const
 {
     return JucePlugin_Name;
@@ -121,26 +106,22 @@ int CenterSpaceAudioProcessor::getCurrentProgram()
     return 0;
 }
 
-void CenterSpaceAudioProcessor::setCurrentProgram (int index)
-{
-}
+void CenterSpaceAudioProcessor::setCurrentProgram(int /*index*/) {}
 
-const juce::String CenterSpaceAudioProcessor::getProgramName (int index)
+const juce::String CenterSpaceAudioProcessor::getProgramName(int /*index*/)
 {
     return {};
 }
 
-void CenterSpaceAudioProcessor::changeProgramName (int index, const juce::String& newName)
-{
-}
+void CenterSpaceAudioProcessor::changeProgramName(int index, const juce::String &/*newName*/) {}
 
-//==============================================================================
-void CenterSpaceAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
+
+void CenterSpaceAudioProcessor::prepareToPlay(double sampleRate, int /*samplesPerBlock*/)
 {
     // Initial setup for Envelope instance
-    env.setSampleRate  (sampleRate);
-    env.setAttackTime  (*attackParam);
-    env.setReleaseTime (*releaseParam);
+    env.SetSampleRate (sampleRate);
+    env.SetAttackTime (*attackParam);
+    env.SetReleaseTime(*releaseParam);
 }
 
 void CenterSpaceAudioProcessor::releaseResources()
@@ -150,214 +131,183 @@ void CenterSpaceAudioProcessor::releaseResources()
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
-bool CenterSpaceAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
+bool CenterSpaceAudioProcessor::isBusesLayoutSupported(const BusesLayout &layouts) const
 {
-    const auto& mainOutput = layouts.getMainOutputChannelSet();
-    const auto& mainInput  = layouts.getMainInputChannelSet();
-    
+    const auto &mainOutput = layouts.getMainOutputChannelSet();
+    const auto &mainInput  = layouts.getMainInputChannelSet();
+
     // the sidechain can take any layout, the main bus needs to be the same on the input and output
     return mainInput == mainOutput && ! mainInput.isDisabled();
-
 }
 #endif
 
-void CenterSpaceAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
+void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBuffer &/*midiMessages*/)
 {
-    // Metering
-    juce::AudioBuffer<float> inLeftBuffer     (1, buffer.getNumSamples());
-    juce::AudioBuffer<float> inMidBuffer      (1, buffer.getNumSamples());
-    juce::AudioBuffer<float> inRightBuffer    (1, buffer.getNumSamples());
-    juce::AudioBuffer<float> inSideBuffer     (1, buffer.getNumSamples());
+    juce::AudioBuffer<float> inLeftBuffer    (1, buffer.getNumSamples());
+    juce::AudioBuffer<float> inMidBuffer     (1, buffer.getNumSamples());
+    juce::AudioBuffer<float> inRightBuffer   (1, buffer.getNumSamples());
+    juce::AudioBuffer<float> inSideBuffer    (1, buffer.getNumSamples());
 
-    juce::AudioBuffer<float> sidechainBuffer  (1, buffer.getNumSamples());
-    juce::AudioBuffer<float> outMidBuffer     (1, buffer.getNumSamples());
+    juce::AudioBuffer<float> sidechainBuffer (1, buffer.getNumSamples());
+    juce::AudioBuffer<float> outMidBuffer    (1, buffer.getNumSamples());
     // Out Left and Out Right are channels 0 & 1 in processBlock's buffer
-    
+
     inLeftBuffer.clear();
     inMidBuffer.clear();
     inRightBuffer.clear();
     inSideBuffer.clear();
-    
+
     sidechainBuffer.clear();
     outMidBuffer.clear();
-    
-    // Gain Parameters
+
     float inGainDB     = *inputGainParam;
     float outGainDB    = *outputGainParam;
     float sideInGainDB = *sidechainInGainParam;
-    
-    float inGainAmp    = decibels.decibelsToGain(inGainDB);
-    float outGainAmp   = decibels.decibelsToGain(outGainDB);
-    float sideGainAmp  = decibels.decibelsToGain(sideInGainDB);
-    
-    
+
+    float inGainAmp   = decibels.decibelsToGain(inGainDB);
+    float outGainAmp  = decibels.decibelsToGain(outGainDB);
+    float sideGainAmp = decibels.decibelsToGain(sideInGainDB);
+
+
     // Update Envelope Parameters if they've changed
-    if ( env.getSampleRate() != getSampleRate() )
-        env.setSampleRate( getSampleRate() );
-    
-    env.setAttackTime(*attackParam);
-    env.setReleaseTime(*releaseParam);
-    
-    // Compression Parameters
+    if (env.GetSampleRate() != getSampleRate())
+        env.SetSampleRate(getSampleRate());
+
+    env.SetAttackTime (*attackParam);
+    env.SetReleaseTime(*releaseParam);
+
     float thresholdDB      = *thresholdParam;
     float thresholdAmp     = decibels.decibelsToGain(thresholdDB);
     float thresholdInverse = 1.0f / thresholdAmp;
     float ratio            = 1.0f / *ratioParam;
-    
-    
-    // Channel setups
+
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
-    // Clear buffers
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-        buffer.clear (i, 0, buffer.getNumSamples());
-    
-    // Separate Main IO from Sidechain
-    auto mainInputOutput = getBusBuffer (buffer, true, 0);
-    auto sideChainInput  = getBusBuffer (buffer, true, 1);
-    
-    // Buffer setup
-    float* leftChannel = mainInputOutput.getWritePointer(0);
-    float* rightChannel;
-    
+        buffer.clear(i, 0, buffer.getNumSamples());
+
+    auto mainInputOutput = getBusBuffer(buffer, true, 0);
+    auto sideChainInput  = getBusBuffer(buffer, true, 1);
+
+    float *leftChannel = mainInputOutput.getWritePointer(0);
+    float *rightChannel;
+
     if (mainInputOutput.getWritePointer(1))
         rightChannel = mainInputOutput.getWritePointer(1);
     else
         rightChannel = mainInputOutput.getWritePointer(0);
 
-
-    //
-    // DSP!
-    //
-    for (int i=0; i<buffer.getNumSamples(); i++)
+    for (int i = 0; i < buffer.getNumSamples(); i++)
     {
         // Encode Main Stereo to MS
         float mid  = (leftChannel[i] + rightChannel[i]) * inGainAmp;
         float side = (leftChannel[i] - rightChannel[i]) * inGainAmp;
-        
+
         // Input Metering
-        inLeftBuffer.addSample  (0, i, leftChannel[i] * inGainAmp);
-        inMidBuffer.addSample   (0, i, mid);
-        inRightBuffer.addSample (0, i, rightChannel[i] * inGainAmp);
-        inSideBuffer.addSample  (0, i, side);
-        
+        inLeftBuffer.addSample (0, i, leftChannel[i]  * inGainAmp);
+        inMidBuffer.addSample  (0, i, mid);
+        inRightBuffer.addSample(0, i, rightChannel[i] * inGainAmp);
+        inSideBuffer.addSample (0, i, side);
+
         // Mono the sidechain
         float monoSidechainSample = 0.0f;
-        
+
         for (int j = 0; j < sideChainInput.getNumChannels(); ++j)
         {
             monoSidechainSample += sideChainInput.getWritePointer(j)[i];
         }
-        
+
         // Divide amplitudes by channel count without dividing by zero, then Mult by sidechain gain
-        monoSidechainSample /= (sideChainInput.getNumChannels() < 1) ? 1.0f : static_cast<float> (sideChainInput.getNumChannels());
+        monoSidechainSample /= (sideChainInput.getNumChannels() < 1) ? 1.0f : static_cast<float>(sideChainInput.getNumChannels());
         monoSidechainSample *= sideGainAmp;
-        
+
         // Sidechain Metering
         sidechainBuffer.addSample(0, i, monoSidechainSample);
 
         // Run sidechain values through the envelope
-        float envVal = env.process(monoSidechainSample, peakRMSChoice);
-        
+        float envVal = env.Process(monoSidechainSample, peakRMSChoice);
+
         // Compressor gain
         float compGain = (envVal < thresholdAmp) ? 1.0f : std::pow(envVal * thresholdInverse, ratio - 1.0f);
-        
+
         // Apply gain to mid channel
         float midComped = mid * compGain;
-        
+
         // Output Metering
         outMidBuffer.addSample(0, i, midComped);
 
         // Encode Main MS to Stereo
         float gainCompensation = 0.5f;
-        leftChannel[i]  = ( (midComped + side) * outGainAmp ) * gainCompensation;
-        rightChannel[i] = ( (midComped - side) * outGainAmp ) * gainCompensation;
-        
+        leftChannel[i]  = ((midComped + side) * outGainAmp) * gainCompensation;
+        rightChannel[i] = ((midComped - side) * outGainAmp) * gainCompensation;
+    }
 
-    }   // DSP
-    
-    // Metering
     if (*peakRMSChoice == 1)
     {
-        inLeftLevel  = inLeftBuffer.getRMSLevel  ( 0, 0, inLeftBuffer.getNumSamples()  );
-        inMidLevel   = inMidBuffer.getRMSLevel   ( 0, 0, inMidBuffer.getNumSamples()   ) * 0.5f;
-        inRightLevel = inRightBuffer.getRMSLevel ( 0, 0, inRightBuffer.getNumSamples() );
-        inSideLevel  = inSideBuffer.getRMSLevel  ( 0, 0, inSideBuffer.getNumSamples()  );
-        
-        sideChainLevel = sidechainBuffer.getRMSLevel ( 0, 0, sidechainBuffer.getNumSamples() );
-        
-        outLeftLevel  = buffer.getRMSLevel       ( 0, 0, buffer.getNumSamples()       );
-        outMidLevel   = outMidBuffer.getRMSLevel ( 0, 0, outMidBuffer.getNumSamples() ) * 0.5f;
-        outRightLevel = buffer.getRMSLevel       ( 1, 0, buffer.getNumSamples()       );
-        
+        inLeftLevel  = inLeftBuffer.getRMSLevel (0, 0, inLeftBuffer.getNumSamples());
+        inMidLevel   = inMidBuffer.getRMSLevel  (0, 0, inMidBuffer.getNumSamples()) * 0.5f;
+        inRightLevel = inRightBuffer.getRMSLevel(0, 0, inRightBuffer.getNumSamples());
+        inSideLevel  = inSideBuffer.getRMSLevel (0, 0, inSideBuffer.getNumSamples());
+
+        sideChainLevel = sidechainBuffer.getRMSLevel(0, 0, sidechainBuffer.getNumSamples());
+
+        outLeftLevel  = buffer.getRMSLevel      (0, 0, buffer.getNumSamples());
+        outMidLevel   = outMidBuffer.getRMSLevel(0, 0, outMidBuffer.getNumSamples()) * 0.5f;
+        outRightLevel = buffer.getRMSLevel      (1, 0, buffer.getNumSamples());
+
         gainReduction = inMidLevel - outMidLevel;
         outMidLevel  *= outGainAmp;
     }
     else
     {
-        inLeftLevel  = inLeftBuffer.getMagnitude  ( 0, inLeftBuffer.getNumSamples()  );
-        inMidLevel   = inMidBuffer.getMagnitude   ( 0, inMidBuffer.getNumSamples()   ) * 0.5f;
-        inRightLevel = inRightBuffer.getMagnitude ( 0, inRightBuffer.getNumSamples() );
-        inSideLevel  = inSideBuffer.getMagnitude  ( 0, inSideBuffer.getNumSamples()  );
-        
-        sideChainLevel = sidechainBuffer.getMagnitude ( 0, sidechainBuffer.getNumSamples() );
-        
-        outLeftLevel  = buffer.getMagnitude       ( 0, 0, buffer.getNumSamples()    );
-        outMidLevel   = outMidBuffer.getMagnitude ( 0, outMidBuffer.getNumSamples() ) * 0.5f;
-        outRightLevel = buffer.getMagnitude       ( 1, 0, buffer.getNumSamples()    );
-        
+        inLeftLevel  = inLeftBuffer.getMagnitude (0, inLeftBuffer.getNumSamples());
+        inMidLevel   = inMidBuffer.getMagnitude  (0, inMidBuffer.getNumSamples()) * 0.5f;
+        inRightLevel = inRightBuffer.getMagnitude(0, inRightBuffer.getNumSamples());
+        inSideLevel  = inSideBuffer.getMagnitude (0, inSideBuffer.getNumSamples());
+
+        sideChainLevel = sidechainBuffer.getMagnitude(0, sidechainBuffer.getNumSamples());
+
+        outLeftLevel  = buffer.getMagnitude      (0, 0, buffer.getNumSamples());
+        outMidLevel   = outMidBuffer.getMagnitude(0, outMidBuffer.getNumSamples()) * 0.5f;
+        outRightLevel = buffer.getMagnitude      (1, 0, buffer.getNumSamples());
+
         gainReduction = inMidLevel - outMidLevel;
         outMidLevel  *= outGainAmp;
     }
-    
 }
 
-//==============================================================================
 bool CenterSpaceAudioProcessor::hasEditor() const
 {
-    return true; // (change this to false if you choose to not supply an editor)
+    return true;
 }
 
-juce::AudioProcessorEditor* CenterSpaceAudioProcessor::createEditor()
+juce::AudioProcessorEditor *CenterSpaceAudioProcessor::createEditor()
 {
-    return new CenterSpaceAudioProcessorEditor (*this);
-    //return new GenericAudioProcessorEditor (*this);
+    return new CenterSpaceAudioProcessorEditor(*this);
 }
 
-//==============================================================================
-void CenterSpaceAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
+void CenterSpaceAudioProcessor::getStateInformation(juce::MemoryBlock &destData)
 {
-    // getStateInformation
     auto state = parameters.copyState();
-    std::unique_ptr<juce::XmlElement> xml (state.createXml());
-    copyXmlToBinary (*xml, destData);
+    std::unique_ptr<juce::XmlElement> xml(state.createXml());
+    copyXmlToBinary(*xml, destData);
 }
 
-void CenterSpaceAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
+void CenterSpaceAudioProcessor::setStateInformation(const void *data, int sizeInBytes)
 {
-    // setStateInformation
-    std::unique_ptr<juce::XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));
+    std::unique_ptr<juce::XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
+
     if (xmlState.get() != nullptr)
     {
-        if (xmlState->hasTagName (parameters.state.getType()))
-        {
-            parameters.replaceState (juce::ValueTree::fromXml (*xmlState));
-        }
+        if (xmlState->hasTagName(parameters.state.getType()))
+            parameters.replaceState(juce::ValueTree::fromXml(*xmlState));
     }
 }
 
-//==============================================================================
 // This creates new instances of the plugin..
-juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
+juce::AudioProcessor *JUCE_CALLTYPE createPluginFilter()
 {
     return new CenterSpaceAudioProcessor();
 }
-
-
-//==============================================================================
-//==============================================================================
-//==============================================================================
-
-

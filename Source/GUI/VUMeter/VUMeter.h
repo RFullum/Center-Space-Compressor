@@ -15,70 +15,58 @@
 
 //==============================================================================
 
-class VUMeter  : public juce::Component
+class VUMeter
+    : public juce::Component
 {
 public:
     VUMeter();
-    //VUMeter(float xPosition, float yPosition, float meterWidth_, float meterHeight_, float sampleRate_);
     ~VUMeter() override;
-    
-    
 
-    void paint (juce::Graphics&) override;
+    void paint(juce::Graphics &) override;
     void resized() override;
-    
-    virtual void vuMeterLevel(float level, float sampleRate);
-    
-    /// Sets the colors of the level and clipping meter
-    void setColors(juce::Colour& levelColor, juce::Colour& clipColor, juce::Colour& backingGrey);
-    
+
+    virtual void VuMeterLevel(float level, float sampleRate);
+
+    void SetColors(juce::Colour &levelColor, juce::Colour &clipColor, juce::Colour &backingGrey);
+
 protected:
-    // Rectangle
+    void HeightMultiplier(float mult);
+
     juce::Rectangle<int> meterBack;
     juce::Rectangle<int> meterLight;
     juce::Rectangle<int> clipBack;
-    
-    // Member Variables
+
     float heightMult;
-    
-    /// Multiplies meterHeight by mult (mult is typically gain level 0-1)
-    void heightMultiplier(float mult);
-    
-    // Member Varialbes
-    bool levelClipping;
-    
+    bool  levelClipping;
+
     float SR;
-    float decayRateRise;        // = 0.0005f;
-    float decayRateFall;        // = 0.001f; // in ms... in Seconds?
+    float decayRateRise;
+    float decayRateFall;
     float decayFactorRise;
-    float decayFactorFall;      // for N in value *= (1 - 1/N), in samples
-    
+    float decayFactorFall;
+
 private:
-    // Member Variables
     float meterLevel;
-    
-    
-    // Colors
+
     juce::Colour clipBackRed;
     juce::Colour clippingRed;
     juce::Colour levelBackGreen;
     juce::Colour levelGreen;
-    
-    
-    
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (VUMeter)
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(VUMeter)
 };
 
 
-//================================================================================
+//==============================================================================
 
-class ReduceMeter : public VUMeter
+class ReduceMeter
+    : public VUMeter
 {
 public:
     ReduceMeter();
     ~ReduceMeter();
-    
-    void vuMeterLevel(float level, float sampleRate) override;
-    
+
     void resized() override;
+
+    void VuMeterLevel(float level, float sampleRate) override;
 };

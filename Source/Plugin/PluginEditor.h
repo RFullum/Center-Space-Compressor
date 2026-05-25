@@ -14,21 +14,21 @@
 #include "OtherLookAndFeel.h"
 #include "TitleHeader.h"
 
+
 //==============================================================================
-/**
-*/
-class CenterSpaceAudioProcessorEditor  : public juce::AudioProcessorEditor, public juce::Timer
+
+class CenterSpaceAudioProcessorEditor
+    : public juce::AudioProcessorEditor
+    , public juce::Timer
 {
 public:
-    CenterSpaceAudioProcessorEditor (CenterSpaceAudioProcessor&);
+    CenterSpaceAudioProcessorEditor(CenterSpaceAudioProcessor &);
     ~CenterSpaceAudioProcessorEditor() override;
 
-    //==============================================================================
-    void paint (juce::Graphics&) override;
+    void paint(juce::Graphics &) override;
     void resized() override;
     void timerCallback() override;
 
-    // Colors
     juce::Colour onyx;
     juce::Colour lightSlateGrey;
     juce::Colour magicMint;
@@ -36,24 +36,16 @@ public:
     juce::Colour orangePeel;
 
 private:
-    // Custom look and feel
+    void SliderSetup(juce::Slider &sliderInstance, juce::Slider::SliderStyle style, bool showTextBox);
+    void SliderLabelSetup(juce::Label &labelInstance, juce::String labelText, juce::Colour &labelColor, float fontSize);
+
     OtherLookAndFeel compLookAndFeel;
     OtherLookAndFeel dBLookAndFeel;
-    
-    BoxLookAndFeel boxLookAndFeel;
-    
-    // Title Header
+    BoxLookAndFeel   boxLookAndFeel;
+
     TitleHeader titleHeader;
     TitleFooter titleFooter;
-    
-    /// Sets up Slider object instances in constructor. sliderInstance is the slider to set up, suffix is textValueSuffix, sliderFillColor is the slider color below the thumb
-    void sliderSetup(juce::Slider& sliderInstance, juce::Slider::SliderStyle style, bool showTextBox);
 
-    /// Sets up Label for the Slider instances. Takes the labelInstance and the text for setText
-    void sliderLabelSetup(juce::Label& labelInstance, juce::String labelText, juce::Colour& labelColor, float fontSize);
-
-
-    // Sliders
     juce::Slider inputGainSlider;
     juce::Slider sideChainGainSlider;
     juce::Slider outputGainSlider;
@@ -68,7 +60,6 @@ private:
     float textBoxW;
     float textBoxH;
 
-    // Labels
     juce::Label inputGainLabel;
     juce::Label sideChainGainLabel;
     juce::Label outputGainLabel;
@@ -82,10 +73,8 @@ private:
     float labelW;
     float labelH;
 
-    // Combo Box
     juce::ComboBox peakRMSBox;
 
-    // Attachments
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> inputGainSliderAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> sideChainGainSliderAttachement;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> outputGainSliderAttachment;
@@ -96,23 +85,19 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> releaseSliderAttachment;
 
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> peakRMSAttachment;
-    
-    
-    // Meters
+
     VUMeter inLeftMeter;
     VUMeter inCenterMeter;
     VUMeter inRightMeter;
     VUMeter inSideMeter;
-    
-    //VUMeter sidechainMeter;
+
     ReduceMeter gainReduceMeter;
-    
+
     VUMeter outLeftMeter;
     VUMeter outCenterMeter;
     VUMeter outRightMeter;
-    
-    
-    CenterSpaceAudioProcessor& audioProcessor;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CenterSpaceAudioProcessorEditor)
+    CenterSpaceAudioProcessor &audioProcessor;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(CenterSpaceAudioProcessorEditor)
 };
