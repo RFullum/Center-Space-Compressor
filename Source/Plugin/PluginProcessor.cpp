@@ -35,22 +35,22 @@ CenterSpaceAudioProcessor::CenterSpaceAudioProcessor()
 // id, descript, choices (StringArray), default index of StringArray
 //
 parameters(*this, nullptr, "ParameterTree", {
-    std::make_unique<juce::AudioParameterFloat>("inGain", "Input Gain dB",
+    std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"inGain", 1}, "Input Gain dB",
                                           juce::NormalisableRange<float>(-100.0f, 12.0f, 0.01f, 4.0f, false), 0.0f, "dB"),
-    std::make_unique<juce::AudioParameterFloat>("sideInGain", "Sidechain Input Gain dB",
+    std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"sideInGain", 1}, "Sidechain Input Gain dB",
                                           juce::NormalisableRange<float>(-100.0f, 12.0f, 0.01f, 4.0f, false), 0.0f, "dB"),
-    std::make_unique<juce::AudioParameterFloat>("attack", "Attack ms",
+    std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"attack", 1}, "Attack ms",
                                           juce::NormalisableRange<float>(0.01f, 2000.0f, 0.01f, 0.15f, false), 0.2f, "ms"),
-    std::make_unique<juce::AudioParameterFloat>("release", "Release ms",
+    std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"release", 1}, "Release ms",
                                           juce::NormalisableRange<float>(1.0f, 2000.0f, 0.01f, 0.15f, false), 2.0f, "ms"),
-    std::make_unique<juce::AudioParameterFloat>("threshold", "Threshold dB",
+    std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"threshold", 1}, "Threshold dB",
                                           juce::NormalisableRange<float>(-100.0f, 12.0f, 0.01f, 4.0f, false), 0.0f, "dB"),
-    std::make_unique<juce::AudioParameterFloat>("ratio", "Ratio",
+    std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"ratio", 1}, "Ratio",
                                           juce::NormalisableRange<float>(1.0f, 20.0f, 0.1f, 0.4f, false), 1.0f, ":1"),
-    std::make_unique<juce::AudioParameterFloat>("outGain", "Output Gain dB",
+    std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"outGain", 1}, "Output Gain dB",
                                           juce::NormalisableRange<float>(-100.0f, 12.0f, 0.01f, 4.0f, false), 0.0f, "dB"),
 
-    std::make_unique<juce::AudioParameterChoice>("peakRMS", "Peak/RMS", juce::StringArray( {"Peak", "RMS"} ), 0)
+    std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{"peakRMS", 1}, "Peak/RMS", juce::StringArray( {"Peak", "RMS"} ), 0)
 }),
 
 inMidLevel(0.0f), inLeftLevel(0.0f), inRightLevel(0.0f), inSideLevel(0.0f),
