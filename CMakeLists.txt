@@ -42,25 +42,51 @@ juce_add_plugin(CenterSpace
 target_compile_definitions(CenterSpace PUBLIC JUCE_VST3_CAN_REPLACE_VST2=0)
 
 # --- Sources ------------------------------------------------------------------
-target_sources(CenterSpace PRIVATE
-    Source/PluginProcessor.cpp
-    Source/PluginProcessor.h
-    Source/PluginEditor.cpp
-    Source/PluginEditor.h
-    Source/Envelope.cpp
-    Source/Envelope.h
-    Source/OtherLookAndFeel.cpp
-    Source/OtherLookAndFeel.h
-    Source/TitleHeader.cpp
-    Source/TitleHeader.h
-    Source/VUMeter.cpp
-    Source/VUMeter.h)
+set(CenterSpace_SOURCES
+    Source/Plugin/PluginProcessor.cpp
+    Source/Plugin/PluginProcessor.h
+    Source/Plugin/PluginEditor.cpp
+    Source/Plugin/PluginEditor.h
+    Source/DSP/Envelope.cpp
+    Source/DSP/Envelope.h
+    Source/GUI/LookAndFeel/OtherLookAndFeel.cpp
+    Source/GUI/LookAndFeel/OtherLookAndFeel.h
+    Source/GUI/TitleHeader/TitleHeader.cpp
+    Source/GUI/TitleHeader/TitleHeader.h
+    Source/GUI/VUMeter/VUMeter.cpp
+    Source/GUI/VUMeter/VUMeter.h)
+
+target_sources(CenterSpace PRIVATE ${CenterSpace_SOURCES})
+
+# Mirror on-disk folder structure in IDE navigators (Xcode, Visual Studio).
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${CenterSpace_SOURCES})
+
+# Collapse JUCE module sources under a single IDE group instead of dumping
+# them into the default "Source Files" / "Header Files" buckets.
+file(GLOB_RECURSE _juce_module_files
+    "${CMAKE_CURRENT_SOURCE_DIR}/JUCE/modules/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/JUCE/modules/*.mm"
+    "${CMAKE_CURRENT_SOURCE_DIR}/JUCE/modules/*.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/JUCE/modules/*.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/JUCE/modules/*.hpp")
+source_group("JUCE Library Code" FILES ${_juce_module_files})
+
+# Source subdirectories on the include path so existing #include "Foo.h"
+# directives keep working without per-file path prefixes.
+target_include_directories(CenterSpace PRIVATE
+    Source/Plugin
+    Source/DSP
+    Source/GUI/LookAndFeel
+    Source/GUI/TitleHeader
+    Source/GUI/VUMeter)
 
 # --- Binary data --------------------------------------------------------------
 # Compiles assets into a static lib exposing them via `BinaryData::*` symbols.
 juce_add_binary_data(CenterSpaceBinaryData
     SOURCES
-        Source/Graphics/Fullum_brandcolours_output.png)
+        Resources/Fullum_brandcolours_output.png)
+
+source_group("Resources" FILES "${CMAKE_CURRENT_SOURCE_DIR}/Resources/Fullum_brandcolours_output.png")
 
 target_link_libraries(CenterSpace PRIVATE CenterSpaceBinaryData)
 
