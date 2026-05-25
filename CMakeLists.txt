@@ -39,7 +39,13 @@ juce_add_plugin(CenterSpace
 
 # JUCE 8 defaults JUCE_VST3_CAN_REPLACE_VST2 to 1, but Center Space never had
 # a VST2 ancestor. Disable so the param-ID mismatch check stays quiet.
-target_compile_definitions(CenterSpace PUBLIC JUCE_VST3_CAN_REPLACE_VST2=0)
+#
+# JUCE_DISPLAY_SPLASH_SCREEN / JUCE_REPORT_APP_USAGE are turned off under
+# the FullumMusic JUCE Pro license.
+target_compile_definitions(CenterSpace PUBLIC
+    JUCE_VST3_CAN_REPLACE_VST2=0
+    JUCE_DISPLAY_SPLASH_SCREEN=0
+    JUCE_REPORT_APP_USAGE=0)
 
 # --- Sources ------------------------------------------------------------------
 set(CenterSpace_SOURCES
