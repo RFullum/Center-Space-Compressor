@@ -110,8 +110,8 @@ void CenterSpaceAudioProcessor::changeProgramName(int index, const juce::String 
 void CenterSpaceAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
     env.SetSampleRate (sampleRate);
-    env.SetAttackTime (*attackParam);
-    env.SetReleaseTime(*releaseParam);
+    env.SetAttackTime (attackParam->load());
+    env.SetReleaseTime(releaseParam->load());
 
     inLeftBuffer.setSize    (1, samplesPerBlock, false, true, false);
     inMidBuffer.setSize     (1, samplesPerBlock, false, true, false);
@@ -119,6 +119,19 @@ void CenterSpaceAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
     inSideBuffer.setSize    (1, samplesPerBlock, false, true, false);
     sidechainBuffer.setSize (1, samplesPerBlock, false, true, false);
     outMidBuffer.setSize    (1, samplesPerBlock, false, true, false);
+
+    static constexpr double rampSec = 0.02;
+    inGainSmoothed.reset          (sampleRate, rampSec);
+    outGainSmoothed.reset         (sampleRate, rampSec);
+    sideGainSmoothed.reset        (sampleRate, rampSec);
+    thresholdSmoothed.reset       (sampleRate, rampSec);
+    ratioReciprocalSmoothed.reset (sampleRate, rampSec);
+
+    inGainSmoothed.setCurrentAndTargetValue         (decibels.decibelsToGain(inputGainParam->load()));
+    outGainSmoothed.setCurrentAndTargetValue        (decibels.decibelsToGain(outputGainParam->load()));
+    sideGainSmoothed.setCurrentAndTargetValue       (decibels.decibelsToGain(sidechainInGainParam->load()));
+    thresholdSmoothed.setCurrentAndTargetValue      (decibels.decibelsToGain(thresholdParam->load()));
+    ratioReciprocalSmoothed.setCurrentAndTargetValue(1.0f / ratioParam->load());
 }
 
 void CenterSpaceAudioProcessor::releaseResources()
@@ -149,19 +162,14 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
     sidechainBuffer.clear();
     outMidBuffer.clear();
 
-    const int   numSamples = buffer.getNumSamples();
-    const int   peakMode   = (int)peakRMSChoice->load();
+    const int numSamples = buffer.getNumSamples();
+    const int peakMode   = (int)peakRMSChoice->load();
 
-    const float inGainAmp   = decibels.decibelsToGain(inputGainParam->load());
-    const float outGainAmp  = decibels.decibelsToGain(outputGainParam->load());
-    const float sideGainAmp = decibels.decibelsToGain(sidechainInGainParam->load());
-
-    const float thresholdAmp     = decibels.decibelsToGain(thresholdParam->load());
-    const float thresholdInverse = 1.0f / thresholdAmp;
-    const float ratio            = 1.0f / ratioParam->load();
-
-    const float gainCompensation = 0.5f;
-    const float outScale         = outGainAmp * gainCompensation;
+    inGainSmoothed.setTargetValue          (decibels.decibelsToGain(inputGainParam->load()));
+    outGainSmoothed.setTargetValue         (decibels.decibelsToGain(outputGainParam->load()));
+    sideGainSmoothed.setTargetValue        (decibels.decibelsToGain(sidechainInGainParam->load()));
+    thresholdSmoothed.setTargetValue       (decibels.decibelsToGain(thresholdParam->load()));
+    ratioReciprocalSmoothed.setTargetValue (1.0f / ratioParam->load());
 
     const double currentSR = getSampleRate();
 
@@ -170,6 +178,8 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
 
     env.SetAttackTime (attackParam->load());
     env.SetReleaseTime(releaseParam->load());
+
+    constexpr float gainCompensation = 0.5f;    // M/S decode factor
 
     const auto totalNumInputChannels  = getTotalNumInputChannels();
     const auto totalNumOutputChannels = getTotalNumOutputChannels();
@@ -199,6 +209,13 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
     // --- Sample loop ---
     for (int i = 0; i < numSamples; ++i)
     {
+        const float inGainAmp    = inGainSmoothed.getNextValue();
+        const float sideGainAmp  = sideGainSmoothed.getNextValue();
+        const float outGainAmp   = outGainSmoothed.getNextValue();
+        const float thresholdAmp = thresholdSmoothed.getNextValue();
+        const float ratioRecip   = ratioReciprocalSmoothed.getNextValue();
+        const float outScale     = outGainAmp * gainCompensation;
+
         // Encode Main Stereo to MS
         const float mid  = (leftChannel[i] + rightChannel[i]) * inGainAmp;
         const float side = (leftChannel[i] - rightChannel[i]) * inGainAmp;
@@ -217,7 +234,6 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
 
         monoSidechainSample *= scChannelScale * sideGainAmp;
 
-        // Sidechain Metering
         sidechainBuffer.addSample(0, i, monoSidechainSample);
 
         // Run sidechain through the envelope
@@ -226,11 +242,10 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
         // Compressor gain
         const float compGain = (envVal < thresholdAmp)
                                    ? 1.0f
-                                   : std::pow(envVal * thresholdInverse, ratio - 1.0f);
+                                   : std::pow(envVal / thresholdAmp, ratioRecip - 1.0f);
 
         const float midComped = mid * compGain;
 
-        // Output Metering
         outMidBuffer.addSample(0, i, midComped);
 
         // Encode Main MS to Stereo
@@ -252,7 +267,7 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
         outRightLevel = buffer.getRMSLevel      (1, 0, numSamples);
 
         gainReduction = inMidLevel - outMidLevel;
-        outMidLevel  *= outGainAmp;
+        outMidLevel  *= outGainSmoothed.getCurrentValue();
     }
     else
     {
@@ -268,7 +283,7 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
         outRightLevel = buffer.getMagnitude      (1, 0, numSamples);
 
         gainReduction = inMidLevel - outMidLevel;
-        outMidLevel  *= outGainAmp;
+        outMidLevel  *= outGainSmoothed.getCurrentValue();
     }
 }
 

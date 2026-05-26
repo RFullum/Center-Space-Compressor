@@ -74,13 +74,19 @@ private:
 
     Envelope env;
 
-    // Pre-allocated metering scratch buffers.
+    // Pre-allocated metering buffers.
     juce::AudioBuffer<float> inLeftBuffer;
     juce::AudioBuffer<float> inMidBuffer;
     juce::AudioBuffer<float> inRightBuffer;
     juce::AudioBuffer<float> inSideBuffer;
     juce::AudioBuffer<float> sidechainBuffer;
     juce::AudioBuffer<float> outMidBuffer;
+
+    juce::SmoothedValue<float> inGainSmoothed;
+    juce::SmoothedValue<float> outGainSmoothed;
+    juce::SmoothedValue<float> sideGainSmoothed;
+    juce::SmoothedValue<float> thresholdSmoothed;
+    juce::SmoothedValue<float> ratioReciprocalSmoothed;
 
     static juce::Decibels decibels;
 
