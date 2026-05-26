@@ -129,3 +129,33 @@ foreach(plugin_target IN ITEMS CenterSpace CenterSpace_Standalone CenterSpace_VS
             XCODE_ATTRIBUTE_GCC_OPTIMIZATION_LEVEL[variant=Release]  3)
     endif()
 endforeach()
+
+# --- DSP test harness ---------------------------------------------------------
+# Offline console executable that exercises DSP units without a DAW or GUI.
+# Build:  cmake --build --preset=macos-debug --target centerspace_tests
+# Run:    ctest --preset=macos    (or run the binary directly)
+juce_add_console_app(centerspace_tests
+    PRODUCT_NAME "CenterSpace Tests")
+
+set(CenterSpace_Tests_SOURCES
+    Tests/TestMain.cpp)
+
+target_sources(centerspace_tests PRIVATE ${CenterSpace_Tests_SOURCES})
+
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${CenterSpace_Tests_SOURCES})
+
+target_link_libraries(centerspace_tests
+    PRIVATE
+        juce::juce_core
+        juce::juce_audio_basics
+        juce::juce_dsp
+    PUBLIC
+        juce::juce_recommended_config_flags
+        juce::juce_recommended_warning_flags)
+
+target_compile_definitions(centerspace_tests PUBLIC
+    JUCE_DISPLAY_SPLASH_SCREEN=0
+    JUCE_REPORT_APP_USAGE=0)
+
+enable_testing()
+add_test(NAME centerspace_tests COMMAND centerspace_tests)
