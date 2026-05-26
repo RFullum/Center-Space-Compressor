@@ -206,6 +206,9 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
                                      ? 1.0f
                                      : (1.0f / (float)numSCChannels);
 
+    // Track the lowest compGain (= max gain reduction) seen this block
+    float minCompGain = 1.0f;
+
     // --- Sample loop ---
     for (int i = 0; i < numSamples; ++i)
     {
@@ -244,6 +247,8 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
                                    ? 1.0f
                                    : std::pow(envVal / thresholdAmp, ratioRecip - 1.0f);
 
+        minCompGain = juce::jmin(minCompGain, compGain);
+
         const float midComped = mid * compGain;
 
         outMidBuffer.addSample(0, i, midComped);
@@ -265,9 +270,6 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
         outLeftLevel  = buffer.getRMSLevel      (0, 0, numSamples);
         outMidLevel   = outMidBuffer.getRMSLevel(0, 0, numSamples) * 0.5f;
         outRightLevel = buffer.getRMSLevel      (1, 0, numSamples);
-
-        gainReduction = inMidLevel - outMidLevel;
-        outMidLevel  *= outGainSmoothed.getCurrentValue();
     }
     else
     {
@@ -281,10 +283,15 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
         outLeftLevel  = buffer.getMagnitude      (0, 0, numSamples);
         outMidLevel   = outMidBuffer.getMagnitude(0, numSamples) * 0.5f;
         outRightLevel = buffer.getMagnitude      (1, 0, numSamples);
-
-        gainReduction = inMidLevel - outMidLevel;
-        outMidLevel  *= outGainSmoothed.getCurrentValue();
     }
+
+    outMidLevel *= outGainSmoothed.getCurrentValue();
+
+    // GR meter: convert the block's deepest compressor gain to dB and
+    // normalise to 0-1 against a fixed full-scale (24 dB). 1.0 == full meter.
+    constexpr float meterFullScaleDb = 24.0f;
+    const float     grDb             = -juce::Decibels::gainToDecibels(minCompGain);
+    gainReduction                    = juce::jlimit(0.0f, 1.0f, grDb / meterFullScaleDb);
 }
 
 bool CenterSpaceAudioProcessor::hasEditor() const
