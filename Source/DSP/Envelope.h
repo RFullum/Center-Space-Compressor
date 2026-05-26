@@ -10,8 +10,6 @@
 
 #pragma once
 
-#include <atomic>
-
 
 class Envelope
 {
@@ -23,7 +21,9 @@ public:
     void  SetAttackTime(float atk);
     void  SetReleaseTime(float rls);
 
-    float Process(float inputVal, std::atomic<float> *peakRMSMode);
+    // peakMode: 0 = peak detection, 1 = RMS detection. Loaded once per
+    // block by the caller; this method does not touch atomics per sample.
+    float Process(float inputVal, int peakMode);
 
 private:
     float CalcCte(float timeMs);

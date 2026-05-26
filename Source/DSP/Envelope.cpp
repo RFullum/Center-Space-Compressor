@@ -41,9 +41,9 @@ void Envelope::SetReleaseTime(float rls)
     cteRL   = CalcCte(release);
 }
 
-float Envelope::Process(float inputVal, std::atomic<float> *peakRMSMode)
+float Envelope::Process(float inputVal, int peakMode)
 {
-    if (*peakRMSMode == 1)
+    if (peakMode == 1)
         inVal = inputVal * inputVal;
     else
         inVal = std::abs(inputVal);
@@ -54,7 +54,7 @@ float Envelope::Process(float inputVal, std::atomic<float> *peakRMSMode)
     // update previous value with current values
     prevVal = result;
 
-    if (*peakRMSMode == 1)
+    if (peakMode == 1)
         return std::sqrt(result);
 
     return result;

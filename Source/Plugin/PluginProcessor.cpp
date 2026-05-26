@@ -140,58 +140,68 @@ bool CenterSpaceAudioProcessor::isBusesLayoutSupported(const BusesLayout &layout
 
 void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBuffer &/*midiMessages*/)
 {
+    juce::ScopedNoDenormals noDenormals;
+
     inLeftBuffer.clear();
     inMidBuffer.clear();
     inRightBuffer.clear();
     inSideBuffer.clear();
-
     sidechainBuffer.clear();
     outMidBuffer.clear();
 
-    float inGainDB     = *inputGainParam;
-    float outGainDB    = *outputGainParam;
-    float sideInGainDB = *sidechainInGainParam;
+    const int   numSamples = buffer.getNumSamples();
+    const int   peakMode   = (int)peakRMSChoice->load();
 
-    float inGainAmp   = decibels.decibelsToGain(inGainDB);
-    float outGainAmp  = decibels.decibelsToGain(outGainDB);
-    float sideGainAmp = decibels.decibelsToGain(sideInGainDB);
+    const float inGainAmp   = decibels.decibelsToGain(inputGainParam->load());
+    const float outGainAmp  = decibels.decibelsToGain(outputGainParam->load());
+    const float sideGainAmp = decibels.decibelsToGain(sidechainInGainParam->load());
 
+    const float thresholdAmp     = decibels.decibelsToGain(thresholdParam->load());
+    const float thresholdInverse = 1.0f / thresholdAmp;
+    const float ratio            = 1.0f / ratioParam->load();
 
-    // Update Envelope Parameters if they've changed
-    if (env.GetSampleRate() != getSampleRate())
-        env.SetSampleRate(getSampleRate());
+    const float gainCompensation = 0.5f;
+    const float outScale         = outGainAmp * gainCompensation;
 
-    env.SetAttackTime (*attackParam);
-    env.SetReleaseTime(*releaseParam);
+    const double currentSR = getSampleRate();
 
-    float thresholdDB      = *thresholdParam;
-    float thresholdAmp     = decibels.decibelsToGain(thresholdDB);
-    float thresholdInverse = 1.0f / thresholdAmp;
-    float ratio            = 1.0f / *ratioParam;
+    if (env.GetSampleRate() != currentSR)
+        env.SetSampleRate((float)currentSR);
 
-    juce::ScopedNoDenormals noDenormals;
-    auto totalNumInputChannels  = getTotalNumInputChannels();
-    auto totalNumOutputChannels = getTotalNumOutputChannels();
+    env.SetAttackTime (attackParam->load());
+    env.SetReleaseTime(releaseParam->load());
+
+    const auto totalNumInputChannels  = getTotalNumInputChannels();
+    const auto totalNumOutputChannels = getTotalNumOutputChannels();
 
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-        buffer.clear(i, 0, buffer.getNumSamples());
+        buffer.clear(i, 0, numSamples);
 
     auto mainInputOutput = getBusBuffer(buffer, true, 0);
     auto sideChainInput  = getBusBuffer(buffer, true, 1);
 
-    float *leftChannel = mainInputOutput.getWritePointer(0);
-    float *rightChannel;
+    float *leftChannel  = mainInputOutput.getWritePointer(0);
+    float *rightChannel = (mainInputOutput.getNumChannels() > 1)
+                              ? mainInputOutput.getWritePointer(1)
+                              : leftChannel;
 
-    if (mainInputOutput.getWritePointer(1))
-        rightChannel = mainInputOutput.getWritePointer(1);
-    else
-        rightChannel = mainInputOutput.getWritePointer(0);
+    const int           numSCChannels = sideChainInput.getNumChannels();
+    const float        *scReadPointers[2] = { nullptr, nullptr };
+    const int           clampedSCChannels = juce::jmin(2, numSCChannels);
 
-    for (int i = 0; i < buffer.getNumSamples(); i++)
+    for (int j = 0; j < clampedSCChannels; ++j)
+        scReadPointers[j] = sideChainInput.getReadPointer(j);
+
+    const float scChannelScale = (numSCChannels < 1)
+                                     ? 1.0f
+                                     : (1.0f / (float)numSCChannels);
+
+    // --- Sample loop ---
+    for (int i = 0; i < numSamples; ++i)
     {
         // Encode Main Stereo to MS
-        float mid  = (leftChannel[i] + rightChannel[i]) * inGainAmp;
-        float side = (leftChannel[i] - rightChannel[i]) * inGainAmp;
+        const float mid  = (leftChannel[i] + rightChannel[i]) * inGainAmp;
+        const float side = (leftChannel[i] - rightChannel[i]) * inGainAmp;
 
         // Input Metering
         inLeftBuffer.addSample (0, i, leftChannel[i]  * inGainAmp);
@@ -202,64 +212,60 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
         // Mono the sidechain
         float monoSidechainSample = 0.0f;
 
-        for (int j = 0; j < sideChainInput.getNumChannels(); ++j)
-        {
-            monoSidechainSample += sideChainInput.getWritePointer(j)[i];
-        }
+        for (int j = 0; j < clampedSCChannels; ++j)
+            monoSidechainSample += scReadPointers[j][i];
 
-        // Divide amplitudes by channel count without dividing by zero, then Mult by sidechain gain
-        monoSidechainSample /= (sideChainInput.getNumChannels() < 1) ? 1.0f : static_cast<float>(sideChainInput.getNumChannels());
-        monoSidechainSample *= sideGainAmp;
+        monoSidechainSample *= scChannelScale * sideGainAmp;
 
         // Sidechain Metering
         sidechainBuffer.addSample(0, i, monoSidechainSample);
 
-        // Run sidechain values through the envelope
-        float envVal = env.Process(monoSidechainSample, peakRMSChoice);
+        // Run sidechain through the envelope
+        const float envVal = env.Process(monoSidechainSample, peakMode);
 
         // Compressor gain
-        float compGain = (envVal < thresholdAmp) ? 1.0f : std::pow(envVal * thresholdInverse, ratio - 1.0f);
+        const float compGain = (envVal < thresholdAmp)
+                                   ? 1.0f
+                                   : std::pow(envVal * thresholdInverse, ratio - 1.0f);
 
-        // Apply gain to mid channel
-        float midComped = mid * compGain;
+        const float midComped = mid * compGain;
 
         // Output Metering
         outMidBuffer.addSample(0, i, midComped);
 
         // Encode Main MS to Stereo
-        float gainCompensation = 0.5f;
-        leftChannel[i]  = ((midComped + side) * outGainAmp) * gainCompensation;
-        rightChannel[i] = ((midComped - side) * outGainAmp) * gainCompensation;
+        leftChannel[i]  = (midComped + side) * outScale;
+        rightChannel[i] = (midComped - side) * outScale;
     }
 
-    if (*peakRMSChoice == 1)
+    if (peakMode == 1)
     {
-        inLeftLevel  = inLeftBuffer.getRMSLevel (0, 0, inLeftBuffer.getNumSamples());
-        inMidLevel   = inMidBuffer.getRMSLevel  (0, 0, inMidBuffer.getNumSamples()) * 0.5f;
-        inRightLevel = inRightBuffer.getRMSLevel(0, 0, inRightBuffer.getNumSamples());
-        inSideLevel  = inSideBuffer.getRMSLevel (0, 0, inSideBuffer.getNumSamples());
+        inLeftLevel  = inLeftBuffer.getRMSLevel (0, 0, numSamples);
+        inMidLevel   = inMidBuffer.getRMSLevel  (0, 0, numSamples) * 0.5f;
+        inRightLevel = inRightBuffer.getRMSLevel(0, 0, numSamples);
+        inSideLevel  = inSideBuffer.getRMSLevel (0, 0, numSamples);
 
-        sideChainLevel = sidechainBuffer.getRMSLevel(0, 0, sidechainBuffer.getNumSamples());
+        sideChainLevel = sidechainBuffer.getRMSLevel(0, 0, numSamples);
 
-        outLeftLevel  = buffer.getRMSLevel      (0, 0, buffer.getNumSamples());
-        outMidLevel   = outMidBuffer.getRMSLevel(0, 0, outMidBuffer.getNumSamples()) * 0.5f;
-        outRightLevel = buffer.getRMSLevel      (1, 0, buffer.getNumSamples());
+        outLeftLevel  = buffer.getRMSLevel      (0, 0, numSamples);
+        outMidLevel   = outMidBuffer.getRMSLevel(0, 0, numSamples) * 0.5f;
+        outRightLevel = buffer.getRMSLevel      (1, 0, numSamples);
 
         gainReduction = inMidLevel - outMidLevel;
         outMidLevel  *= outGainAmp;
     }
     else
     {
-        inLeftLevel  = inLeftBuffer.getMagnitude (0, inLeftBuffer.getNumSamples());
-        inMidLevel   = inMidBuffer.getMagnitude  (0, inMidBuffer.getNumSamples()) * 0.5f;
-        inRightLevel = inRightBuffer.getMagnitude(0, inRightBuffer.getNumSamples());
-        inSideLevel  = inSideBuffer.getMagnitude (0, inSideBuffer.getNumSamples());
+        inLeftLevel  = inLeftBuffer.getMagnitude (0, numSamples);
+        inMidLevel   = inMidBuffer.getMagnitude  (0, numSamples) * 0.5f;
+        inRightLevel = inRightBuffer.getMagnitude(0, numSamples);
+        inSideLevel  = inSideBuffer.getMagnitude (0, numSamples);
 
-        sideChainLevel = sidechainBuffer.getMagnitude(0, sidechainBuffer.getNumSamples());
+        sideChainLevel = sidechainBuffer.getMagnitude(0, numSamples);
 
-        outLeftLevel  = buffer.getMagnitude      (0, 0, buffer.getNumSamples());
-        outMidLevel   = outMidBuffer.getMagnitude(0, outMidBuffer.getNumSamples()) * 0.5f;
-        outRightLevel = buffer.getMagnitude      (1, 0, buffer.getNumSamples());
+        outLeftLevel  = buffer.getMagnitude      (0, 0, numSamples);
+        outMidLevel   = outMidBuffer.getMagnitude(0, numSamples) * 0.5f;
+        outRightLevel = buffer.getMagnitude      (1, 0, numSamples);
 
         gainReduction = inMidLevel - outMidLevel;
         outMidLevel  *= outGainAmp;
