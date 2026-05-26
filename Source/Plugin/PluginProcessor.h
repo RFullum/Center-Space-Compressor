@@ -74,6 +74,14 @@ private:
 
     Envelope env;
 
+    // Pre-allocated metering scratch buffers.
+    juce::AudioBuffer<float> inLeftBuffer;
+    juce::AudioBuffer<float> inMidBuffer;
+    juce::AudioBuffer<float> inRightBuffer;
+    juce::AudioBuffer<float> inSideBuffer;
+    juce::AudioBuffer<float> sidechainBuffer;
+    juce::AudioBuffer<float> outMidBuffer;
+
     static juce::Decibels decibels;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(CenterSpaceAudioProcessor)

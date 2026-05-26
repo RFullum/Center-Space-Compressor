@@ -107,12 +107,18 @@ const juce::String CenterSpaceAudioProcessor::getProgramName(int /*index*/)
 void CenterSpaceAudioProcessor::changeProgramName(int index, const juce::String &/*newName*/) {}
 
 
-void CenterSpaceAudioProcessor::prepareToPlay(double sampleRate, int /*samplesPerBlock*/)
+void CenterSpaceAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
-    // Initial setup for Envelope instance
     env.SetSampleRate (sampleRate);
     env.SetAttackTime (*attackParam);
     env.SetReleaseTime(*releaseParam);
+
+    inLeftBuffer.setSize    (1, samplesPerBlock, false, true, false);
+    inMidBuffer.setSize     (1, samplesPerBlock, false, true, false);
+    inRightBuffer.setSize   (1, samplesPerBlock, false, true, false);
+    inSideBuffer.setSize    (1, samplesPerBlock, false, true, false);
+    sidechainBuffer.setSize (1, samplesPerBlock, false, true, false);
+    outMidBuffer.setSize    (1, samplesPerBlock, false, true, false);
 }
 
 void CenterSpaceAudioProcessor::releaseResources()
@@ -134,15 +140,6 @@ bool CenterSpaceAudioProcessor::isBusesLayoutSupported(const BusesLayout &layout
 
 void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBuffer &/*midiMessages*/)
 {
-    juce::AudioBuffer<float> inLeftBuffer    (1, buffer.getNumSamples());
-    juce::AudioBuffer<float> inMidBuffer     (1, buffer.getNumSamples());
-    juce::AudioBuffer<float> inRightBuffer   (1, buffer.getNumSamples());
-    juce::AudioBuffer<float> inSideBuffer    (1, buffer.getNumSamples());
-
-    juce::AudioBuffer<float> sidechainBuffer (1, buffer.getNumSamples());
-    juce::AudioBuffer<float> outMidBuffer    (1, buffer.getNumSamples());
-    // Out Left and Out Right are channels 0 & 1 in processBlock's buffer
-
     inLeftBuffer.clear();
     inMidBuffer.clear();
     inRightBuffer.clear();
