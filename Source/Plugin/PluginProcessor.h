@@ -9,7 +9,6 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "Envelope.h"
 
 
 //==============================================================================
@@ -72,7 +71,7 @@ private:
 
     std::atomic<float> *peakRMSChoice         = nullptr;
 
-    Envelope env;
+    juce::dsp::BallisticsFilter<float> envelope;
 
     // Pre-allocated metering buffers.
     juce::AudioBuffer<float> inLeftBuffer;

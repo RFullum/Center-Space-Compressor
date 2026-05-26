@@ -109,9 +109,14 @@ void CenterSpaceAudioProcessor::changeProgramName(int index, const juce::String 
 
 void CenterSpaceAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
-    env.SetSampleRate (sampleRate);
-    env.SetAttackTime (attackParam->load());
-    env.SetReleaseTime(releaseParam->load());
+    juce::dsp::ProcessSpec spec;
+    spec.sampleRate       = sampleRate;
+    spec.maximumBlockSize = (juce::uint32)samplesPerBlock;
+    spec.numChannels      = 1;
+
+    envelope.prepare(spec);
+    envelope.setAttackTime (attackParam->load());
+    envelope.setReleaseTime(releaseParam->load());
 
     inLeftBuffer.setSize    (1, samplesPerBlock, false, true, false);
     inMidBuffer.setSize     (1, samplesPerBlock, false, true, false);
@@ -171,13 +176,11 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
     thresholdSmoothed.setTargetValue       (decibels.decibelsToGain(thresholdParam->load()));
     ratioReciprocalSmoothed.setTargetValue (1.0f / ratioParam->load());
 
-    const double currentSR = getSampleRate();
-
-    if (env.GetSampleRate() != currentSR)
-        env.SetSampleRate((float)currentSR);
-
-    env.SetAttackTime (attackParam->load());
-    env.SetReleaseTime(releaseParam->load());
+    envelope.setAttackTime (attackParam->load());
+    envelope.setReleaseTime(releaseParam->load());
+    envelope.setLevelCalculationType(peakMode == 1
+                                         ? juce::dsp::BallisticsFilterLevelCalculationType::RMS
+                                         : juce::dsp::BallisticsFilterLevelCalculationType::peak);
 
     constexpr float gainCompensation = 0.5f;    // M/S decode factor
 
@@ -239,8 +242,7 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
 
         sidechainBuffer.addSample(0, i, monoSidechainSample);
 
-        // Run sidechain through the envelope
-        const float envVal = env.Process(monoSidechainSample, peakMode);
+        const float envVal = envelope.processSample(0, monoSidechainSample);
 
         // Compressor gain
         const float compGain = (envVal < thresholdAmp)

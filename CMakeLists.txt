@@ -53,8 +53,6 @@ set(CenterSpace_SOURCES
     Source/Plugin/PluginProcessor.h
     Source/Plugin/PluginEditor.cpp
     Source/Plugin/PluginEditor.h
-    Source/DSP/Envelope.cpp
-    Source/DSP/Envelope.h
     Source/GUI/LookAndFeel/OtherLookAndFeel.cpp
     Source/GUI/LookAndFeel/OtherLookAndFeel.h
     Source/GUI/TitleHeader/TitleHeader.cpp

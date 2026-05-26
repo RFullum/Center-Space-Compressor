@@ -37,7 +37,7 @@ Don't push without explicit ask. The user manages branches.
 ```
 Source/
   Plugin/                     PluginProcessor, PluginEditor
-  DSP/                        Envelope (compressor envelope follower)
+  DSP/                        (empty; future compressor / detector code lands here)
   GUI/
     LookAndFeel/              OtherLookAndFeel, BoxLookAndFeel
     TitleHeader/              TitleHeader, TitleFooter
