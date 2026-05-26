@@ -10,6 +10,10 @@
 
 #include "Envelope.h"
 
+#include <JuceHeader.h>
+#include <cmath>
+
+
 //==============================================================================
 
 Envelope::Envelope() {}
