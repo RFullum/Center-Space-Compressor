@@ -107,7 +107,9 @@ private:
     std::atomic<float>       *focusChoice         = nullptr;
     juce::AudioParameterBool *lookaheadOnOffParam = nullptr;
 
-    juce::dsp::BallisticsFilter<float> envelope;
+    juce::dsp::BallisticsFilter<float>        envelope;
+    juce::dsp::StateVariableTPTFilter<float>  scHpf;
+    juce::dsp::StateVariableTPTFilter<float>  scLpf;
 
     // Pre-allocated metering buffers.
     juce::AudioBuffer<float> inLeftBuffer;
@@ -122,6 +124,8 @@ private:
     juce::SmoothedValue<float> sideGainSmoothed;
     juce::SmoothedValue<float> thresholdSmoothed;
     juce::SmoothedValue<float> ratioReciprocalSmoothed;
+    juce::SmoothedValue<float> scHpfSmoothed;
+    juce::SmoothedValue<float> scLpfSmoothed;
 
     static juce::Decibels decibels;
 

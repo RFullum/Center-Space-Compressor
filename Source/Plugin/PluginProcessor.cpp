@@ -13,6 +13,15 @@
 
 //==============================================================================
 
+namespace
+{
+    // Vibe = minimal UI controls; Tweak = all UI param controls
+    static constexpr int uiModeVibe  = 0;
+    static constexpr int uiModeTweak = 1;
+}
+
+//==============================================================================
+
 CenterSpaceAudioProcessor::CenterSpaceAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
 : juce::AudioProcessor(BusesProperties()
@@ -170,8 +179,16 @@ void CenterSpaceAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
     spec.numChannels      = 1;
 
     envelope.prepare(spec);
-    envelope.setAttackTime (attackParam->load());
-    envelope.setReleaseTime(releaseParam->load());
+    envelope.setAttackTime (GetEffectiveAttackMs());
+    envelope.setReleaseTime(GetEffectiveReleaseMs());
+
+    scHpf.prepare(spec);
+    scHpf.setType(juce::dsp::StateVariableTPTFilterType::highpass);
+    scHpf.reset();
+
+    scLpf.prepare(spec);
+    scLpf.setType(juce::dsp::StateVariableTPTFilterType::lowpass);
+    scLpf.reset();
 
     inLeftBuffer.setSize    (1, samplesPerBlock, false, true, false);
     inMidBuffer.setSize     (1, samplesPerBlock, false, true, false);
@@ -186,12 +203,16 @@ void CenterSpaceAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
     sideGainSmoothed.reset        (sampleRate, rampSec);
     thresholdSmoothed.reset       (sampleRate, rampSec);
     ratioReciprocalSmoothed.reset (sampleRate, rampSec);
+    scHpfSmoothed.reset           (sampleRate, rampSec);
+    scLpfSmoothed.reset           (sampleRate, rampSec);
 
     inGainSmoothed.setCurrentAndTargetValue         (decibels.decibelsToGain(inputGainParam->load()));
     outGainSmoothed.setCurrentAndTargetValue        (decibels.decibelsToGain(outputGainParam->load()));
-    sideGainSmoothed.setCurrentAndTargetValue       (decibels.decibelsToGain(sidechainInGainParam->load()));
-    thresholdSmoothed.setCurrentAndTargetValue      (decibels.decibelsToGain(thresholdParam->load()));
-    ratioReciprocalSmoothed.setCurrentAndTargetValue(1.0f / ratioParam->load());
+    sideGainSmoothed.setCurrentAndTargetValue       (decibels.decibelsToGain(GetEffectiveSideInGainDb()));
+    thresholdSmoothed.setCurrentAndTargetValue      (decibels.decibelsToGain(GetEffectiveThresholdDb()));
+    ratioReciprocalSmoothed.setCurrentAndTargetValue(1.0f / GetEffectiveRatio());
+    scHpfSmoothed.setCurrentAndTargetValue          (GetEffectiveScHpfHz());
+    scLpfSmoothed.setCurrentAndTargetValue          (GetEffectiveScLpfHz());
 }
 
 void CenterSpaceAudioProcessor::releaseResources()
@@ -223,16 +244,18 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
     outMidBuffer.clear();
 
     const int numSamples = buffer.getNumSamples();
-    const int peakMode   = (int)peakRMSChoice->load();
+    const int peakMode   = GetEffectivePeakMode();
 
     inGainSmoothed.setTargetValue          (decibels.decibelsToGain(inputGainParam->load()));
     outGainSmoothed.setTargetValue         (decibels.decibelsToGain(outputGainParam->load()));
-    sideGainSmoothed.setTargetValue        (decibels.decibelsToGain(sidechainInGainParam->load()));
-    thresholdSmoothed.setTargetValue       (decibels.decibelsToGain(thresholdParam->load()));
-    ratioReciprocalSmoothed.setTargetValue (1.0f / ratioParam->load());
+    sideGainSmoothed.setTargetValue        (decibels.decibelsToGain(GetEffectiveSideInGainDb()));
+    thresholdSmoothed.setTargetValue       (decibels.decibelsToGain(GetEffectiveThresholdDb()));
+    ratioReciprocalSmoothed.setTargetValue (1.0f / GetEffectiveRatio());
+    scHpfSmoothed.setTargetValue           (GetEffectiveScHpfHz());
+    scLpfSmoothed.setTargetValue           (GetEffectiveScLpfHz());
 
-    envelope.setAttackTime (attackParam->load());
-    envelope.setReleaseTime(releaseParam->load());
+    envelope.setAttackTime (GetEffectiveAttackMs());
+    envelope.setReleaseTime(GetEffectiveReleaseMs());
     envelope.setLevelCalculationType(peakMode == 1
                                          ? juce::dsp::BallisticsFilterLevelCalculationType::RMS
                                          : juce::dsp::BallisticsFilterLevelCalculationType::peak);
@@ -294,6 +317,12 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
             monoSidechainSample += scReadPointers[j][i];
 
         monoSidechainSample *= scChannelScale * sideGainAmp;
+
+        // SC filters 
+        scHpf.setCutoffFrequency(scHpfSmoothed.getNextValue());
+        scLpf.setCutoffFrequency(scLpfSmoothed.getNextValue());
+        monoSidechainSample = scHpf.processSample(0, monoSidechainSample);
+        monoSidechainSample = scLpf.processSample(0, monoSidechainSample);
 
         sidechainBuffer.addSample(0, i, monoSidechainSample);
 
@@ -386,19 +415,9 @@ juce::AudioProcessor *JUCE_CALLTYPE createPluginFilter()
 }
 
 
-//==============================================================================
-// Effective-value derivation layer. See CLAUDE.md "Vibe / Tweak modes" and
-// "Vibe-mode macro derivations". uiMode choice index: 0 = Vibe, 1 = Tweak.
-
-namespace
-{
-    constexpr int kUiModeVibe  = 0;
-    constexpr int kUiModeTweak = 1;
-}
-
 float CenterSpaceAudioProcessor::GetEffectiveSideInGainDb() const
 {
-    if ((int)uiModeChoice->load() == kUiModeTweak)
+    if ((int)uiModeChoice->load() == uiModeTweak)
         return sidechainInGainParam->load();
 
     return CenterSpace::Derivations::CompressToSideInGainDb(compressParam->load());
@@ -406,7 +425,7 @@ float CenterSpaceAudioProcessor::GetEffectiveSideInGainDb() const
 
 float CenterSpaceAudioProcessor::GetEffectiveScHpfHz() const
 {
-    if ((int)uiModeChoice->load() == kUiModeTweak)
+    if ((int)uiModeChoice->load() == uiModeTweak)
         return scHpfHzParam->load();
 
     const auto preset = (CenterSpace::Derivations::FocusPreset)(int)focusChoice->load();
@@ -415,7 +434,7 @@ float CenterSpaceAudioProcessor::GetEffectiveScHpfHz() const
 
 float CenterSpaceAudioProcessor::GetEffectiveScLpfHz() const
 {
-    if ((int)uiModeChoice->load() == kUiModeTweak)
+    if ((int)uiModeChoice->load() == uiModeTweak)
         return scLpfHzParam->load();
 
     const auto preset = (CenterSpace::Derivations::FocusPreset)(int)focusChoice->load();
@@ -426,7 +445,7 @@ int CenterSpaceAudioProcessor::GetEffectivePeakMode() const
 {
     using namespace CenterSpace::Derivations;
 
-    if ((int)uiModeChoice->load() == kUiModeTweak)
+    if ((int)uiModeChoice->load() == uiModeTweak)
     {
         const auto style    = (Style)(int)styleChoice->load();
         const auto userMode = (PeakMode)(int)peakRMSChoice->load();
@@ -441,7 +460,7 @@ float CenterSpaceAudioProcessor::GetEffectiveAttackMs() const
 {
     using namespace CenterSpace::Derivations;
 
-    if ((int)uiModeChoice->load() == kUiModeTweak)
+    if ((int)uiModeChoice->load() == uiModeTweak)
         return attackParam->load();
 
     const auto feel = (Feel)(int)feelChoice->load();
@@ -452,7 +471,7 @@ float CenterSpaceAudioProcessor::GetEffectiveReleaseMs() const
 {
     using namespace CenterSpace::Derivations;
 
-    if ((int)uiModeChoice->load() == kUiModeTweak)
+    if ((int)uiModeChoice->load() == uiModeTweak)
         return releaseParam->load();
 
     const auto feel = (Feel)(int)feelChoice->load();
@@ -463,7 +482,7 @@ int CenterSpaceAudioProcessor::GetEffectiveStyle() const
 {
     using namespace CenterSpace::Derivations;
 
-    if ((int)uiModeChoice->load() == kUiModeTweak)
+    if ((int)uiModeChoice->load() == uiModeTweak)
         return (int)styleChoice->load();
 
     const auto feel = (Feel)(int)feelChoice->load();
@@ -472,7 +491,7 @@ int CenterSpaceAudioProcessor::GetEffectiveStyle() const
 
 float CenterSpaceAudioProcessor::GetEffectiveThresholdDb() const
 {
-    if ((int)uiModeChoice->load() == kUiModeTweak)
+    if ((int)uiModeChoice->load() == uiModeTweak)
         return thresholdParam->load();
 
     return CenterSpace::Derivations::CompressToThresholdDb(compressParam->load());
@@ -480,7 +499,7 @@ float CenterSpaceAudioProcessor::GetEffectiveThresholdDb() const
 
 float CenterSpaceAudioProcessor::GetEffectiveRatio() const
 {
-    if ((int)uiModeChoice->load() == kUiModeTweak)
+    if ((int)uiModeChoice->load() == uiModeTweak)
         return ratioParam->load();
 
     return CenterSpace::Derivations::CompressToRatio(compressParam->load());
@@ -490,7 +509,7 @@ float CenterSpaceAudioProcessor::GetEffectiveKneeDb() const
 {
     using namespace CenterSpace::Derivations;
 
-    if ((int)uiModeChoice->load() == kUiModeTweak)
+    if ((int)uiModeChoice->load() == uiModeTweak)
     {
         const auto style = (Style)(int)styleChoice->load();
         return ApplyStyleOverrideToKneeDb(style, kneeParam->load());
@@ -506,7 +525,7 @@ int CenterSpaceAudioProcessor::GetEffectiveLookaheadSamples() const
 
     float ms = 0.0f;
 
-    if ((int)uiModeChoice->load() == kUiModeTweak)
+    if ((int)uiModeChoice->load() == uiModeTweak)
     {
         ms = LookaheadChoiceToMs((LookaheadChoice)(int)lookaheadChoice->load());
     }
