@@ -500,6 +500,35 @@ namespace
         if (MsToSamples(4.0f,  48000.0) != 192) { std::cerr << "FAIL: 4 ms @ 48k\n";  ++failureCount; }
         if (MsToSamples(10.0f, 44100.0) != 441) { std::cerr << "FAIL: 10 ms @ 44.1k\n"; ++failureCount; }
         if (MsToSamples(0.0f,  48000.0) != 0)   { std::cerr << "FAIL: 0 ms\n";        ++failureCount; }
+
+        // Full grid: every lookahead choice at every common sample rate. This is
+        // the sample count the processor will pass to setLatencySamples().
+        struct Case { LookaheadChoice choice; double sr; int expected; };
+        const Case cases[] = {
+            { LookaheadChoice::Ms0,   44100.0, 0    },
+            { LookaheadChoice::Ms1,   44100.0, 44   },
+            { LookaheadChoice::Ms4,   44100.0, 176  },
+            { LookaheadChoice::Ms10,  44100.0, 441  },
+            { LookaheadChoice::Ms0,   48000.0, 0    },
+            { LookaheadChoice::Ms1,   48000.0, 48   },
+            { LookaheadChoice::Ms4,   48000.0, 192  },
+            { LookaheadChoice::Ms10,  48000.0, 480  },
+            { LookaheadChoice::Ms0,   96000.0, 0    },
+            { LookaheadChoice::Ms1,   96000.0, 96   },
+            { LookaheadChoice::Ms4,   96000.0, 384  },
+            { LookaheadChoice::Ms10,  96000.0, 960  },
+        };
+        for (const auto &c : cases)
+        {
+            const int actual = MsToSamples(LookaheadChoiceToMs(c.choice), c.sr);
+            if (actual != c.expected)
+            {
+                std::cerr << "FAIL: lookahead choice " << (int)c.choice
+                          << " @ " << c.sr << " Hz -> " << actual
+                          << ", expected " << c.expected << "\n";
+                ++failureCount;
+            }
+        }
     }
 }
 

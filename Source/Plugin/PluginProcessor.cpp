@@ -190,6 +190,19 @@ void CenterSpaceAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
     scLpf.setType(juce::dsp::StateVariableTPTFilterType::lowpass);
     scLpf.reset();
 
+    juce::dsp::ProcessSpec stereoSpec;
+    stereoSpec.sampleRate       = sampleRate;
+    stereoSpec.maximumBlockSize = (juce::uint32)samplesPerBlock;
+    stereoSpec.numChannels      = 2;
+
+    lookaheadDelay.prepare(stereoSpec);
+    lookaheadDelay.setMaximumDelayInSamples(maxLookaheadSamples);
+    lookaheadDelay.reset();
+
+    currentLookaheadSamples = juce::jlimit(0, maxLookaheadSamples, GetEffectiveLookaheadSamples());
+    lookaheadDelay.setDelay((float)currentLookaheadSamples);
+    setLatencySamples(currentLookaheadSamples);
+
     inLeftBuffer.setSize    (1, samplesPerBlock, false, true, false);
     inMidBuffer.setSize     (1, samplesPerBlock, false, true, false);
     inRightBuffer.setSize   (1, samplesPerBlock, false, true, false);
@@ -257,6 +270,15 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
     scHpfSmoothed.setTargetValue           (GetEffectiveScHpfHz());
     scLpfSmoothed.setTargetValue           (GetEffectiveScLpfHz());
 
+    const int newLookaheadSamples = juce::jlimit(0, maxLookaheadSamples, GetEffectiveLookaheadSamples());
+    if (newLookaheadSamples != currentLookaheadSamples)
+    {
+        lookaheadDelay.reset();
+        lookaheadDelay.setDelay((float)newLookaheadSamples);
+        setLatencySamples(newLookaheadSamples);
+        currentLookaheadSamples = newLookaheadSamples;
+    }
+
     envelope.setAttackTime (GetEffectiveAttackMs());
     envelope.setReleaseTime(GetEffectiveReleaseMs());
     envelope.setLevelCalculationType(peakMode == 1
@@ -304,14 +326,20 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
         const float kneeDb       = kneeSmoothed.getNextValue();
         const float outScale     = outGainAmp * gainCompensation;
 
+        // Lookahead delay on L and R so mid/side stay aligned.
+        lookaheadDelay.pushSample(0, leftChannel[i]);
+        lookaheadDelay.pushSample(1, rightChannel[i]);
+        const float lDel = lookaheadDelay.popSample(0);
+        const float rDel = lookaheadDelay.popSample(1);
+
         // Encode Main Stereo to MS
-        const float mid  = (leftChannel[i] + rightChannel[i]) * inGainAmp;
-        const float side = (leftChannel[i] - rightChannel[i]) * inGainAmp;
+        const float mid  = (lDel + rDel) * inGainAmp;
+        const float side = (lDel - rDel) * inGainAmp;
 
         // Input Metering
-        inLeftBuffer.addSample (0, i, leftChannel[i]  * inGainAmp);
+        inLeftBuffer.addSample (0, i, lDel * inGainAmp);
         inMidBuffer.addSample  (0, i, mid);
-        inRightBuffer.addSample(0, i, rightChannel[i] * inGainAmp);
+        inRightBuffer.addSample(0, i, rDel * inGainAmp);
         inSideBuffer.addSample (0, i, side);
 
         // Mono the sidechain

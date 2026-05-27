@@ -111,6 +111,10 @@ private:
     juce::dsp::StateVariableTPTFilter<float>  scHpf;
     juce::dsp::StateVariableTPTFilter<float>  scLpf;
 
+    static constexpr int maxLookaheadSamples = 2048;
+    juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::None> lookaheadDelay { maxLookaheadSamples };
+    int currentLookaheadSamples = 0;
+
     // Pre-allocated metering buffers.
     juce::AudioBuffer<float> inLeftBuffer;
     juce::AudioBuffer<float> inMidBuffer;
