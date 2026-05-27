@@ -61,15 +61,33 @@ public:
     float gainReduction  = 0.0f;
 
 private:
-    std::atomic<float> *inputGainParam        = nullptr;
+    // Shared
+    std::atomic<float>       *uiModeChoice         = nullptr;
+    std::atomic<float>       *inputTypeChoice      = nullptr;
+    std::atomic<float>       *inputGainParam       = nullptr;
+    std::atomic<float>       *outputGainParam      = nullptr;
+    std::atomic<float>       *outputTypeChoice     = nullptr;
+    juce::AudioParameterBool *bypassParam          = nullptr;
+
+    // Tweak-mode direct params
     std::atomic<float> *sidechainInGainParam  = nullptr;
+    std::atomic<float> *scHpfHzParam          = nullptr;
+    std::atomic<float> *scLpfHzParam          = nullptr;
+    std::atomic<float> *peakRMSChoice         = nullptr;
     std::atomic<float> *attackParam           = nullptr;
     std::atomic<float> *releaseParam          = nullptr;
+    std::atomic<float> *styleChoice           = nullptr;
     std::atomic<float> *thresholdParam        = nullptr;
     std::atomic<float> *ratioParam            = nullptr;
-    std::atomic<float> *outputGainParam       = nullptr;
+    std::atomic<float> *kneeParam             = nullptr;
+    std::atomic<float> *lookaheadChoice       = nullptr;
 
-    std::atomic<float> *peakRMSChoice         = nullptr;
+    // Vibe-mode macros
+    std::atomic<float>       *feelChoice          = nullptr;
+    std::atomic<float>       *compressParam       = nullptr;
+    std::atomic<float>       *reactParam          = nullptr;
+    std::atomic<float>       *focusChoice         = nullptr;
+    juce::AudioParameterBool *lookaheadOnOffParam = nullptr;
 
     juce::dsp::BallisticsFilter<float> envelope;
 

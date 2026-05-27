@@ -26,24 +26,76 @@ CenterSpaceAudioProcessor::CenterSpaceAudioProcessor()
 ,
 #endif
   parameters(*this, nullptr, "ParameterTree", {
-      std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"inGain",     1}, "Input Gain dB",           juce::NormalisableRange<float>(-100.0f, 12.0f, 0.01f, 4.0f, false),  0.0f, "dB")
-    , std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"sideInGain", 1}, "Sidechain Input Gain dB", juce::NormalisableRange<float>(-100.0f, 12.0f, 0.01f, 4.0f, false),  0.0f, "dB")
-    , std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"attack",     1}, "Attack ms",               juce::NormalisableRange<float>(0.01f, 2000.0f, 0.01f, 0.15f, false), 0.2f, "ms")
-    , std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"release",    1}, "Release ms",              juce::NormalisableRange<float>(1.0f, 2000.0f, 0.01f, 0.15f, false),  2.0f, "ms")
-    , std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"threshold",  1}, "Threshold dB",            juce::NormalisableRange<float>(-100.0f, 12.0f, 0.01f, 4.0f, false),  0.0f, "dB")
-    , std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"ratio",      1}, "Ratio",                   juce::NormalisableRange<float>(1.0f, 20.0f, 0.1f, 0.4f, false),      1.0f, ":1")
-    , std::make_unique<juce::AudioParameterFloat>(juce::ParameterID{"outGain",    1}, "Output Gain dB",          juce::NormalisableRange<float>(-100.0f, 12.0f, 0.01f, 4.0f, false),  0.0f, "dB")
-    , std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{"peakRMS",   1}, "Peak/RMS",                juce::StringArray({"Peak", "RMS"}), 0)
+      // Shared
+      std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{"uiMode",     1}, "UI Mode",                 juce::StringArray({"Vibe", "Tweak"}), 0)
+    , std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{"inputType",  1}, "Input Type",              juce::StringArray({"LR", "M/S"}), 0)
+    , std::make_unique<juce::AudioParameterFloat> (juce::ParameterID{"inGain",     1}, "Input Gain dB",           juce::NormalisableRange<float>(-100.0f, 12.0f, 0.01f, 4.0f, false),    0.0f, "dB")
+    , std::make_unique<juce::AudioParameterFloat> (juce::ParameterID{"outGain",    1}, "Output Gain dB",          juce::NormalisableRange<float>(-100.0f, 12.0f, 0.01f, 4.0f, false),    0.0f, "dB")
+    , std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{"outputType", 1}, "Output Type",             juce::StringArray({"LR", "M/S"}), 0)
+    , std::make_unique<juce::AudioParameterBool>  (juce::ParameterID{"bypass",     1}, "Bypass",                  false)
+
+      // Tweak-mode primitives
+    , std::make_unique<juce::AudioParameterFloat> (juce::ParameterID{"sideInGain", 1}, "Sidechain Input Gain dB", juce::NormalisableRange<float>(-100.0f, 12.0f, 0.01f, 4.0f, false),    0.0f, "dB")
+    , std::make_unique<juce::AudioParameterFloat> (juce::ParameterID{"scHpfHz",    1}, "SC HPF Hz",               juce::NormalisableRange<float>(20.0f, 2000.0f, 0.01f, 0.3f, false),    20.0f, "Hz")
+    , std::make_unique<juce::AudioParameterFloat> (juce::ParameterID{"scLpfHz",    1}, "SC LPF Hz",               juce::NormalisableRange<float>(200.0f, 20000.0f, 0.01f, 0.3f, false),  20000.0f, "Hz")
+    , std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{"peakRMS",    1}, "Peak/RMS",                juce::StringArray({"Peak", "RMS"}), 0)
+    , std::make_unique<juce::AudioParameterFloat> (juce::ParameterID{"attack",     1}, "Attack ms",               juce::NormalisableRange<float>(0.01f, 2000.0f, 0.01f, 0.15f, false),   10.0f, "ms")
+    , std::make_unique<juce::AudioParameterFloat> (juce::ParameterID{"release",    1}, "Release ms",              juce::NormalisableRange<float>(1.0f, 2000.0f, 0.01f, 0.15f, false),    100.0f, "ms")
+    , std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{"style",      1}, "Style",                   juce::StringArray({"Modern VCA", "Opto"}), 0)
+    , std::make_unique<juce::AudioParameterFloat> (juce::ParameterID{"threshold",  1}, "Threshold dB",            juce::NormalisableRange<float>(-100.0f, 12.0f, 0.01f, 4.0f, false),    0.0f, "dB")
+    , std::make_unique<juce::AudioParameterFloat> (juce::ParameterID{"ratio",      1}, "Ratio",                   juce::NormalisableRange<float>(1.0f, 20.0f, 0.1f, 0.4f, false),        1.0f, ":1")
+    , std::make_unique<juce::AudioParameterFloat> (juce::ParameterID{"knee",       1}, "Knee dB",                 juce::NormalisableRange<float>(0.0f, 24.0f, 0.01f),                    0.0f, "dB")
+    , std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{"lookahead",  1}, "Lookahead",               juce::StringArray({"0 ms", "1 ms", "4 ms", "10 ms"}), 0)
+
+      // Vibe-mode macros
+    , std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{"feel",       1}, "Feel",                    juce::StringArray({"Clean", "Smooth"}), 0)
+    , std::make_unique<juce::AudioParameterFloat> (juce::ParameterID{"compress",   1}, "Compress",                juce::NormalisableRange<float>(0.0f, 1.0f, 0.001f),                    0.0f)
+    , std::make_unique<juce::AudioParameterFloat> (juce::ParameterID{"react",      1}, "React",                   juce::NormalisableRange<float>(0.0f, 1.0f, 0.001f),                    0.5f)
+    , std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{"focus",      1}, "Focus",                   juce::StringArray({"Full Range"
+                                                                                                                                     , "Reduce Bass"
+                                                                                                                                     , "Transient Focus"
+                                                                                                                                     , "Lows"
+                                                                                                                                     , "Low Mid"
+                                                                                                                                     , "High Mid"
+                                                                                                                                     , "High"
+                                                                                                                                     , "Vocal Body"
+                                                                                                                                     , "Vocal Clarity"
+                                                                                                                                     , "Kick Thump"
+                                                                                                                                     , "Kick Smack"
+                                                                                                                                     , "Snare Thump"
+                                                                                                                                     , "Snare Smack"
+                                                                                                                                     , "Bass Body"
+                                                                                                                                     , "Hats Range"}), 0)
+    , std::make_unique<juce::AudioParameterBool>  (juce::ParameterID{"lookaheadOnOff", 1}, "Lookahead On/Off",    false)
   })
 {
+    // Shared
+    uiModeChoice         = parameters.getRawParameterValue("uiMode");
+    inputTypeChoice      = parameters.getRawParameterValue("inputType");
     inputGainParam       = parameters.getRawParameterValue("inGain");
+    outputGainParam      = parameters.getRawParameterValue("outGain");
+    outputTypeChoice     = parameters.getRawParameterValue("outputType");
+    bypassParam          = dynamic_cast<juce::AudioParameterBool *>(parameters.getParameter("bypass"));
+
+    // Tweak-mode direct params
     sidechainInGainParam = parameters.getRawParameterValue("sideInGain");
+    scHpfHzParam         = parameters.getRawParameterValue("scHpfHz");
+    scLpfHzParam         = parameters.getRawParameterValue("scLpfHz");
+    peakRMSChoice        = parameters.getRawParameterValue("peakRMS");
     attackParam          = parameters.getRawParameterValue("attack");
     releaseParam         = parameters.getRawParameterValue("release");
+    styleChoice          = parameters.getRawParameterValue("style");
     thresholdParam       = parameters.getRawParameterValue("threshold");
     ratioParam           = parameters.getRawParameterValue("ratio");
-    outputGainParam      = parameters.getRawParameterValue("outGain");
-    peakRMSChoice        = parameters.getRawParameterValue("peakRMS");
+    kneeParam            = parameters.getRawParameterValue("knee");
+    lookaheadChoice      = parameters.getRawParameterValue("lookahead");
+
+    // Vibe-mode macro params
+    feelChoice           = parameters.getRawParameterValue("feel");
+    compressParam        = parameters.getRawParameterValue("compress");
+    reactParam           = parameters.getRawParameterValue("react");
+    focusChoice          = parameters.getRawParameterValue("focus");
+    lookaheadOnOffParam  = dynamic_cast<juce::AudioParameterBool *>(parameters.getParameter("lookaheadOnOff"));
 }
 
 CenterSpaceAudioProcessor::~CenterSpaceAudioProcessor() {}
