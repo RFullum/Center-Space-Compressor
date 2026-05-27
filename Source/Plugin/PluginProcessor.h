@@ -61,6 +61,24 @@ public:
     std::atomic<float> gainReduction  { 0.0f };
 
 private:
+    // Effective-value derivation layer.
+    // Tweak (full control) mode: returns the matching primitive directly
+    //  (with the Opto style override applied to peakMode and knee);
+    // Vibe mode (minimal control): derives from the macros
+    float GetEffectiveSideInGainDb()     const;
+    float GetEffectiveScHpfHz()          const;
+    float GetEffectiveScLpfHz()          const;
+    int   GetEffectivePeakMode()         const;
+    float GetEffectiveAttackMs()         const;
+    float GetEffectiveReleaseMs()        const;
+    int   GetEffectiveStyle()            const;
+    float GetEffectiveThresholdDb()      const;
+    float GetEffectiveRatio()            const;
+    float GetEffectiveKneeDb()           const;
+    int   GetEffectiveLookaheadSamples() const;
+
+    double currentSampleRate = 44100.0;
+
     // Shared
     std::atomic<float>       *uiModeChoice         = nullptr;
     std::atomic<float>       *inputTypeChoice      = nullptr;

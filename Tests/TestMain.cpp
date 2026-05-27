@@ -17,6 +17,8 @@
 #include <juce_core/juce_core.h>
 #include <juce_dsp/juce_dsp.h>
 
+#include "Derivations.h"
+
 #include <cmath>
 #include <iostream>
 
@@ -166,6 +168,147 @@ namespace
 
 
 //==============================================================================
+// Vibe/Tweak effective-value derivation layer. See Source/DSP/Derivations.h
+// and CLAUDE.md "Vibe-mode macro derivations".
+
+namespace
+{
+    void TestCompressMacro()
+    {
+        using namespace CenterSpace::Derivations;
+        std::cout << "[test] compress macro\n";
+
+        EXPECT_NEAR(CompressToSideInGainDb(0.0f),   0.0f, 1e-5f);
+        EXPECT_NEAR(CompressToSideInGainDb(0.5f),   3.0f, 1e-5f);
+        EXPECT_NEAR(CompressToSideInGainDb(1.0f),   9.0f, 1e-5f);
+        EXPECT_NEAR(CompressToSideInGainDb(0.25f),  1.5f, 1e-5f);   // midpoint of 0→0.5 segment
+        EXPECT_NEAR(CompressToSideInGainDb(0.75f),  6.0f, 1e-5f);   // midpoint of 0.5→1 segment
+
+        EXPECT_NEAR(CompressToThresholdDb(0.0f),    0.0f,   1e-5f);
+        EXPECT_NEAR(CompressToThresholdDb(0.5f),  -12.0f,   1e-5f);
+        EXPECT_NEAR(CompressToThresholdDb(1.0f),  -30.0f,   1e-5f);
+        EXPECT_NEAR(CompressToThresholdDb(0.25f),  -6.0f,   1e-5f);
+        EXPECT_NEAR(CompressToThresholdDb(0.75f), -21.0f,   1e-5f);
+
+        EXPECT_NEAR(CompressToRatio(0.0f),  1.0f,  1e-5f);
+        EXPECT_NEAR(CompressToRatio(0.5f),  3.0f,  1e-5f);
+        EXPECT_NEAR(CompressToRatio(1.0f), 10.0f,  1e-5f);
+        EXPECT_NEAR(CompressToRatio(0.25f), 2.0f,  1e-5f);
+        EXPECT_NEAR(CompressToRatio(0.75f), 6.5f,  1e-5f);
+    }
+
+
+    void TestReactMacro()
+    {
+        using namespace CenterSpace::Derivations;
+        std::cout << "[test] react macro\n";
+
+        const auto cleanAtk  = GetAttackRangeForFeel (Feel::Clean);
+        const auto cleanRel  = GetReleaseRangeForFeel(Feel::Clean);
+        const auto smoothAtk = GetAttackRangeForFeel (Feel::Smooth);
+        const auto smoothRel = GetReleaseRangeForFeel(Feel::Smooth);
+
+        EXPECT_NEAR(cleanAtk.minMs,   0.5f,  1e-5f);
+        EXPECT_NEAR(cleanAtk.maxMs,  30.0f,  1e-5f);
+        EXPECT_NEAR(cleanRel.minMs,  30.0f,  1e-5f);
+        EXPECT_NEAR(cleanRel.maxMs, 500.0f,  1e-5f);
+
+        EXPECT_NEAR(smoothAtk.minMs,    5.0f,   1e-5f);
+        EXPECT_NEAR(smoothAtk.maxMs,  100.0f,   1e-5f);
+        EXPECT_NEAR(smoothRel.minMs,  100.0f,   1e-5f);
+        EXPECT_NEAR(smoothRel.maxMs, 1000.0f,   1e-5f);
+
+        // react = 0 → min of range, react = 1 → max of range.
+        EXPECT_NEAR(ReactToMs(0.0f, smoothAtk),    5.0f, 1e-5f);
+        EXPECT_NEAR(ReactToMs(1.0f, smoothAtk),  100.0f, 1e-5f);
+        EXPECT_NEAR(ReactToMs(0.0f, smoothRel),  100.0f, 1e-5f);
+        EXPECT_NEAR(ReactToMs(1.0f, smoothRel), 1000.0f, 1e-5f);
+        EXPECT_NEAR(ReactToMs(0.5f, cleanAtk),   15.25f, 1e-4f);
+    }
+
+
+    void TestFeelBakes()
+    {
+        using namespace CenterSpace::Derivations;
+        std::cout << "[test] feel bakes\n";
+
+        // Clean
+        if (FeelToStyle   (Feel::Clean) != Style::ModernVCA) { std::cerr << "FAIL: Clean style\n";       ++failureCount; }
+        if (FeelToPeakMode(Feel::Clean) != PeakMode::Peak)   { std::cerr << "FAIL: Clean peakMode\n";    ++failureCount; }
+        EXPECT_NEAR(FeelToKneeDb         (Feel::Clean), 0.0f, 1e-5f);
+        EXPECT_NEAR(FeelToLookaheadOnMs  (Feel::Clean), 1.0f, 1e-5f);
+
+        // Smooth
+        if (FeelToStyle   (Feel::Smooth) != Style::Opto)    { std::cerr << "FAIL: Smooth style\n";       ++failureCount; }
+        if (FeelToPeakMode(Feel::Smooth) != PeakMode::RMS)  { std::cerr << "FAIL: Smooth peakMode\n";    ++failureCount; }
+        EXPECT_NEAR(FeelToKneeDb         (Feel::Smooth), 12.0f, 1e-5f);
+        EXPECT_NEAR(FeelToLookaheadOnMs  (Feel::Smooth),  4.0f, 1e-5f);
+    }
+
+
+    void TestFocusPresets()
+    {
+        using namespace CenterSpace::Derivations;
+        std::cout << "[test] focus presets\n";
+
+        const auto fullRange    = FocusToScCutoffs(FocusPreset::FullRange);
+        const auto kickThump    = FocusToScCutoffs(FocusPreset::KickThump);
+        const auto vocalClarity = FocusToScCutoffs(FocusPreset::VocalClarity);
+        const auto hatsRange    = FocusToScCutoffs(FocusPreset::HatsRange);
+
+        EXPECT_NEAR(fullRange.hpfHz,       20.0f, 1e-5f);
+        EXPECT_NEAR(fullRange.lpfHz,    20000.0f, 1e-5f);
+        EXPECT_NEAR(kickThump.hpfHz,       40.0f, 1e-5f);
+        EXPECT_NEAR(kickThump.lpfHz,       90.0f, 1e-5f);
+        EXPECT_NEAR(vocalClarity.hpfHz,  1000.0f, 1e-5f);
+        EXPECT_NEAR(vocalClarity.lpfHz,  3000.0f, 1e-5f);
+        EXPECT_NEAR(hatsRange.hpfHz,      350.0f, 1e-5f);
+        EXPECT_NEAR(hatsRange.lpfHz,    20000.0f, 1e-5f);
+    }
+
+
+    void TestStyleOverride()
+    {
+        using namespace CenterSpace::Derivations;
+        std::cout << "[test] style override (Opto forces RMS + 12 dB knee)\n";
+
+        // Modern VCA: pass user values through.
+        if (ApplyStyleOverrideToPeakMode(Style::ModernVCA, PeakMode::Peak) != PeakMode::Peak)
+        { std::cerr << "FAIL: VCA passthrough Peak\n"; ++failureCount; }
+        if (ApplyStyleOverrideToPeakMode(Style::ModernVCA, PeakMode::RMS) != PeakMode::RMS)
+        { std::cerr << "FAIL: VCA passthrough RMS\n";  ++failureCount; }
+        EXPECT_NEAR(ApplyStyleOverrideToKneeDb(Style::ModernVCA,  0.0f),  0.0f, 1e-5f);
+        EXPECT_NEAR(ApplyStyleOverrideToKneeDb(Style::ModernVCA, 24.0f), 24.0f, 1e-5f);
+
+        // Opto: force RMS + 12 dB knee regardless of user value.
+        if (ApplyStyleOverrideToPeakMode(Style::Opto, PeakMode::Peak) != PeakMode::RMS)
+        { std::cerr << "FAIL: Opto did not force RMS from Peak\n"; ++failureCount; }
+        if (ApplyStyleOverrideToPeakMode(Style::Opto, PeakMode::RMS) != PeakMode::RMS)
+        { std::cerr << "FAIL: Opto RMS\n"; ++failureCount; }
+        EXPECT_NEAR(ApplyStyleOverrideToKneeDb(Style::Opto,  0.0f), 12.0f, 1e-5f);
+        EXPECT_NEAR(ApplyStyleOverrideToKneeDb(Style::Opto, 24.0f), 12.0f, 1e-5f);
+    }
+
+
+    void TestLookaheadChoice()
+    {
+        using namespace CenterSpace::Derivations;
+        std::cout << "[test] lookahead choice to ms / samples\n";
+
+        EXPECT_NEAR(LookaheadChoiceToMs(LookaheadChoice::Ms0),   0.0f, 1e-5f);
+        EXPECT_NEAR(LookaheadChoiceToMs(LookaheadChoice::Ms1),   1.0f, 1e-5f);
+        EXPECT_NEAR(LookaheadChoiceToMs(LookaheadChoice::Ms4),   4.0f, 1e-5f);
+        EXPECT_NEAR(LookaheadChoiceToMs(LookaheadChoice::Ms10), 10.0f, 1e-5f);
+
+        // 4 ms @ 48 kHz = 192 samples; 10 ms @ 44.1 kHz = 441; 0 ms = 0.
+        if (MsToSamples(4.0f,  48000.0) != 192) { std::cerr << "FAIL: 4 ms @ 48k\n";  ++failureCount; }
+        if (MsToSamples(10.0f, 44100.0) != 441) { std::cerr << "FAIL: 10 ms @ 44.1k\n"; ++failureCount; }
+        if (MsToSamples(0.0f,  48000.0) != 0)   { std::cerr << "FAIL: 0 ms\n";        ++failureCount; }
+    }
+}
+
+
+//==============================================================================
 
 int main()
 {
@@ -174,6 +317,12 @@ int main()
     TestCompressorStaticCurve();
     TestMidSideRoundTrip();
     TestBallisticsAttackTime();
+    TestCompressMacro();
+    TestReactMacro();
+    TestFeelBakes();
+    TestFocusPresets();
+    TestStyleOverride();
+    TestLookaheadChoice();
 
     if (failureCount == 0)
     {

@@ -8,6 +8,7 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include "Derivations.h"
 
 
 //==============================================================================
@@ -161,6 +162,8 @@ void CenterSpaceAudioProcessor::changeProgramName(int index, const juce::String 
 
 void CenterSpaceAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
+    currentSampleRate = sampleRate;
+
     juce::dsp::ProcessSpec spec;
     spec.sampleRate       = sampleRate;
     spec.maximumBlockSize = (juce::uint32)samplesPerBlock;
@@ -380,4 +383,138 @@ void CenterSpaceAudioProcessor::setStateInformation(const void *data, int sizeIn
 juce::AudioProcessor *JUCE_CALLTYPE createPluginFilter()
 {
     return new CenterSpaceAudioProcessor();
+}
+
+
+//==============================================================================
+// Effective-value derivation layer. See CLAUDE.md "Vibe / Tweak modes" and
+// "Vibe-mode macro derivations". uiMode choice index: 0 = Vibe, 1 = Tweak.
+
+namespace
+{
+    constexpr int kUiModeVibe  = 0;
+    constexpr int kUiModeTweak = 1;
+}
+
+float CenterSpaceAudioProcessor::GetEffectiveSideInGainDb() const
+{
+    if ((int)uiModeChoice->load() == kUiModeTweak)
+        return sidechainInGainParam->load();
+
+    return CenterSpace::Derivations::CompressToSideInGainDb(compressParam->load());
+}
+
+float CenterSpaceAudioProcessor::GetEffectiveScHpfHz() const
+{
+    if ((int)uiModeChoice->load() == kUiModeTweak)
+        return scHpfHzParam->load();
+
+    const auto preset = (CenterSpace::Derivations::FocusPreset)(int)focusChoice->load();
+    return CenterSpace::Derivations::FocusToScCutoffs(preset).hpfHz;
+}
+
+float CenterSpaceAudioProcessor::GetEffectiveScLpfHz() const
+{
+    if ((int)uiModeChoice->load() == kUiModeTweak)
+        return scLpfHzParam->load();
+
+    const auto preset = (CenterSpace::Derivations::FocusPreset)(int)focusChoice->load();
+    return CenterSpace::Derivations::FocusToScCutoffs(preset).lpfHz;
+}
+
+int CenterSpaceAudioProcessor::GetEffectivePeakMode() const
+{
+    using namespace CenterSpace::Derivations;
+
+    if ((int)uiModeChoice->load() == kUiModeTweak)
+    {
+        const auto style    = (Style)(int)styleChoice->load();
+        const auto userMode = (PeakMode)(int)peakRMSChoice->load();
+        return (int)ApplyStyleOverrideToPeakMode(style, userMode);
+    }
+
+    const auto feel = (Feel)(int)feelChoice->load();
+    return (int)FeelToPeakMode(feel);
+}
+
+float CenterSpaceAudioProcessor::GetEffectiveAttackMs() const
+{
+    using namespace CenterSpace::Derivations;
+
+    if ((int)uiModeChoice->load() == kUiModeTweak)
+        return attackParam->load();
+
+    const auto feel = (Feel)(int)feelChoice->load();
+    return ReactToMs(reactParam->load(), GetAttackRangeForFeel(feel));
+}
+
+float CenterSpaceAudioProcessor::GetEffectiveReleaseMs() const
+{
+    using namespace CenterSpace::Derivations;
+
+    if ((int)uiModeChoice->load() == kUiModeTweak)
+        return releaseParam->load();
+
+    const auto feel = (Feel)(int)feelChoice->load();
+    return ReactToMs(reactParam->load(), GetReleaseRangeForFeel(feel));
+}
+
+int CenterSpaceAudioProcessor::GetEffectiveStyle() const
+{
+    using namespace CenterSpace::Derivations;
+
+    if ((int)uiModeChoice->load() == kUiModeTweak)
+        return (int)styleChoice->load();
+
+    const auto feel = (Feel)(int)feelChoice->load();
+    return (int)FeelToStyle(feel);
+}
+
+float CenterSpaceAudioProcessor::GetEffectiveThresholdDb() const
+{
+    if ((int)uiModeChoice->load() == kUiModeTweak)
+        return thresholdParam->load();
+
+    return CenterSpace::Derivations::CompressToThresholdDb(compressParam->load());
+}
+
+float CenterSpaceAudioProcessor::GetEffectiveRatio() const
+{
+    if ((int)uiModeChoice->load() == kUiModeTweak)
+        return ratioParam->load();
+
+    return CenterSpace::Derivations::CompressToRatio(compressParam->load());
+}
+
+float CenterSpaceAudioProcessor::GetEffectiveKneeDb() const
+{
+    using namespace CenterSpace::Derivations;
+
+    if ((int)uiModeChoice->load() == kUiModeTweak)
+    {
+        const auto style = (Style)(int)styleChoice->load();
+        return ApplyStyleOverrideToKneeDb(style, kneeParam->load());
+    }
+
+    const auto feel = (Feel)(int)feelChoice->load();
+    return FeelToKneeDb(feel);
+}
+
+int CenterSpaceAudioProcessor::GetEffectiveLookaheadSamples() const
+{
+    using namespace CenterSpace::Derivations;
+
+    float ms = 0.0f;
+
+    if ((int)uiModeChoice->load() == kUiModeTweak)
+    {
+        ms = LookaheadChoiceToMs((LookaheadChoice)(int)lookaheadChoice->load());
+    }
+    else
+    {
+        if (lookaheadOnOffParam->get())
+            ms = FeelToLookaheadOnMs((Feel)(int)feelChoice->load());
+    }
+
+    return MsToSamples(ms, currentSampleRate);
 }

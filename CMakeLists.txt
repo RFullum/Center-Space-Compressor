@@ -53,6 +53,7 @@ set(CenterSpace_SOURCES
     Source/Plugin/PluginProcessor.h
     Source/Plugin/PluginEditor.cpp
     Source/Plugin/PluginEditor.h
+    Source/DSP/Derivations.h
     Source/GUI/LookAndFeel/OtherLookAndFeel.cpp
     Source/GUI/LookAndFeel/OtherLookAndFeel.h
     Source/GUI/TitleHeader/TitleHeader.cpp
@@ -152,6 +153,9 @@ target_link_libraries(centerspace_tests
     PUBLIC
         juce::juce_recommended_config_flags
         juce::juce_recommended_warning_flags)
+
+target_include_directories(centerspace_tests PRIVATE
+    Source/DSP)
 
 target_compile_definitions(centerspace_tests PUBLIC
     JUCE_DISPLAY_SPLASH_SCREEN=0
