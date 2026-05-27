@@ -203,14 +203,16 @@ void CenterSpaceAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
     sideGainSmoothed.reset        (sampleRate, rampSec);
     thresholdSmoothed.reset       (sampleRate, rampSec);
     ratioReciprocalSmoothed.reset (sampleRate, rampSec);
+    kneeSmoothed.reset            (sampleRate, rampSec);
     scHpfSmoothed.reset           (sampleRate, rampSec);
     scLpfSmoothed.reset           (sampleRate, rampSec);
 
     inGainSmoothed.setCurrentAndTargetValue         (decibels.decibelsToGain(inputGainParam->load()));
     outGainSmoothed.setCurrentAndTargetValue        (decibels.decibelsToGain(outputGainParam->load()));
     sideGainSmoothed.setCurrentAndTargetValue       (decibels.decibelsToGain(GetEffectiveSideInGainDb()));
-    thresholdSmoothed.setCurrentAndTargetValue      (decibels.decibelsToGain(GetEffectiveThresholdDb()));
+    thresholdSmoothed.setCurrentAndTargetValue      (GetEffectiveThresholdDb());
     ratioReciprocalSmoothed.setCurrentAndTargetValue(1.0f / GetEffectiveRatio());
+    kneeSmoothed.setCurrentAndTargetValue           (GetEffectiveKneeDb());
     scHpfSmoothed.setCurrentAndTargetValue          (GetEffectiveScHpfHz());
     scLpfSmoothed.setCurrentAndTargetValue          (GetEffectiveScLpfHz());
 }
@@ -249,8 +251,9 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
     inGainSmoothed.setTargetValue          (decibels.decibelsToGain(inputGainParam->load()));
     outGainSmoothed.setTargetValue         (decibels.decibelsToGain(outputGainParam->load()));
     sideGainSmoothed.setTargetValue        (decibels.decibelsToGain(GetEffectiveSideInGainDb()));
-    thresholdSmoothed.setTargetValue       (decibels.decibelsToGain(GetEffectiveThresholdDb()));
+    thresholdSmoothed.setTargetValue       (GetEffectiveThresholdDb());
     ratioReciprocalSmoothed.setTargetValue (1.0f / GetEffectiveRatio());
+    kneeSmoothed.setTargetValue            (GetEffectiveKneeDb());
     scHpfSmoothed.setTargetValue           (GetEffectiveScHpfHz());
     scLpfSmoothed.setTargetValue           (GetEffectiveScLpfHz());
 
@@ -296,8 +299,9 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
         const float inGainAmp    = inGainSmoothed.getNextValue();
         const float sideGainAmp  = sideGainSmoothed.getNextValue();
         const float outGainAmp   = outGainSmoothed.getNextValue();
-        const float thresholdAmp = thresholdSmoothed.getNextValue();
+        const float threshDb     = thresholdSmoothed.getNextValue();
         const float ratioRecip   = ratioReciprocalSmoothed.getNextValue();
+        const float kneeDb       = kneeSmoothed.getNextValue();
         const float outScale     = outGainAmp * gainCompensation;
 
         // Encode Main Stereo to MS
@@ -328,10 +332,31 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
 
         const float envVal = envelope.processSample(0, monoSidechainSample);
 
-        // Compressor gain
-        const float compGain = (envVal < thresholdAmp)
-                                   ? 1.0f
-                                   : std::pow(envVal / thresholdAmp, ratioRecip - 1.0f);
+        // Compressor gain (dB, soft-knee, static curve)
+        const float safeEnvVal = juce::jmax(envVal, 1e-9f);
+        const float envDb      = 20.0f * std::log10(safeEnvVal);
+        const float overshoot  = envDb - threshDb;
+        const float slope      = ratioRecip - 1.0f;
+
+        float gainDb;
+        if (kneeDb <= 0.0f)
+        {
+            gainDb = (overshoot <= 0.0f) ? 0.0f : slope * overshoot;
+        }
+        else if (overshoot <= -kneeDb * 0.5f)
+        {
+            gainDb = 0.0f;
+        }
+        else if (overshoot >= kneeDb * 0.5f)
+        {
+            gainDb = slope * overshoot;
+        }
+        else
+        {
+            const float x = overshoot + kneeDb * 0.5f;
+            gainDb = slope * x * x / (2.0f * kneeDb);
+        }
+        const float compGain = juce::Decibels::decibelsToGain(gainDb);
 
         minCompGain = juce::jmin(minCompGain, compGain);
 

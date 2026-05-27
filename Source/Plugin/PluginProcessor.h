@@ -63,7 +63,7 @@ public:
 private:
     // Effective-value derivation layer.
     // Tweak (full control) mode: returns the matching primitive directly
-    //  (with the Opto style override applied to peakMode and knee);
+    // (with the Opto style override applied to peakMode and knee);
     // Vibe mode (minimal control): derives from the macros
     float GetEffectiveSideInGainDb()     const;
     float GetEffectiveScHpfHz()          const;
@@ -122,8 +122,9 @@ private:
     juce::SmoothedValue<float> inGainSmoothed;
     juce::SmoothedValue<float> outGainSmoothed;
     juce::SmoothedValue<float> sideGainSmoothed;
-    juce::SmoothedValue<float> thresholdSmoothed;
+    juce::SmoothedValue<float> thresholdSmoothed;     // dB
     juce::SmoothedValue<float> ratioReciprocalSmoothed;
+    juce::SmoothedValue<float> kneeSmoothed;          // dB
     juce::SmoothedValue<float> scHpfSmoothed;
     juce::SmoothedValue<float> scLpfSmoothed;
 

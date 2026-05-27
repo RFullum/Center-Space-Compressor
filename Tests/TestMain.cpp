@@ -58,6 +58,108 @@ namespace
         return std::pow(input / thresholdAmp, ratioRecip - 1.0f);
     }
 
+    //==============================================================================
+    // dB-domain soft-knee static curve (mirrors the per-sample formula in
+    // PluginProcessor::processBlock).
+    float SoftKneeCompressorGain(float envAmp, float thresholdDb, float userRatio, float kneeDb)
+    {
+        const float safeEnvVal = juce::jmax(envAmp, 1e-9f);
+        const float envDb      = 20.0f * std::log10(safeEnvVal);
+        const float overshoot  = envDb - thresholdDb;
+        const float slope      = (1.0f / userRatio) - 1.0f;
+
+        float gainDb;
+        if (kneeDb <= 0.0f)
+        {
+            gainDb = (overshoot <= 0.0f) ? 0.0f : slope * overshoot;
+        }
+        else if (overshoot <= -kneeDb * 0.5f)
+        {
+            gainDb = 0.0f;
+        }
+        else if (overshoot >= kneeDb * 0.5f)
+        {
+            gainDb = slope * overshoot;
+        }
+        else
+        {
+            const float x = overshoot + kneeDb * 0.5f;
+            gainDb = slope * x * x / (2.0f * kneeDb);
+        }
+        return juce::Decibels::decibelsToGain(gainDb);
+    }
+
+
+    void TestSoftKneeStaticCurve()
+    {
+        std::cout << "[test] soft-knee dB-domain static curve\n";
+
+        const float thresholdDb = -6.0206f;   // 0.5 linear
+        const float ratio       = 4.0f;
+        const float thresholdAmp = 0.5f;
+
+        // Knee = 0 should match the old hard-knee formula across input levels.
+        for (float in : { 0.1f, 0.25f, 0.5f, 0.707f, 1.0f, 1.5f, 2.0f })
+        {
+            const float hardKnee = CompressorGain(in, thresholdAmp, ratio);
+            const float softKnee = SoftKneeCompressorGain(in, thresholdDb, ratio, 0.0f);
+            EXPECT_NEAR(softKnee, hardKnee, 1e-4f);
+        }
+
+        // Knee = 6 dB, input exactly at threshold (overshoot = 0):
+        //   x = kneeDb/2, gainDb = slope * (kneeDb/2)^2 / (2*kneeDb) = slope * kneeDb / 8
+        {
+            const float kneeDb   = 6.0f;
+            const float slope    = (1.0f / ratio) - 1.0f;
+            const float expected = juce::Decibels::decibelsToGain(slope * kneeDb / 8.0f);
+            const float actual   = SoftKneeCompressorGain(thresholdAmp, thresholdDb, ratio, kneeDb);
+            EXPECT_NEAR(actual, expected, 1e-5f);
+        }
+
+        // Knee = 24 dB: monotonic decreasing across overshoot sweep, and
+        // continuous at the ±kneeDb/2 boundaries.
+        {
+            const float kneeDb = 24.0f;
+            float prevGain = 1.0f + 1e-3f;   // small slack to allow first sample == 1.0
+            for (float overshootDb = -20.0f; overshootDb <= 20.0f; overshootDb += 1.0f)
+            {
+                const float envAmp = juce::Decibels::decibelsToGain(thresholdDb + overshootDb);
+                const float g = SoftKneeCompressorGain(envAmp, thresholdDb, ratio, kneeDb);
+                if (g > prevGain + 1e-5f)
+                {
+                    std::cerr << "FAIL: soft-knee not monotonic at overshoot=" << overshootDb
+                              << " (g=" << g << ", prev=" << prevGain << ")\n";
+                    ++failureCount;
+                }
+                prevGain = g;
+            }
+
+            // Continuity at the lower knee boundary (overshoot = -kneeDb/2).
+            const float belowAmp = juce::Decibels::decibelsToGain(thresholdDb - kneeDb * 0.5f - 1e-4f);
+            const float atAmp    = juce::Decibels::decibelsToGain(thresholdDb - kneeDb * 0.5f + 1e-4f);
+            EXPECT_NEAR(SoftKneeCompressorGain(belowAmp, thresholdDb, ratio, kneeDb),
+                        SoftKneeCompressorGain(atAmp,    thresholdDb, ratio, kneeDb), 1e-3f);
+
+            // Continuity at the upper knee boundary (overshoot = +kneeDb/2).
+            const float justInsideAmp = juce::Decibels::decibelsToGain(thresholdDb + kneeDb * 0.5f - 1e-4f);
+            const float justOutsideAmp = juce::Decibels::decibelsToGain(thresholdDb + kneeDb * 0.5f + 1e-4f);
+            EXPECT_NEAR(SoftKneeCompressorGain(justInsideAmp,  thresholdDb, ratio, kneeDb),
+                        SoftKneeCompressorGain(justOutsideAmp, thresholdDb, ratio, kneeDb), 1e-3f);
+        }
+
+        // envVal = 0 must not produce NaN/Inf thanks to the 1e-9f floor.
+        {
+            const float g = SoftKneeCompressorGain(0.0f, thresholdDb, ratio, 12.0f);
+            if (! std::isfinite(g))
+            {
+                std::cerr << "FAIL: SoftKneeCompressorGain(0) produced non-finite value " << g << "\n";
+                ++failureCount;
+            }
+        }
+    }
+
+
+    //==============================================================================
     void TestCompressorStaticCurve()
     {
         std::cout << "[test] compressor static curve\n";
@@ -409,6 +511,7 @@ int main()
     std::cout << "CenterSpace test harness\n";
 
     TestCompressorStaticCurve();
+    TestSoftKneeStaticCurve();
     TestMidSideRoundTrip();
     TestBallisticsAttackTime();
     TestScFilterResponse();
