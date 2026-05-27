@@ -339,7 +339,7 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
         outRightLevel = buffer.getMagnitude      (1, 0, numSamples);
     }
 
-    outMidLevel *= outGainSmoothed.getCurrentValue();
+    outMidLevel = outMidLevel.load() * outGainSmoothed.getCurrentValue();
 
     // GR meter: convert the block's deepest compressor gain to dB and
     // normalise to 0-1 against a fixed full-scale (24 dB). 1.0 == full meter.

@@ -50,15 +50,15 @@ public:
 
     juce::AudioProcessorValueTreeState parameters;
 
-    float inMidLevel     = 0.0f;
-    float inLeftLevel    = 0.0f;
-    float inRightLevel   = 0.0f;
-    float inSideLevel    = 0.0f;
-    float sideChainLevel = 0.0f;
-    float outLeftLevel   = 0.0f;
-    float outMidLevel    = 0.0f;
-    float outRightLevel  = 0.0f;
-    float gainReduction  = 0.0f;
+    std::atomic<float> inMidLevel     { 0.0f };
+    std::atomic<float> inLeftLevel    { 0.0f };
+    std::atomic<float> inRightLevel   { 0.0f };
+    std::atomic<float> inSideLevel    { 0.0f };
+    std::atomic<float> sideChainLevel { 0.0f };
+    std::atomic<float> outLeftLevel   { 0.0f };
+    std::atomic<float> outMidLevel    { 0.0f };
+    std::atomic<float> outRightLevel  { 0.0f };
+    std::atomic<float> gainReduction  { 0.0f };
 
 private:
     // Shared

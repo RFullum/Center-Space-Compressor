@@ -225,14 +225,14 @@ void CenterSpaceAudioProcessorEditor::timerCallback()
 {
     float SR = audioProcessor.getSampleRate();
 
-    inLeftMeter.VuMeterLevel    (audioProcessor.inLeftLevel,    SR);
-    inCenterMeter.VuMeterLevel  (audioProcessor.inMidLevel,     SR);
-    inRightMeter.VuMeterLevel   (audioProcessor.inRightLevel,   SR);
-    inSideMeter.VuMeterLevel    (audioProcessor.sideChainLevel, SR);
-    gainReduceMeter.VuMeterLevel(audioProcessor.gainReduction,  SR);
-    outLeftMeter.VuMeterLevel   (audioProcessor.outLeftLevel,   SR);
-    outCenterMeter.VuMeterLevel (audioProcessor.outMidLevel,    SR);
-    outRightMeter.VuMeterLevel  (audioProcessor.outRightLevel,  SR);
+    inLeftMeter.VuMeterLevel    (audioProcessor.inLeftLevel.load(),    SR);
+    inCenterMeter.VuMeterLevel  (audioProcessor.inMidLevel.load(),     SR);
+    inRightMeter.VuMeterLevel   (audioProcessor.inRightLevel.load(),   SR);
+    inSideMeter.VuMeterLevel    (audioProcessor.sideChainLevel.load(), SR);
+    gainReduceMeter.VuMeterLevel(audioProcessor.gainReduction.load(),  SR);
+    outLeftMeter.VuMeterLevel   (audioProcessor.outLeftLevel.load(),   SR);
+    outCenterMeter.VuMeterLevel (audioProcessor.outMidLevel.load(),    SR);
+    outRightMeter.VuMeterLevel  (audioProcessor.outRightLevel.load(),  SR);
 }
 
 void CenterSpaceAudioProcessorEditor::SliderSetup(juce::Slider &sliderInstance, juce::Slider::SliderStyle style, bool showTextBox)
