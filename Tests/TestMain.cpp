@@ -164,6 +164,100 @@ namespace
             }
         }
     }
+
+
+    //==============================================================================
+    // Measures the steady-state RMS of a StateVariableTPTFilter driven by a sine
+    // tone, in dB relative to the unfiltered sine RMS (0.7071...). Discards the
+    // first half of the buffer so the filter has time to settle before we measure.
+    float MeasureFilterRmsDb(juce::dsp::StateVariableTPTFilter<float> &filter
+                             , double sampleRate
+                             , float toneHz
+                             , int totalSamples)
+    {
+        const float twoPiOverSr = juce::MathConstants<float>::twoPi / (float)sampleRate;
+        const int   measureStart = totalSamples / 2;
+
+        double sumSq        = 0.0;
+        int    measureCount = 0;
+
+        for (int n = 0; n < totalSamples; ++n)
+        {
+            const float input  = std::sin(twoPiOverSr * toneHz * (float)n);
+            const float output = filter.processSample(0, input);
+
+            if (n >= measureStart)
+            {
+                sumSq += (double)output * (double)output;
+                ++measureCount;
+            }
+        }
+
+        const float rms = (float)std::sqrt(sumSq / (double)measureCount);
+        return juce::Decibels::gainToDecibels(rms / 0.70710678f);
+    }
+
+
+    void TestScFilterResponse()
+    {
+        std::cout << "[test] SC HPF/LPF response\n";
+
+        constexpr double sampleRate   = 48000.0;
+        constexpr int    totalSamples = 24000;   // 0.5 s
+
+        juce::dsp::ProcessSpec spec;
+        spec.sampleRate       = sampleRate;
+        spec.maximumBlockSize = 512;
+        spec.numChannels      = 1;
+
+        // HPF at 200 Hz, sine at 50 Hz (2 oct below): expect ~24 dB attenuation.
+        {
+            juce::dsp::StateVariableTPTFilter<float> hpf;
+            hpf.prepare(spec);
+            hpf.setType(juce::dsp::StateVariableTPTFilterType::highpass);
+            hpf.setCutoffFrequency(200.0f);
+            hpf.reset();
+
+            const float attenDb = MeasureFilterRmsDb(hpf, sampleRate, 50.0f, totalSamples);
+            EXPECT_NEAR(attenDb, -24.0f, 3.0f);
+        }
+
+        // HPF at 200 Hz, sine at 2 kHz (well above cutoff): near pass-band (0 dB).
+        {
+            juce::dsp::StateVariableTPTFilter<float> hpf;
+            hpf.prepare(spec);
+            hpf.setType(juce::dsp::StateVariableTPTFilterType::highpass);
+            hpf.setCutoffFrequency(200.0f);
+            hpf.reset();
+
+            const float passDb = MeasureFilterRmsDb(hpf, sampleRate, 2000.0f, totalSamples);
+            EXPECT_NEAR(passDb, 0.0f, 1.0f);
+        }
+
+        // LPF at 1 kHz, sine at 4 kHz (2 oct above): expect ~24 dB attenuation.
+        {
+            juce::dsp::StateVariableTPTFilter<float> lpf;
+            lpf.prepare(spec);
+            lpf.setType(juce::dsp::StateVariableTPTFilterType::lowpass);
+            lpf.setCutoffFrequency(1000.0f);
+            lpf.reset();
+
+            const float attenDb = MeasureFilterRmsDb(lpf, sampleRate, 4000.0f, totalSamples);
+            EXPECT_NEAR(attenDb, -24.0f, 3.0f);
+        }
+
+        // LPF at 1 kHz, sine at 100 Hz (well below cutoff): near pass-band (0 dB).
+        {
+            juce::dsp::StateVariableTPTFilter<float> lpf;
+            lpf.prepare(spec);
+            lpf.setType(juce::dsp::StateVariableTPTFilterType::lowpass);
+            lpf.setCutoffFrequency(1000.0f);
+            lpf.reset();
+
+            const float passDb = MeasureFilterRmsDb(lpf, sampleRate, 100.0f, totalSamples);
+            EXPECT_NEAR(passDb, 0.0f, 1.0f);
+        }
+    }
 }
 
 
@@ -317,6 +411,7 @@ int main()
     TestCompressorStaticCurve();
     TestMidSideRoundTrip();
     TestBallisticsAttackTime();
+    TestScFilterResponse();
     TestCompressMacro();
     TestReactMacro();
     TestFeelBakes();
