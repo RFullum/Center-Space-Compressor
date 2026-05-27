@@ -301,6 +301,34 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
                               ? mainInputOutput.getWritePointer(1)
                               : leftChannel;
 
+    if (bypassParam->get())
+    {
+        // Keep the lookahead delay primed bypass toggles don't cause artefact.
+        for (int i = 0; i < numSamples; ++i)
+        {
+            const float l = leftChannel[i];
+            const float r = rightChannel[i];
+
+            lookaheadDelay.pushSample(0, l);
+            lookaheadDelay.pushSample(1, r);
+
+            leftChannel[i]  = lookaheadDelay.popSample(0);
+            rightChannel[i] = lookaheadDelay.popSample(1);
+        }
+
+        inLeftLevel    = 0.0f;
+        inMidLevel     = 0.0f;
+        inRightLevel   = 0.0f;
+        inSideLevel    = 0.0f;
+        sideChainLevel = 0.0f;
+        outLeftLevel   = 0.0f;
+        outMidLevel    = 0.0f;
+        outRightLevel  = 0.0f;
+        gainReduction  = 0.0f;
+
+        return;
+    }
+
     const int           numSCChannels = sideChainInput.getNumChannels();
     const float        *scReadPointers[2] = { nullptr, nullptr };
     const int           clampedSCChannels = juce::jmin(2, numSCChannels);
@@ -431,6 +459,11 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
     constexpr float meterFullScaleDb = 24.0f;
     const float     grDb             = -juce::Decibels::gainToDecibels(minCompGain);
     gainReduction                    = juce::jlimit(0.0f, 1.0f, grDb / meterFullScaleDb);
+}
+
+juce::AudioProcessorParameter *CenterSpaceAudioProcessor::getBypassParameter() const
+{
+    return parameters.getParameter("bypass");
 }
 
 bool CenterSpaceAudioProcessor::hasEditor() const
