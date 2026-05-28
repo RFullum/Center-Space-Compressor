@@ -203,9 +203,9 @@ void CenterSpaceAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
     lookaheadDelay.setDelay((float)currentLookaheadSamples);
     setLatencySamples(currentLookaheadSamples);
 
-    inLeftBuffer.setSize    (1, samplesPerBlock, false, true, false);
+    inBuffChan0.setSize     (1, samplesPerBlock, false, true, false);
     inMidBuffer.setSize     (1, samplesPerBlock, false, true, false);
-    inRightBuffer.setSize   (1, samplesPerBlock, false, true, false);
+    inBuffChan1.setSize     (1, samplesPerBlock, false, true, false);
     inSideBuffer.setSize    (1, samplesPerBlock, false, true, false);
     sidechainBuffer.setSize (1, samplesPerBlock, false, true, false);
     outMidBuffer.setSize    (1, samplesPerBlock, false, true, false);
@@ -251,12 +251,12 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
 {
     juce::ScopedNoDenormals noDenormals;
 
-    inLeftBuffer.clear();
-    inMidBuffer.clear();
-    inRightBuffer.clear();
-    inSideBuffer.clear();
+    inBuffChan0    .clear();
+    inMidBuffer    .clear();
+    inBuffChan1    .clear();
+    inSideBuffer   .clear();
     sidechainBuffer.clear();
-    outMidBuffer.clear();
+    outMidBuffer   .clear();
 
     const int numSamples = buffer.getNumSamples();
     const int peakMode   = GetEffectivePeakMode();
@@ -296,34 +296,37 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
     auto mainInputOutput = getBusBuffer(buffer, true, 0);
     auto sideChainInput  = getBusBuffer(buffer, true, 1);
 
-    float *leftChannel  = mainInputOutput.getWritePointer(0);
-    float *rightChannel = (mainInputOutput.getNumChannels() > 1)
-                              ? mainInputOutput.getWritePointer(1)
-                              : leftChannel;
+    float *chan0 = mainInputOutput.getWritePointer(0);
+    float *chan1 = (mainInputOutput.getNumChannels() > 1)
+                       ? mainInputOutput.getWritePointer(1)
+                       : chan0;
+
+    const bool inputIsMS  = ((int)inputTypeChoice->load()  == 1);
+    const bool outputIsMS = ((int)outputTypeChoice->load() == 1);
 
     if (bypassParam->get())
     {
         // Keep the lookahead delay primed bypass toggles don't cause artefact.
         for (int i = 0; i < numSamples; ++i)
         {
-            const float l = leftChannel[i];
-            const float r = rightChannel[i];
+            const float c0 = chan0[i];
+            const float c1 = chan1[i];
 
-            lookaheadDelay.pushSample(0, l);
-            lookaheadDelay.pushSample(1, r);
+            lookaheadDelay.pushSample(0, c0);
+            lookaheadDelay.pushSample(1, c1);
 
-            leftChannel[i]  = lookaheadDelay.popSample(0);
-            rightChannel[i] = lookaheadDelay.popSample(1);
+            chan0[i] = lookaheadDelay.popSample(0);
+            chan1[i] = lookaheadDelay.popSample(1);
         }
 
-        inLeftLevel    = 0.0f;
+        inLevelChan0   = 0.0f;
         inMidLevel     = 0.0f;
-        inRightLevel   = 0.0f;
+        inLevelChan1   = 0.0f;
         inSideLevel    = 0.0f;
         sideChainLevel = 0.0f;
-        outLeftLevel   = 0.0f;
+        outLevelChan0  = 0.0f;
         outMidLevel    = 0.0f;
-        outRightLevel  = 0.0f;
+        outLevelChan1  = 0.0f;
         gainReduction  = 0.0f;
 
         return;
@@ -354,21 +357,33 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
         const float kneeDb       = kneeSmoothed.getNextValue();
         const float outScale     = outGainAmp * gainCompensation;
 
-        // Lookahead delay on L and R so mid/side stay aligned.
-        lookaheadDelay.pushSample(0, leftChannel[i]);
-        lookaheadDelay.pushSample(1, rightChannel[i]);
-        const float lDel = lookaheadDelay.popSample(0);
-        const float rDel = lookaheadDelay.popSample(1);
+        // Lookahead delay on the raw input channels so mid/side stay aligned
+        // when M/S encoding happens after the delay.
+        lookaheadDelay.pushSample(0, chan0[i]);
+        lookaheadDelay.pushSample(1, chan1[i]);
+        const float chan0In = lookaheadDelay.popSample(0);
+        const float chan1In = lookaheadDelay.popSample(1);
 
-        // Encode Main Stereo to MS
-        const float mid  = (lDel + rDel) * inGainAmp;
-        const float side = (lDel - rDel) * inGainAmp;
+        // Encode to M/S if the input is L/R; otherwise the channels are
+        // already mid (ch0) and side (ch1).
+        float mid;
+        float side;
+        if (inputIsMS)
+        {
+            mid  = chan0In * inGainAmp;
+            side = chan1In * inGainAmp;
+        }
+        else
+        {
+            mid  = (chan0In + chan1In) * inGainAmp;
+            side = (chan0In - chan1In) * inGainAmp;
+        }
 
         // Input Metering
-        inLeftBuffer.addSample (0, i, lDel * inGainAmp);
-        inMidBuffer.addSample  (0, i, mid);
-        inRightBuffer.addSample(0, i, rDel * inGainAmp);
-        inSideBuffer.addSample (0, i, side);
+        inBuffChan0 .addSample(0, i, chan0In * inGainAmp);
+        inMidBuffer .addSample(0, i, mid);
+        inBuffChan1 .addSample(0, i, chan1In * inGainAmp);
+        inSideBuffer.addSample(0, i, side);
 
         // Mono the sidechain
         float monoSidechainSample = 0.0f;
@@ -420,36 +435,45 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
 
         outMidBuffer.addSample(0, i, midComped);
 
-        // Encode Main MS to Stereo
-        leftChannel[i]  = (midComped + side) * outScale;
-        rightChannel[i] = (midComped - side) * outScale;
+        // Decode M/S back to L/R if the output is L/R; otherwise pass mid and
+        // side through as ch0 and ch1 with no decode and no 0.5 compensation.
+        if (outputIsMS)
+        {
+            chan0[i] = midComped * outGainAmp;
+            chan1[i] = side      * outGainAmp;
+        }
+        else
+        {
+            chan0[i] = (midComped + side) * outScale;
+            chan1[i] = (midComped - side) * outScale;
+        }
     }
 
     if (peakMode == 1)
     {
-        inLeftLevel  = inLeftBuffer.getRMSLevel (0, 0, numSamples);
-        inMidLevel   = inMidBuffer.getRMSLevel  (0, 0, numSamples) * 0.5f;
-        inRightLevel = inRightBuffer.getRMSLevel(0, 0, numSamples);
-        inSideLevel  = inSideBuffer.getRMSLevel (0, 0, numSamples);
+        inLevelChan0 = inBuffChan0.getRMSLevel(0, 0, numSamples);
+        inMidLevel   = inMidBuffer.getRMSLevel(0, 0, numSamples) * 0.5f;
+        inLevelChan1 = inBuffChan1.getRMSLevel(0, 0, numSamples);
+        inSideLevel  = inSideBuffer.getRMSLevel(0, 0, numSamples);
 
         sideChainLevel = sidechainBuffer.getRMSLevel(0, 0, numSamples);
 
-        outLeftLevel  = buffer.getRMSLevel      (0, 0, numSamples);
+        outLevelChan0 = buffer.getRMSLevel      (0, 0, numSamples);
         outMidLevel   = outMidBuffer.getRMSLevel(0, 0, numSamples) * 0.5f;
-        outRightLevel = buffer.getRMSLevel      (1, 0, numSamples);
+        outLevelChan1 = buffer.getRMSLevel      (1, 0, numSamples);
     }
     else
     {
-        inLeftLevel  = inLeftBuffer.getMagnitude (0, numSamples);
-        inMidLevel   = inMidBuffer.getMagnitude  (0, numSamples) * 0.5f;
-        inRightLevel = inRightBuffer.getMagnitude(0, numSamples);
-        inSideLevel  = inSideBuffer.getMagnitude (0, numSamples);
+        inLevelChan0 = inBuffChan0.getMagnitude(0, numSamples);
+        inMidLevel   = inMidBuffer.getMagnitude(0, numSamples) * 0.5f;
+        inLevelChan1 = inBuffChan1.getMagnitude(0, numSamples);
+        inSideLevel  = inSideBuffer.getMagnitude(0, numSamples);
 
         sideChainLevel = sidechainBuffer.getMagnitude(0, numSamples);
 
-        outLeftLevel  = buffer.getMagnitude      (0, 0, numSamples);
+        outLevelChan0 = buffer.getMagnitude      (0, 0, numSamples);
         outMidLevel   = outMidBuffer.getMagnitude(0, numSamples) * 0.5f;
-        outRightLevel = buffer.getMagnitude      (1, 0, numSamples);
+        outLevelChan1 = buffer.getMagnitude      (1, 0, numSamples);
     }
 
     outMidLevel = outMidLevel.load() * outGainSmoothed.getCurrentValue();

@@ -52,15 +52,15 @@ public:
 
     juce::AudioProcessorValueTreeState parameters;
 
-    std::atomic<float> inMidLevel     { 0.0f };
-    std::atomic<float> inLeftLevel    { 0.0f };
-    std::atomic<float> inRightLevel   { 0.0f };
-    std::atomic<float> inSideLevel    { 0.0f };
-    std::atomic<float> sideChainLevel { 0.0f };
-    std::atomic<float> outLeftLevel   { 0.0f };
-    std::atomic<float> outMidLevel    { 0.0f };
-    std::atomic<float> outRightLevel  { 0.0f };
-    std::atomic<float> gainReduction  { 0.0f };
+    std::atomic<float> inMidLevel      { 0.0f };
+    std::atomic<float> inLevelChan0    { 0.0f };
+    std::atomic<float> inLevelChan1    { 0.0f };
+    std::atomic<float> inSideLevel     { 0.0f };
+    std::atomic<float> sideChainLevel  { 0.0f };
+    std::atomic<float> outLevelChan0   { 0.0f };
+    std::atomic<float> outMidLevel     { 0.0f };
+    std::atomic<float> outLevelChan1   { 0.0f };
+    std::atomic<float> gainReduction   { 0.0f };
 
 private:
     // Effective-value derivation layer.
@@ -118,9 +118,9 @@ private:
     int currentLookaheadSamples = 0;
 
     // Pre-allocated metering buffers.
-    juce::AudioBuffer<float> inLeftBuffer;
+    juce::AudioBuffer<float> inBuffChan0;
     juce::AudioBuffer<float> inMidBuffer;
-    juce::AudioBuffer<float> inRightBuffer;
+    juce::AudioBuffer<float> inBuffChan1;
     juce::AudioBuffer<float> inSideBuffer;
     juce::AudioBuffer<float> sidechainBuffer;
     juce::AudioBuffer<float> outMidBuffer;

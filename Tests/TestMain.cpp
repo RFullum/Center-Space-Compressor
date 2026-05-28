@@ -210,6 +210,73 @@ namespace
 
 
     //==============================================================================
+    // Input/output stereo-type selectors. Mirrors the conditional encode/decode
+    // in processBlock: when inputIsMS, ch0 is already mid and ch1 is side;
+    // when outputIsMS, mid/side pass through without the 0.5 decode factor.
+    // Helper: returns {chan0Out, chan1Out} for unit gain (no compression).
+    static std::pair<float, float> StereoTypeProcess(bool inputIsMS, bool outputIsMS, float ch0In, float ch1In)
+    {
+        float mid;
+        float side;
+        if (inputIsMS)
+        {
+            mid  = ch0In;
+            side = ch1In;
+        }
+        else
+        {
+            mid  = ch0In + ch1In;
+            side = ch0In - ch1In;
+        }
+
+        if (outputIsMS)
+            return { mid, side };
+
+        return { (mid + side) * 0.5f, (mid - side) * 0.5f };
+    }
+
+    void TestStereoTypeSelectors()
+    {
+        std::cout << "[test] I/O stereo-type selectors\n";
+
+        const float L = 0.7f;
+        const float R = -0.3f;
+
+        // LR in, LR out: round-trip back to original.
+        {
+            const auto [c0, c1] = StereoTypeProcess(false, false, L, R);
+            EXPECT_NEAR(c0, L, 1e-6f);
+            EXPECT_NEAR(c1, R, 1e-6f);
+        }
+
+        // LR in, MS out: ch0 = L+R, ch1 = L-R.
+        {
+            const auto [c0, c1] = StereoTypeProcess(false, true, L, R);
+            EXPECT_NEAR(c0, L + R, 1e-6f);
+            EXPECT_NEAR(c1, L - R, 1e-6f);
+        }
+
+        // MS in, LR out: ch0 = (M+S)*0.5, ch1 = (M-S)*0.5.
+        {
+            const float M = 1.0f;
+            const float S = 0.4f;
+            const auto [c0, c1] = StereoTypeProcess(true, false, M, S);
+            EXPECT_NEAR(c0, (M + S) * 0.5f, 1e-6f);
+            EXPECT_NEAR(c1, (M - S) * 0.5f, 1e-6f);
+        }
+
+        // MS in, MS out: passthrough (no encode, no decode, no compensation).
+        {
+            const float M = 1.0f;
+            const float S = 0.4f;
+            const auto [c0, c1] = StereoTypeProcess(true, true, M, S);
+            EXPECT_NEAR(c0, M, 1e-6f);
+            EXPECT_NEAR(c1, S, 1e-6f);
+        }
+    }
+
+
+    //==============================================================================
     // juce::dsp::BallisticsFilter attack-time sanity check.
     //
     // JUCE's smoothing coefficient is exp(-2*pi*1000 / (sr * attackTimeMs)),
@@ -542,6 +609,7 @@ int main()
     TestCompressorStaticCurve();
     TestSoftKneeStaticCurve();
     TestMidSideRoundTrip();
+    TestStereoTypeSelectors();
     TestBallisticsAttackTime();
     TestScFilterResponse();
     TestCompressMacro();
