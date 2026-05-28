@@ -368,9 +368,23 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
     // Track the lowest compGain (= max gain reduction) seen this block
     float minCompGain = 1.0f;
 
+    // Compute SC filters at sub-block sizes; not per sample.
+    constexpr int subBlockSize = 32;
+    int           subBlockLeft = 0;
+
     // --- Sample loop ---
     for (int i = 0; i < numSamples; ++i)
     {
+        if (subBlockLeft == 0)
+        {
+            scHpfSmoothed.skip(juce::jmin(subBlockSize, numSamples - i) - 1);
+            scLpfSmoothed.skip(juce::jmin(subBlockSize, numSamples - i) - 1);
+            scHpf.setCutoffFrequency(scHpfSmoothed.getNextValue());
+            scLpf.setCutoffFrequency(scLpfSmoothed.getNextValue());
+            subBlockLeft = juce::jmin(subBlockSize, numSamples - i);
+        }
+        --subBlockLeft;
+
         const float inGainAmp    = inGainSmoothed.getNextValue();
         const float sideGainAmp  = sideGainSmoothed.getNextValue();
         const float outGainAmp   = outGainSmoothed.getNextValue();
@@ -415,9 +429,7 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
 
         monoSidechainSample *= scChannelScale * sideGainAmp;
 
-        // SC filters 
-        scHpf.setCutoffFrequency(scHpfSmoothed.getNextValue());
-        scLpf.setCutoffFrequency(scLpfSmoothed.getNextValue());
+        // SC filters
         monoSidechainSample = scHpf.processSample(0, monoSidechainSample);
         monoSidechainSample = scLpf.processSample(0, monoSidechainSample);
 
