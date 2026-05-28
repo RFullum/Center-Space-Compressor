@@ -106,14 +106,41 @@ namespace
             EXPECT_NEAR(softKnee, hardKnee, 1e-4f);
         }
 
-        // Knee = 6 dB, input exactly at threshold (overshoot = 0):
+        // Knee = 6 / 12 dB, input exactly at threshold (overshoot = 0):
         //   x = kneeDb/2, gainDb = slope * (kneeDb/2)^2 / (2*kneeDb) = slope * kneeDb / 8
+        for (float kneeDb : { 6.0f, 12.0f })
         {
-            const float kneeDb   = 6.0f;
             const float slope    = (1.0f / ratio) - 1.0f;
             const float expected = juce::Decibels::decibelsToGain(slope * kneeDb / 8.0f);
             const float actual   = SoftKneeCompressorGain(thresholdAmp, thresholdDb, ratio, kneeDb);
             EXPECT_NEAR(actual, expected, 1e-5f);
+        }
+
+        // For each non-zero knee, sweep the five characteristic input levels and
+        // verify the closed-form piecewise gainDb. Levels (relative to threshold):
+        //   -kneeDb        : well below knee (gain = 0 dB)
+        //   -kneeDb/2      : lower knee boundary (gain = 0 dB)
+        //   0              : knee midpoint (gain = slope * kneeDb / 8)
+        //   +kneeDb/2      : upper knee boundary (gain = slope * kneeDb/2)
+        //   +kneeDb        : well above knee (gain = slope * kneeDb)
+        for (float kneeDb : { 6.0f, 12.0f, 24.0f })
+        {
+            const float slope = (1.0f / ratio) - 1.0f;
+            struct Case { float overshootDb; float expectedGainDb; };
+            const Case cases[] = {
+                { -kneeDb,         0.0f                          },
+                { -kneeDb * 0.5f,  0.0f                          },
+                {  0.0f,           slope * kneeDb / 8.0f         },
+                {  kneeDb * 0.5f,  slope * kneeDb * 0.5f         },
+                {  kneeDb,         slope * kneeDb                },
+            };
+            for (const auto &c : cases)
+            {
+                const float envAmp   = juce::Decibels::decibelsToGain(thresholdDb + c.overshootDb);
+                const float expected = juce::Decibels::decibelsToGain(c.expectedGainDb);
+                const float actual   = SoftKneeCompressorGain(envAmp, thresholdDb, ratio, kneeDb);
+                EXPECT_NEAR(actual, expected, 1e-4f);
+            }
         }
 
         // Knee = 24 dB: monotonic decreasing across overshoot sweep, and
