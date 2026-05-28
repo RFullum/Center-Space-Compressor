@@ -12,6 +12,8 @@
 #include "VUMeter.h"
 #include "OtherLookAndFeel.h"
 #include "TitleHeader.h"
+#include "TweakModeComponent.h"
+#include "VibeModeComponent.h"
 
 class CenterSpaceAudioProcessor;
 
@@ -21,6 +23,7 @@ class CenterSpaceAudioProcessor;
 class CenterSpaceAudioProcessorEditor
     : public juce::AudioProcessorEditor
     , public juce::Timer
+    , public juce::AudioProcessorValueTreeState::Listener
 {
 public:
     CenterSpaceAudioProcessorEditor(CenterSpaceAudioProcessor &);
@@ -29,6 +32,7 @@ public:
     void paint(juce::Graphics &) override;
     void resized() override;
     void timerCallback() override;
+    void parameterChanged(const juce::String &paramId, float newValue) override;
 
     juce::Colour onyx           { (juce::uint8)53,  (juce::uint8)59,  (juce::uint8)60,  (juce::uint8)255 };
     juce::Colour lightSlateGrey { (juce::uint8)130, (juce::uint8)146, (juce::uint8)152, (juce::uint8)255 };
@@ -39,6 +43,10 @@ public:
 private:
     void SliderSetup(juce::Slider &sliderInstance, juce::Slider::SliderStyle style, bool showTextBox);
     void SliderLabelSetup(juce::Label &labelInstance, juce::String labelText, juce::Colour &labelColor, float fontSize);
+    void ComboSetup(juce::ComboBox &box, const juce::StringArray &items);
+
+    void ApplyUiModeVisibility();
+    void ApplyStyleVisibility();
 
     OtherLookAndFeel compLookAndFeel;
     OtherLookAndFeel dBLookAndFeel;
@@ -76,6 +84,13 @@ private:
 
     juce::ComboBox peakRMSBox;
 
+    juce::ComboBox uiModeBox;
+    juce::ComboBox inputTypeBox;
+    juce::ComboBox outputTypeBox;
+    juce::Label    uiModeLabel;
+    juce::Label    inputTypeLabel;
+    juce::Label    outputTypeLabel;
+
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> inputGainSliderAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> sideChainGainSliderAttachement;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> outputGainSliderAttachment;
@@ -86,6 +101,12 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> releaseSliderAttachment;
 
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> peakRMSAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> uiModeAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> inputTypeAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> outputTypeAttachment;
+
+    TweakModeComponent tweakModeComp;
+    VibeModeComponent  vibeModeComp;
 
     VUMeter inLeftMeter;
     VUMeter inCenterMeter;

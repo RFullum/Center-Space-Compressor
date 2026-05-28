@@ -14,9 +14,11 @@
 
 CenterSpaceAudioProcessorEditor::CenterSpaceAudioProcessorEditor(CenterSpaceAudioProcessor &p)
 : juce::AudioProcessorEditor(&p)
+, tweakModeComp(p.parameters, dBLookAndFeel, boxLookAndFeel)
+, vibeModeComp (p.parameters, compLookAndFeel, boxLookAndFeel)
 , audioProcessor(p)
 {
-    setSize(1100, 540);
+    setSize(1100, 700);
 
     compLookAndFeel.SetDialColor(fieryRose);
     compLookAndFeel.SetTickColor(onyx);
@@ -79,6 +81,16 @@ CenterSpaceAudioProcessorEditor::CenterSpaceAudioProcessorEditor(CenterSpaceAudi
     peakRMSBox.setLookAndFeel(&boxLookAndFeel);
     addAndMakeVisible(peakRMSBox);
 
+    ComboSetup(uiModeBox,     juce::StringArray({"Vibe", "Tweak"}));
+    ComboSetup(inputTypeBox,  juce::StringArray({"LR", "M/S"}));
+    ComboSetup(outputTypeBox, juce::StringArray({"LR", "M/S"}));
+    SliderLabelSetup(uiModeLabel,     "Mode",        magicMint, 16.0f);
+    SliderLabelSetup(inputTypeLabel,  "Input Type",  magicMint, 16.0f);
+    SliderLabelSetup(outputTypeLabel, "Output Type", magicMint, 16.0f);
+
+    addAndMakeVisible(tweakModeComp);
+    addAndMakeVisible(vibeModeComp);
+
     inputGainSliderAttachment      = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "inGain",     inputGainSlider);
     sideChainGainSliderAttachement = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "sideInGain", sideChainGainSlider);
     outputGainSliderAttachment     = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "outGain",    outputGainSlider);
@@ -88,7 +100,10 @@ CenterSpaceAudioProcessorEditor::CenterSpaceAudioProcessorEditor(CenterSpaceAudi
     attackSliderAttachment    = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "attack",    attackSlider);
     releaseSliderAttachment   = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "release",   releaseSlider);
 
-    peakRMSAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.parameters, "peakRMS", peakRMSBox);
+    peakRMSAttachment    = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.parameters, "peakRMS",    peakRMSBox);
+    uiModeAttachment     = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.parameters, "uiMode",     uiModeBox);
+    inputTypeAttachment  = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.parameters, "inputType",  inputTypeBox);
+    outputTypeAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.parameters, "outputType", outputTypeBox);
 
     inLeftMeter.SetColors    (magicMint, fieryRose, lightSlateGrey);
     inCenterMeter.SetColors  (magicMint, fieryRose, lightSlateGrey);
@@ -108,11 +123,32 @@ CenterSpaceAudioProcessorEditor::CenterSpaceAudioProcessorEditor(CenterSpaceAudi
     addAndMakeVisible(outCenterMeter);
     addAndMakeVisible(outRightMeter);
 
+    audioProcessor.parameters.addParameterListener("uiMode", this);
+    audioProcessor.parameters.addParameterListener("style",  this);
+
+    ApplyUiModeVisibility();
+    ApplyStyleVisibility();
+
     juce::Timer::startTimerHz(60);
 }
 
 CenterSpaceAudioProcessorEditor::~CenterSpaceAudioProcessorEditor()
 {
+    audioProcessor.parameters.removeParameterListener("uiMode", this);
+    audioProcessor.parameters.removeParameterListener("style",  this);
+
+    inputGainSlider.setLookAndFeel    (nullptr);
+    sideChainGainSlider.setLookAndFeel(nullptr);
+    outputGainSlider.setLookAndFeel   (nullptr);
+    thresholdSlider.setLookAndFeel    (nullptr);
+    ratioSlider.setLookAndFeel        (nullptr);
+    attackSlider.setLookAndFeel       (nullptr);
+    releaseSlider.setLookAndFeel      (nullptr);
+    peakRMSBox.setLookAndFeel         (nullptr);
+    uiModeBox.setLookAndFeel          (nullptr);
+    inputTypeBox.setLookAndFeel       (nullptr);
+    outputTypeBox.setLookAndFeel      (nullptr);
+
     juce::Timer::stopTimer();
 }
 
@@ -132,6 +168,27 @@ void CenterSpaceAudioProcessorEditor::resized()
 
     juce::Rectangle<int> titleFooterArea = bounds.removeFromBottom(15);
     titleFooter.setBounds(titleFooterArea);
+
+    juce::Rectangle<int> topStrip = bounds.removeFromTop(56);
+    {
+        const int cellW = topStrip.getWidth() / 3;
+        auto leftCell   = topStrip.removeFromLeft(cellW).reduced(8, 4);
+        auto midCell    = topStrip.removeFromLeft(cellW).reduced(8, 4);
+        auto rightCell  = topStrip.reduced(8, 4);
+
+        uiModeLabel.setBounds(leftCell.removeFromTop(20));
+        uiModeBox.setBounds  (leftCell.removeFromTop(26));
+
+        inputTypeLabel.setBounds(midCell.removeFromTop(20));
+        inputTypeBox.setBounds  (midCell.removeFromTop(26));
+
+        outputTypeLabel.setBounds(rightCell.removeFromTop(20));
+        outputTypeBox.setBounds  (rightCell.removeFromTop(26));
+    }
+
+    juce::Rectangle<int> modeStrip = bounds.removeFromBottom(140);
+    tweakModeComp.setBounds(modeStrip);
+    vibeModeComp.setBounds (modeStrip);
 
     juce::Rectangle<int> inputArea     = bounds.removeFromLeft    (getLocalBounds().getWidth() * flanksSize);
     juce::Rectangle<int> inMetersArea  = inputArea.removeFromLeft (inputArea.getWidth() * 0.5f).reduced(10, 30);
@@ -235,6 +292,63 @@ void CenterSpaceAudioProcessorEditor::timerCallback()
     outRightMeter.VuMeterLevel  (audioProcessor.outLevelChan1.load(), SR);
 }
 
+void CenterSpaceAudioProcessorEditor::parameterChanged(const juce::String &paramId, float /*newValue*/)
+{
+    // Listener fires on whichever thread set the value (incl. audio thread via
+    // automation). Hop to the message thread before touching Components.
+    juce::Component::SafePointer<CenterSpaceAudioProcessorEditor> safeThis(this);
+    juce::MessageManager::callAsync([safeThis, paramId]
+    {
+        if (safeThis == nullptr)
+            return;
+
+        if (paramId == "uiMode")
+            safeThis->ApplyUiModeVisibility();
+        else if (paramId == "style")
+            safeThis->ApplyStyleVisibility();
+    });
+}
+
+void CenterSpaceAudioProcessorEditor::ApplyUiModeVisibility()
+{
+    auto *uiModeRaw = audioProcessor.parameters.getRawParameterValue("uiMode");
+    const bool isTweak = (uiModeRaw != nullptr) && ((int)uiModeRaw->load() == 1);
+
+    // Tweak-only controls
+    sideChainGainSlider.setVisible(isTweak);
+    sideChainGainLabel .setVisible(isTweak);
+    thresholdSlider    .setVisible(isTweak);
+    thresholdLabel     .setVisible(isTweak);
+    ratioSlider        .setVisible(isTweak);
+    ratioLabel         .setVisible(isTweak);
+    attackSlider       .setVisible(isTweak);
+    attackLabel        .setVisible(isTweak);
+    releaseSlider      .setVisible(isTweak);
+    releaseLabel       .setVisible(isTweak);
+    peakRMSBox         .setVisible(isTweak);
+
+    tweakModeComp.setVisible(isTweak);
+    vibeModeComp.setVisible (!isTweak);
+
+    if (isTweak)
+        ApplyStyleVisibility();
+}
+
+void CenterSpaceAudioProcessorEditor::ApplyStyleVisibility()
+{
+    auto *styleRaw = audioProcessor.parameters.getRawParameterValue("style");
+    const bool isModernVca = (styleRaw != nullptr) && ((int)styleRaw->load() == 0);
+
+    auto *uiModeRaw = audioProcessor.parameters.getRawParameterValue("uiMode");
+    const bool isTweak = (uiModeRaw != nullptr) && ((int)uiModeRaw->load() == 1);
+
+    // Knee + Peak/RMS visible only in Tweak mode AND when style == Modern VCA.
+    const bool kneeAndPeakVisible = isTweak && isModernVca;
+
+    peakRMSBox.setVisible(kneeAndPeakVisible);
+    tweakModeComp.SetKneeVisible(kneeAndPeakVisible);
+}
+
 void CenterSpaceAudioProcessorEditor::SliderSetup(juce::Slider &sliderInstance, juce::Slider::SliderStyle style, bool showTextBox)
 {
     sliderInstance.setSliderStyle(style);
@@ -261,4 +375,15 @@ void CenterSpaceAudioProcessorEditor::SliderLabelSetup(juce::Label &labelInstanc
     labelInstance.setColour           (juce::Label::textColourId, juce::Colours::white);
     labelInstance.setFont             (juce::Font("futura", fontSize, 0));
     addAndMakeVisible(labelInstance);
+}
+
+void CenterSpaceAudioProcessorEditor::ComboSetup(juce::ComboBox &box, const juce::StringArray &items)
+{
+    box.addItemList(items, 1);
+    box.setJustificationType(juce::Justification::centred);
+    box.setColour(juce::ComboBox::backgroundColourId, onyx);
+    box.setColour(juce::ComboBox::arrowColourId, juce::Colours::white);
+    box.setColour(juce::ComboBox::outlineColourId, lightSlateGrey);
+    box.setLookAndFeel(&boxLookAndFeel);
+    addAndMakeVisible(box);
 }

@@ -56,6 +56,10 @@ set(CenterSpace_SOURCES
     Source/DSP/Derivations.h
     Source/GUI/LookAndFeel/OtherLookAndFeel.cpp
     Source/GUI/LookAndFeel/OtherLookAndFeel.h
+    Source/GUI/ModeComponents/TweakModeComponent.cpp
+    Source/GUI/ModeComponents/TweakModeComponent.h
+    Source/GUI/ModeComponents/VibeModeComponent.cpp
+    Source/GUI/ModeComponents/VibeModeComponent.h
     Source/GUI/TitleHeader/TitleHeader.cpp
     Source/GUI/TitleHeader/TitleHeader.h
     Source/GUI/VUMeter/VUMeter.cpp
@@ -82,6 +86,7 @@ target_include_directories(CenterSpace PRIVATE
     Source/Plugin
     Source/DSP
     Source/GUI/LookAndFeel
+    Source/GUI/ModeComponents
     Source/GUI/TitleHeader
     Source/GUI/VUMeter)
 
