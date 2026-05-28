@@ -17,9 +17,28 @@ VibeModeComponent::VibeModeComponent(juce::AudioProcessorValueTreeState &apvts
 : dialLnF(dialLookAndFeel)
 , boxLnF (comboLookAndFeel)
 {
+    auto SliderSetup = [&](juce::Slider &slider, juce::LookAndFeel &lf)
+    {
+        slider.setSliderStyle (juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
+        slider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 60, 15);
+        slider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colour((juce::uint8)0, (juce::uint8)0, (juce::uint8)0, (juce::uint8)0));
+        slider.setColour(juce::Slider::textBoxTextColourId,    juce::Colours::white);
+        slider.setLookAndFeel(&lf);
+        addAndMakeVisible(slider);
+    };
     SliderSetup(compressSlider, dialLnF);
     SliderSetup(reactSlider,    dialLnF);
 
+    auto ComboSetup = [&](juce::ComboBox &box, const juce::StringArray &items)
+    {
+        box.addItemList(items, 1);
+        box.setJustificationType(juce::Justification::centred);
+        box.setColour(juce::ComboBox::backgroundColourId, juce::Colour((juce::uint8)53, (juce::uint8)59, (juce::uint8)60, (juce::uint8)255));
+        box.setColour(juce::ComboBox::arrowColourId,      juce::Colours::white);
+        box.setColour(juce::ComboBox::outlineColourId,    juce::Colours::white);
+        box.setLookAndFeel(&boxLnF);
+        addAndMakeVisible(box);
+    };
     ComboSetup(feelBox,  juce::StringArray({"Clean", "Smooth"}));
     ComboSetup(focusBox, juce::StringArray({"Full Range"
                                             , "Reduce Bass"
@@ -43,6 +62,14 @@ VibeModeComponent::VibeModeComponent(juce::AudioProcessorValueTreeState &apvts
     lookaheadOnOffButton.setColour(juce::ToggleButton::tickDisabledColourId, juce::Colours::grey);
     addAndMakeVisible(lookaheadOnOffButton);
 
+    auto LabelSetup = [&](juce::Label &label, const juce::StringRef text)
+    {
+        label.setText             (text, juce::dontSendNotification);
+        label.setJustificationType(juce::Justification::centred);
+        label.setColour           (juce::Label::textColourId, juce::Colours::white);
+        label.setFont             (juce::Font("futura", 16.0f, 0));
+        addAndMakeVisible(label);
+    };
     LabelSetup(feelLabel,             "Feel");
     LabelSetup(compressLabel,         "Compress");
     LabelSetup(reactLabel,            "React");
@@ -92,34 +119,4 @@ void VibeModeComponent::resized()
     auto laCell = bounds.reduced(4, 0);
     lookaheadOnOffLabel .setBounds(laCell.removeFromTop(labelH));
     lookaheadOnOffButton.setBounds(laCell.removeFromTop(28).withSizeKeepingCentre(28, 28));
-}
-
-void VibeModeComponent::SliderSetup(juce::Slider &slider, juce::LookAndFeel &lf)
-{
-    slider.setSliderStyle (juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
-    slider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 60, 15);
-    slider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colour((juce::uint8)0, (juce::uint8)0, (juce::uint8)0, (juce::uint8)0));
-    slider.setColour(juce::Slider::textBoxTextColourId,    juce::Colours::white);
-    slider.setLookAndFeel(&lf);
-    addAndMakeVisible(slider);
-}
-
-void VibeModeComponent::LabelSetup(juce::Label &label, const juce::String &text)
-{
-    label.setText             (text, juce::dontSendNotification);
-    label.setJustificationType(juce::Justification::centred);
-    label.setColour           (juce::Label::textColourId, juce::Colours::white);
-    label.setFont             (juce::Font("futura", 16.0f, 0));
-    addAndMakeVisible(label);
-}
-
-void VibeModeComponent::ComboSetup(juce::ComboBox &box, const juce::StringArray &items)
-{
-    box.addItemList(items, 1);
-    box.setJustificationType(juce::Justification::centred);
-    box.setColour(juce::ComboBox::backgroundColourId, juce::Colour((juce::uint8)53, (juce::uint8)59, (juce::uint8)60, (juce::uint8)255));
-    box.setColour(juce::ComboBox::arrowColourId,      juce::Colours::white);
-    box.setColour(juce::ComboBox::outlineColourId,    juce::Colours::white);
-    box.setLookAndFeel(&boxLnF);
-    addAndMakeVisible(box);
 }

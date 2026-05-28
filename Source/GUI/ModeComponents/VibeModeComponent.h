@@ -30,10 +30,6 @@ public:
     void resized() override;
 
 private:
-    void SliderSetup(juce::Slider &slider, juce::LookAndFeel &lf);
-    void LabelSetup (juce::Label &label, const juce::String &text);
-    void ComboSetup (juce::ComboBox &box, const juce::StringArray &items);
-
     OtherLookAndFeel &dialLnF;
     BoxLookAndFeel   &boxLnF;
 
