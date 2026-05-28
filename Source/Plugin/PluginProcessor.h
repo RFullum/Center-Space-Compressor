@@ -141,7 +141,5 @@ private:
     juce::SmoothedValue<float> scHpfSmoothed;
     juce::SmoothedValue<float> scLpfSmoothed;
 
-    static juce::Decibels decibels;
-
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(CenterSpaceAudioProcessor)
 };

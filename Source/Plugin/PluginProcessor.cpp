@@ -226,9 +226,9 @@ void CenterSpaceAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
     scHpfSmoothed.reset           (sampleRate, rampSec);
     scLpfSmoothed.reset           (sampleRate, rampSec);
 
-    inGainSmoothed.setCurrentAndTargetValue         (decibels.decibelsToGain(inputGainParam->load()));
-    outGainSmoothed.setCurrentAndTargetValue        (decibels.decibelsToGain(outputGainParam->load()));
-    sideGainSmoothed.setCurrentAndTargetValue       (decibels.decibelsToGain(GetEffectiveSideInGainDb()));
+    inGainSmoothed.setCurrentAndTargetValue         (juce::Decibels::decibelsToGain(inputGainParam->load()));
+    outGainSmoothed.setCurrentAndTargetValue        (juce::Decibels::decibelsToGain(outputGainParam->load()));
+    sideGainSmoothed.setCurrentAndTargetValue       (juce::Decibels::decibelsToGain(GetEffectiveSideInGainDb()));
     thresholdSmoothed.setCurrentAndTargetValue      (GetEffectiveThresholdDb());
     ratioReciprocalSmoothed.setCurrentAndTargetValue(1.0f / GetEffectiveRatio());
     kneeSmoothed.setCurrentAndTargetValue           (GetEffectiveKneeDb());
@@ -267,9 +267,9 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
     const int numSamples = buffer.getNumSamples();
     const int peakMode   = GetEffectivePeakMode();
 
-    inGainSmoothed.setTargetValue          (decibels.decibelsToGain(inputGainParam->load()));
-    outGainSmoothed.setTargetValue         (decibels.decibelsToGain(outputGainParam->load()));
-    sideGainSmoothed.setTargetValue        (decibels.decibelsToGain(GetEffectiveSideInGainDb()));
+    inGainSmoothed.setTargetValue          (juce::Decibels::decibelsToGain(inputGainParam->load()));
+    outGainSmoothed.setTargetValue         (juce::Decibels::decibelsToGain(outputGainParam->load()));
+    sideGainSmoothed.setTargetValue        (juce::Decibels::decibelsToGain(GetEffectiveSideInGainDb()));
     thresholdSmoothed.setTargetValue       (GetEffectiveThresholdDb());
     ratioReciprocalSmoothed.setTargetValue (1.0f / GetEffectiveRatio());
     kneeSmoothed.setTargetValue            (GetEffectiveKneeDb());
