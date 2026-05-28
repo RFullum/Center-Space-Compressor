@@ -60,7 +60,7 @@ void VUMeter::resized()
 void VUMeter::VuMeterLevel(float level, float sampleRate)
 {
     // Convert to dB to get proper response curve. Normalize for resize() bounds
-    float multiplier = juce::jmap(juce::Decibels::gainToDecibels(level), -100.0f, 0.0f, 0.0f, 1.0f);
+    float multiplier = juce::jmap(juce::Decibels::gainToDecibels(level), -60.0f, 0.0f, 0.0f, 1.0f);
 
     // limit values: cap at 1.0f
     if (multiplier > 1.0f)

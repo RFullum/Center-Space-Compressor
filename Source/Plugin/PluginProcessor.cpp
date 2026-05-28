@@ -182,6 +182,12 @@ void CenterSpaceAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
     envelope.setAttackTime (GetEffectiveAttackMs());
     envelope.setReleaseTime(GetEffectiveReleaseMs());
 
+    // Force re-application on next processBlock so the new sample rate's
+    // coefficients are written even if param values haven't changed.
+    lastAppliedAttackMs  = -1.0f;
+    lastAppliedReleaseMs = -1.0f;
+    lastAppliedPeakMode  = -1;
+
     scHpf.prepare(spec);
     scHpf.setType(juce::dsp::StateVariableTPTFilterType::highpass);
     scHpf.reset();
@@ -279,11 +285,27 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
         currentLookaheadSamples = newLookaheadSamples;
     }
 
-    envelope.setAttackTime (GetEffectiveAttackMs());
-    envelope.setReleaseTime(GetEffectiveReleaseMs());
-    envelope.setLevelCalculationType(peakMode == 1
-                                         ? juce::dsp::BallisticsFilterLevelCalculationType::RMS
-                                         : juce::dsp::BallisticsFilterLevelCalculationType::peak);
+    // Only re-apply envelope settings when they actually change.
+    const float effectiveAttackMs  = GetEffectiveAttackMs();
+    const float effectiveReleaseMs = GetEffectiveReleaseMs();
+
+    if (effectiveAttackMs != lastAppliedAttackMs)
+    {
+        envelope.setAttackTime(effectiveAttackMs);
+        lastAppliedAttackMs = effectiveAttackMs;
+    }
+    if (effectiveReleaseMs != lastAppliedReleaseMs)
+    {
+        envelope.setReleaseTime(effectiveReleaseMs);
+        lastAppliedReleaseMs = effectiveReleaseMs;
+    }
+    if (peakMode != lastAppliedPeakMode)
+    {
+        envelope.setLevelCalculationType(peakMode == 1
+                                             ? juce::dsp::BallisticsFilterLevelCalculationType::RMS
+                                             : juce::dsp::BallisticsFilterLevelCalculationType::peak);
+        lastAppliedPeakMode = peakMode;
+    }
 
     constexpr float gainCompensation = 0.5f;    // M/S decode factor
 
@@ -454,7 +476,7 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
         inLevelChan0 = inBuffChan0.getRMSLevel(0, 0, numSamples);
         inMidLevel   = inMidBuffer.getRMSLevel(0, 0, numSamples) * 0.5f;
         inLevelChan1 = inBuffChan1.getRMSLevel(0, 0, numSamples);
-        inSideLevel  = inSideBuffer.getRMSLevel(0, 0, numSamples);
+        inSideLevel  = inSideBuffer.getRMSLevel(0, 0, numSamples) * 0.5f;
 
         sideChainLevel = sidechainBuffer.getRMSLevel(0, 0, numSamples);
 
@@ -467,7 +489,7 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
         inLevelChan0 = inBuffChan0.getMagnitude(0, numSamples);
         inMidLevel   = inMidBuffer.getMagnitude(0, numSamples) * 0.5f;
         inLevelChan1 = inBuffChan1.getMagnitude(0, numSamples);
-        inSideLevel  = inSideBuffer.getMagnitude(0, numSamples);
+        inSideLevel  = inSideBuffer.getMagnitude(0, numSamples) * 0.5f;
 
         sideChainLevel = sidechainBuffer.getMagnitude(0, numSamples);
 

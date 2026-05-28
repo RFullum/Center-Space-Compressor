@@ -394,6 +394,123 @@ namespace
     }
 
 
+    //==============================================================================
+    // End-to-end signal-chain gain-reduction check.
+    //
+    // Simulates the full processBlock path with fixed parameters:
+    //   - L = R = 0.5 (correlated mono content, 0 dBFS mid after encode)
+    //   - Steady SC tone at -10 dBFS, threshold = -30 dB, ratio = 20:1, knee = 0,
+    //     attack = 1 ms, release = 50 ms => 20 dB of overshoot, very aggressive.
+    //
+    // After enough samples for the BallisticsFilter to converge to steady state,
+    // we read the envelope, push it through the same soft-knee formula the
+    // processor uses, and verify:
+    //   1. envelope dB ~ SC level dB
+    //   2. compGain matches the closed-form expectation
+    //   3. outMidLevel (RMS(mid * compGain) * 0.5) is at least 18 dB below inMidLevel
+    //   4. With the current VUMeter floor (-60 dB), the bar height drops by
+    //      a clearly visible amount (>= 0.25 of full scale).
+    //
+    // Prints every intermediate dB value so a human reading the test output can
+    // verify the meter-tap points match the screenshot complaint.
+    void TestSignalChainGainReduction()
+    {
+        std::cout << "[test] full signal-chain GR (fixed params)\n";
+
+        constexpr double sampleRate = 48000.0;
+        constexpr int    totalSamples = 24000;   // 0.5 s -- way past convergence for 1 ms attack
+
+        // Fixed parameters mirroring "side-chain 20 dB over threshold, aggressive comp"
+        constexpr float scLevelLin   = 0.31622776f;   // -10 dBFS
+        constexpr float thresholdDb  = -30.0f;
+        constexpr float ratio        = 20.0f;
+        constexpr float kneeDb       = 0.0f;
+        constexpr float attackMs     = 1.0f;
+        constexpr float releaseMs    = 50.0f;
+
+        // Mid input. L = R = 0.5 -> mid = L+R = 1.0 (0 dBFS), side = 0.
+        constexpr float L = 0.5f;
+        constexpr float R = 0.5f;
+        const     float mid  = L + R;
+        const     float side = L - R;
+
+        // Run the envelope follower to steady state on a DC SC level (the static
+        // curve only cares about the level, not waveform).
+        juce::dsp::ProcessSpec spec;
+        spec.sampleRate       = sampleRate;
+        spec.maximumBlockSize = 512;
+        spec.numChannels      = 1;
+
+        juce::dsp::BallisticsFilter<float> envelope;
+        envelope.prepare(spec);
+        envelope.setAttackTime (attackMs);
+        envelope.setReleaseTime(releaseMs);
+        envelope.setLevelCalculationType(juce::dsp::BallisticsFilterLevelCalculationType::peak);
+
+        // Push 0.5 s of steady SC samples; capture the final envelope value as
+        // steady-state.
+        float env = 0.0f;
+        for (int n = 0; n < totalSamples; ++n)
+            env = envelope.processSample(0, scLevelLin);
+
+        const float envDb = juce::Decibels::gainToDecibels(env);
+
+        // Closed-form static-curve gain (matches processBlock).
+        const float compGain   = SoftKneeCompressorGain(env, thresholdDb, ratio, kneeDb);
+        const float compGainDb = juce::Decibels::gainToDecibels(compGain);
+
+        // Mirror the processor's metering: inMidBuffer holds `mid`, scaled by 0.5
+        // at read time; outMidBuffer holds `mid * compGain`, scaled by 0.5 at
+        // read time (RMS of a steady value is just the value).
+        const float inMidLevel  = std::abs(mid)              * 0.5f;
+        const float outMidLevel = std::abs(mid * compGain)   * 0.5f;
+
+        const float inMidDb  = juce::Decibels::gainToDecibels(inMidLevel);
+        const float outMidDb = juce::Decibels::gainToDecibels(outMidLevel);
+        const float observedGrDb = inMidDb - outMidDb;
+
+        // VU meter mapping currently in VUMeter.cpp:63 (floor = -60 dB).
+        const auto MeterBar = [](float linear)
+        {
+            return juce::jlimit(0.0f, 1.0f,
+                                juce::jmap(juce::Decibels::gainToDecibels(linear),
+                                           -60.0f, 0.0f, 0.0f, 1.0f));
+        };
+
+        const float inMidBar  = MeterBar(inMidLevel);
+        const float outMidBar = MeterBar(outMidLevel);
+
+        std::cout << "    SC steady-state env: "    << envDb       << " dB (expected ~-10)\n";
+        std::cout << "    compGain:            "    << compGainDb  << " dB\n";
+        std::cout << "    inMidLevel:          "    << inMidLevel  << " (" << inMidDb  << " dB)\n";
+        std::cout << "    outMidLevel:         "    << outMidLevel << " (" << outMidDb << " dB)\n";
+        std::cout << "    observed GR:         "    << observedGrDb << " dB\n";
+        std::cout << "    inMid meter bar:     "    << inMidBar    << " (0-1)\n";
+        std::cout << "    outMid meter bar:    "    << outMidBar   << " (0-1)\n";
+        std::cout << "    bar drop:            "    << (inMidBar - outMidBar) << "\n";
+
+        // 1. Envelope should be ~-10 dB (well within 0.5 dB after 0.5 s of convergence).
+        EXPECT_NEAR(envDb, -10.0f, 0.5f);
+
+        // 2. Closed-form: overshoot = +20 dB, slope = 1/20 - 1 = -0.95,
+        //    gainDb = -0.95 * 20 = -19 dB.
+        EXPECT_NEAR(compGainDb, -19.0f, 0.5f);
+
+        // 3. outMidLevel should be ~19 dB below inMidLevel (driven by compGain).
+        EXPECT_NEAR(observedGrDb, 19.0f, 0.5f);
+
+        // 4. With -60 dB meter floor: inMidBar is at -6 dB -> ~0.90; outMidBar
+        //    is at -25 dB -> ~0.58. A drop of >= 0.25 is visually obvious.
+        if (! ((inMidBar - outMidBar) >= 0.25f))
+        {
+            std::cerr << "FAIL: meter bar drop too small to be visible: "
+                      << (inMidBar - outMidBar) << " (expected >= 0.25)\n";
+            ++failureCount;
+        }
+    }
+
+
+    //==============================================================================
     void TestScFilterResponse()
     {
         std::cout << "[test] SC HPF/LPF response\n";
@@ -638,6 +755,7 @@ int main()
     TestMidSideRoundTrip();
     TestStereoTypeSelectors();
     TestBallisticsAttackTime();
+    TestSignalChainGainReduction();
     TestScFilterResponse();
     TestCompressMacro();
     TestReactMacro();

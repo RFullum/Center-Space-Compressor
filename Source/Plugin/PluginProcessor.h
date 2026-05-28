@@ -64,8 +64,7 @@ public:
 
 private:
     // Effective-value derivation layer.
-    // Tweak (full control) mode: returns the matching primitive directly
-    // (with the Opto style override applied to peakMode and knee);
+    // Tweak (full control) mode: returns the matching primitive directly (Opto style override applied to peakMode and knee);
     // Vibe mode (minimal control): derives from the macros
     float GetEffectiveSideInGainDb()     const;
     float GetEffectiveScHpfHz()          const;
@@ -116,6 +115,14 @@ private:
     static constexpr int maxLookaheadSamples = 2048;
     juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::None> lookaheadDelay { maxLookaheadSamples };
     int currentLookaheadSamples = 0;
+
+    // Cached envelope-follower settings so we only re-apply them when the value
+    // actually changes. juce::dsp::BallisticsFilter::setLevelCalculationType
+    // calls reset() internally, which zeros envelope state — calling it every
+    // block produces a per-block-boundary click during compression.
+    int   lastAppliedPeakMode  = -1;
+    float lastAppliedAttackMs  = -1.0f;
+    float lastAppliedReleaseMs = -1.0f;
 
     // Pre-allocated metering buffers.
     juce::AudioBuffer<float> inBuffChan0;
