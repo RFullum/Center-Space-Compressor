@@ -209,13 +209,6 @@ void CenterSpaceAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
     lookaheadDelay.setDelay((float)currentLookaheadSamples);
     setLatencySamples(currentLookaheadSamples);
 
-    inBuffChan0.setSize     (1, samplesPerBlock, false, true, false);
-    inMidBuffer.setSize     (1, samplesPerBlock, false, true, false);
-    inBuffChan1.setSize     (1, samplesPerBlock, false, true, false);
-    inSideBuffer.setSize    (1, samplesPerBlock, false, true, false);
-    sidechainBuffer.setSize (1, samplesPerBlock, false, true, false);
-    outMidBuffer.setSize    (1, samplesPerBlock, false, true, false);
-
     static constexpr double rampSec = 0.02;
     inGainSmoothed.reset          (sampleRate, rampSec);
     outGainSmoothed.reset         (sampleRate, rampSec);
@@ -256,13 +249,6 @@ bool CenterSpaceAudioProcessor::isBusesLayoutSupported(const BusesLayout &layout
 void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBuffer &/*midiMessages*/)
 {
     juce::ScopedNoDenormals noDenormals;
-
-    inBuffChan0    .clear();
-    inMidBuffer    .clear();
-    inBuffChan1    .clear();
-    inSideBuffer   .clear();
-    sidechainBuffer.clear();
-    outMidBuffer   .clear();
 
     const int numSamples = buffer.getNumSamples();
     const int peakMode   = GetEffectivePeakMode();
@@ -366,6 +352,13 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
 
     // Track the lowest compGain (= max gain reduction) seen this block
     float minCompGain = 1.0f;
+    
+    // Metering Accumulators
+    // maxAbs (peak); sumSq (RMS)
+    float  maxAbsInChan0 = 0.0f, maxAbsInMid = 0.0f,  maxAbsInChan1 = 0.0f,  maxAbsInSide = 0.0f;
+    float  maxAbsSC      = 0.0f, maxAbsOutMid = 0.0f, maxAbsOutChan0 = 0.0f, maxAbsOutChan1 = 0.0f;
+    double sumSqInChan0  = 0.0,  sumSqInMid = 0.0,    sumSqInChan1 = 0.0,    sumSqInSide = 0.0;
+    double sumSqSC       = 0.0,  sumSqOutMid = 0.0,   sumSqOutChan0 = 0.0,   sumSqOutChan1 = 0.0;
 
     // Compute SC filters at sub-block sizes; not per sample.
     constexpr int subBlockSize = 32;
@@ -414,11 +407,19 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
             side = (chan0In - chan1In) * inGainAmp;
         }
 
-        // Input Metering
-        inBuffChan0 .addSample(0, i, chan0In * inGainAmp);
-        inMidBuffer .addSample(0, i, mid);
-        inBuffChan1 .addSample(0, i, chan1In * inGainAmp);
-        inSideBuffer.addSample(0, i, side);
+        // Input metering taps
+        {
+            const float inC0 = chan0In * inGainAmp;
+            const float inC1 = chan1In * inGainAmp;
+            maxAbsInChan0 = juce::jmax(maxAbsInChan0, std::abs(inC0));
+            maxAbsInChan1 = juce::jmax(maxAbsInChan1, std::abs(inC1));
+            maxAbsInMid   = juce::jmax(maxAbsInMid,   std::abs(mid));
+            maxAbsInSide  = juce::jmax(maxAbsInSide,  std::abs(side));
+            sumSqInChan0 += (double)inC0 * (double)inC0;
+            sumSqInChan1 += (double)inC1 * (double)inC1;
+            sumSqInMid   += (double)mid  * (double)mid;
+            sumSqInSide  += (double)side * (double)side;
+        }
 
         // Mono the sidechain
         float monoSidechainSample = 0.0f;
@@ -432,7 +433,8 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
         monoSidechainSample = scHpf.processSample(0, monoSidechainSample);
         monoSidechainSample = scLpf.processSample(0, monoSidechainSample);
 
-        sidechainBuffer.addSample(0, i, monoSidechainSample);
+        maxAbsSC  = juce::jmax(maxAbsSC, std::abs(monoSidechainSample));
+        sumSqSC  += (double)monoSidechainSample * (double)monoSidechainSample;
 
         const float envVal = envelope.processSample(0, monoSidechainSample);
 
@@ -466,7 +468,10 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
 
         const float midComped = mid * compGain;
 
-        outMidBuffer.addSample(0, i, midComped);
+        // Output mid meter tap: post-gain, post-0.5 compensation
+        const float outMidSample = midComped * outGainAmp * gainCompensation;
+        maxAbsOutMid = juce::jmax(maxAbsOutMid, std::abs(outMidSample));
+        sumSqOutMid += (double)outMidSample * (double)outMidSample;
 
         // Decode M/S back to L/R if the output is L/R; otherwise pass mid and
         // side through as ch0 and ch1 with no decode and no 0.5 compensation.
@@ -480,36 +485,37 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
             chan0[i] = (midComped + side) * outScale;
             chan1[i] = (midComped - side) * outScale;
         }
+
+        maxAbsOutChan0 = juce::jmax(maxAbsOutChan0, std::abs(chan0[i]));
+        maxAbsOutChan1 = juce::jmax(maxAbsOutChan1, std::abs(chan1[i]));
+        sumSqOutChan0 += (double)chan0[i] * (double)chan0[i];
+        sumSqOutChan1 += (double)chan1[i] * (double)chan1[i];
     }
 
+    // Publish meter values
     if (peakMode == 1)
     {
-        inLevelChan0 = inBuffChan0.getRMSLevel(0, 0, numSamples);
-        inMidLevel   = inMidBuffer.getRMSLevel(0, 0, numSamples) * 0.5f;
-        inLevelChan1 = inBuffChan1.getRMSLevel(0, 0, numSamples);
-        inSideLevel  = inSideBuffer.getRMSLevel(0, 0, numSamples) * 0.5f;
-
-        sideChainLevel = sidechainBuffer.getRMSLevel(0, 0, numSamples);
-
-        outLevelChan0 = buffer.getRMSLevel      (0, 0, numSamples);
-        outMidLevel   = outMidBuffer.getRMSLevel(0, 0, numSamples) * 0.5f;
-        outLevelChan1 = buffer.getRMSLevel      (1, 0, numSamples);
+        const float invN = (numSamples > 0) ? 1.0f / (float)numSamples : 0.0f;
+        inLevelChan0   = std::sqrt((float)(sumSqInChan0 * invN));
+        inMidLevel     = std::sqrt((float)(sumSqInMid   * invN)) * 0.5f;
+        inLevelChan1   = std::sqrt((float)(sumSqInChan1 * invN));
+        inSideLevel    = std::sqrt((float)(sumSqInSide  * invN)) * 0.5f;
+        sideChainLevel = std::sqrt((float)(sumSqSC      * invN));
+        outLevelChan0  = std::sqrt((float)(sumSqOutChan0 * invN));
+        outMidLevel    = std::sqrt((float)(sumSqOutMid   * invN));
+        outLevelChan1  = std::sqrt((float)(sumSqOutChan1 * invN));
     }
     else
     {
-        inLevelChan0 = inBuffChan0.getMagnitude(0, numSamples);
-        inMidLevel   = inMidBuffer.getMagnitude(0, numSamples) * 0.5f;
-        inLevelChan1 = inBuffChan1.getMagnitude(0, numSamples);
-        inSideLevel  = inSideBuffer.getMagnitude(0, numSamples) * 0.5f;
-
-        sideChainLevel = sidechainBuffer.getMagnitude(0, numSamples);
-
-        outLevelChan0 = buffer.getMagnitude      (0, 0, numSamples);
-        outMidLevel   = outMidBuffer.getMagnitude(0, numSamples) * 0.5f;
-        outLevelChan1 = buffer.getMagnitude      (1, 0, numSamples);
+        inLevelChan0   = maxAbsInChan0;
+        inMidLevel     = maxAbsInMid * 0.5f;
+        inLevelChan1   = maxAbsInChan1;
+        inSideLevel    = maxAbsInSide * 0.5f;
+        sideChainLevel = maxAbsSC;
+        outLevelChan0  = maxAbsOutChan0;
+        outMidLevel    = maxAbsOutMid;
+        outLevelChan1  = maxAbsOutChan1;
     }
-
-    outMidLevel = outMidLevel.load() * outGainSmoothed.getCurrentValue();
 
     // GR meter: convert the block's deepest compressor gain to dB and
     // normalise to 0-1 against a fixed full-scale (24 dB). 1.0 == full meter.

@@ -124,14 +124,6 @@ private:
     float lastAppliedAttackMs  = -1.0f;
     float lastAppliedReleaseMs = -1.0f;
 
-    // Pre-allocated metering buffers.
-    juce::AudioBuffer<float> inBuffChan0;
-    juce::AudioBuffer<float> inMidBuffer;
-    juce::AudioBuffer<float> inBuffChan1;
-    juce::AudioBuffer<float> inSideBuffer;
-    juce::AudioBuffer<float> sidechainBuffer;
-    juce::AudioBuffer<float> outMidBuffer;
-
     juce::SmoothedValue<float> inGainSmoothed;
     juce::SmoothedValue<float> outGainSmoothed;
     juce::SmoothedValue<float> sideGainSmoothed;
