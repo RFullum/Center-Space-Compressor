@@ -231,8 +231,15 @@ void CenterSpaceAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
 
 void CenterSpaceAudioProcessor::releaseResources()
 {
-    // When playback stops, you can use this as an opportunity to free up any
-    // spare memory, etc.
+    envelope.reset();
+    scHpf.reset();
+    scLpf.reset();
+    lookaheadDelay.reset();
+
+    // Force coefficient re-application on next prepareToPlay/processBlock.
+    lastAppliedPeakMode  = -1;
+    lastAppliedAttackMs  = -1.0f;
+    lastAppliedReleaseMs = -1.0f;
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
