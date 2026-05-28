@@ -279,7 +279,6 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
     const int newLookaheadSamples = juce::jlimit(0, maxLookaheadSamples, GetEffectiveLookaheadSamples());
     if (newLookaheadSamples != currentLookaheadSamples)
     {
-        lookaheadDelay.reset();
         lookaheadDelay.setDelay((float)newLookaheadSamples);
         setLatencySamples(newLookaheadSamples);
         currentLookaheadSamples = newLookaheadSamples;
