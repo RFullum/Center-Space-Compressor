@@ -124,9 +124,9 @@ private:
     float lastAppliedAttackMs  = -1.0f;
     float lastAppliedReleaseMs = -1.0f;
 
-    juce::SmoothedValue<float> inGainSmoothed;
-    juce::SmoothedValue<float> outGainSmoothed;
-    juce::SmoothedValue<float> sideGainSmoothed;
+    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Multiplicative> inGainSmoothed;
+    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Multiplicative> outGainSmoothed;
+    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Multiplicative> sideGainSmoothed;
     juce::SmoothedValue<float> thresholdSmoothed;     // dB
     juce::SmoothedValue<float> ratioReciprocalSmoothed;
     juce::SmoothedValue<float> kneeSmoothed;          // dB
