@@ -42,19 +42,20 @@ void VUMeter::resized()
     auto bounds  = getLocalBounds();
 
     // Create Clipping Light Area
-    juce::Rectangle<int> reducedArea = bounds.reduced(reducer);
-    juce::Rectangle<int> clipArea    = reducedArea.removeFromTop(reducedArea.getHeight() * 0.2f);
+    auto reducedArea = bounds.reduced(reducer);
+    auto clipArea    = reducedArea.removeFromTop(reducedArea.proportionOfHeight(0.2f));
 
     clipBack.setBounds(clipArea.getX(), clipArea.getY(), clipArea.getWidth(), clipArea.getHeight());
 
     // Create Level Meter Area
-    juce::Rectangle<int> vuMeterArea = reducedArea;
+    auto vuMeterArea = reducedArea;
 
     meterBack.setBounds(vuMeterArea.getX(), vuMeterArea.getY(), vuMeterArea.getWidth(), vuMeterArea.getHeight());
     meterLight.setBounds(vuMeterArea.getX()
                          , vuMeterArea.getY() + vuMeterArea.getHeight()
                          , vuMeterArea.getWidth()
-                         , -vuMeterArea.getHeight() * heightMult);
+                         , -vuMeterArea.proportionOfHeight(heightMult));
+    
 }
 
 void VUMeter::VuMeterLevel(float level, float sampleRate)
@@ -67,7 +68,7 @@ void VUMeter::VuMeterLevel(float level, float sampleRate)
         multiplier = 1.0f;
 
     // If sample rate changes, update SR and decay factors
-    if (SR != sampleRate)
+    if (!juce::approximatelyEqual(SR, sampleRate))
     {
         SR              = sampleRate;
         decayFactorRise = decayRateRise * SR;
@@ -112,8 +113,8 @@ void ReduceMeter::resized()
     auto bounds  = getLocalBounds();
 
     // Create Clipping Light Area
-    juce::Rectangle<int> reducedArea = bounds.reduced(reducer);
-    juce::Rectangle<int> clipArea    = reducedArea.removeFromTop(reducedArea.getHeight() * 0.2f);
+    auto reducedArea = bounds.reduced(reducer);
+    auto clipArea    = reducedArea.removeFromTop(reducedArea.proportionOfHeight(0.2f));
 
     clipBack.setBounds(clipArea.getX(), clipArea.getY(), clipArea.getWidth(), clipArea.getHeight());
 
@@ -127,7 +128,7 @@ void ReduceMeter::resized()
     meterLight.setBounds(reductionMeterArea.getX()
                          , reductionMeterArea.getY()
                          , reductionMeterArea.getWidth()
-                         , reductionMeterArea.getHeight() * heightMult);
+                         , reductionMeterArea.proportionOfHeight(heightMult));
 }
 
 void ReduceMeter::VuMeterLevel(float level, float sampleRate)
@@ -136,7 +137,7 @@ void ReduceMeter::VuMeterLevel(float level, float sampleRate)
     float multiplier = (level < 1.0f) ? level : 1.0f;
 
     // If sample rate changes, update SR and decay factors
-    if (SR != sampleRate)
+    if (!juce::approximatelyEqual(SR, sampleRate))
     {
         SR              = sampleRate;
         decayFactorRise = decayRateRise * SR;

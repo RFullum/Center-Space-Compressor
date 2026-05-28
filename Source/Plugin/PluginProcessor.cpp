@@ -166,7 +166,7 @@ const juce::String CenterSpaceAudioProcessor::getProgramName(int /*index*/)
     return {};
 }
 
-void CenterSpaceAudioProcessor::changeProgramName(int index, const juce::String &/*newName*/) {}
+void CenterSpaceAudioProcessor::changeProgramName(int /*index*/, const juce::String &/*newName*/) {}
 
 
 void CenterSpaceAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
@@ -281,12 +281,15 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
     const float effectiveAttackMs  = GetEffectiveAttackMs();
     const float effectiveReleaseMs = GetEffectiveReleaseMs();
 
-    if (effectiveAttackMs != lastAppliedAttackMs)
+//    if (effectiveAttackMs != lastAppliedAttackMs)
+    if (!juce::approximatelyEqual(effectiveAttackMs, lastAppliedAttackMs))
     {
         envelope.setAttackTime(effectiveAttackMs);
         lastAppliedAttackMs = effectiveAttackMs;
     }
-    if (effectiveReleaseMs != lastAppliedReleaseMs)
+    
+//    if (effectiveReleaseMs != lastAppliedReleaseMs)
+    if (!juce::approximatelyEqual(effectiveReleaseMs, lastAppliedReleaseMs))
     {
         envelope.setReleaseTime(effectiveReleaseMs);
         lastAppliedReleaseMs = effectiveReleaseMs;

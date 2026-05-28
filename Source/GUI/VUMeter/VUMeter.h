@@ -64,7 +64,7 @@ class ReduceMeter
 {
 public:
     ReduceMeter();
-    ~ReduceMeter();
+    ~ReduceMeter() override;
 
     void resized() override;
 
