@@ -62,8 +62,10 @@ set(CenterSpace_SOURCES
     Source/GUI/ModeComponents/TweakModeComponent.h
     Source/GUI/ModeComponents/VibeModeComponent.cpp
     Source/GUI/ModeComponents/VibeModeComponent.h
-    Source/GUI/TitleHeader/TitleHeader.cpp
-    Source/GUI/TitleHeader/TitleHeader.h
+    Source/GUI/TitleHeaderFooter/TitleHeader.cpp
+    Source/GUI/TitleHeaderFooter/TitleHeader.h
+    Source/GUI/TitleHeaderFooter/TitleFooter.cpp
+    Source/GUI/TitleHeaderFooter/TitleFooter.h
     Source/GUI/VUMeter/VUMeter.cpp
     Source/GUI/VUMeter/VUMeter.h
     Source/GUI/GUIUtils/ColorPalette.h
@@ -91,7 +93,7 @@ target_include_directories(CenterSpace PRIVATE
     Source/DSP
     Source/GUI/LookAndFeel
     Source/GUI/ModeComponents
-    Source/GUI/TitleHeader
+    Source/GUI/TitleHeaderFooter
     Source/GUI/VUMeter
     Source/GUI/GUIUtils)
 
