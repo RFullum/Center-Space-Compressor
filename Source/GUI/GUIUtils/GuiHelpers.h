@@ -1,7 +1,7 @@
 /*
   ==============================================================================
 
-    GuiResources.h
+    GuiHelpers.h
 
   ==============================================================================
 */
@@ -9,12 +9,16 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "ColorPalette.h"
 
 //==============================================================================
 
-struct GuiResources
+namespace CenterSpace
 {
-    juce::AudioProcessorValueTreeState *apvts = nullptr;
-    const Palette::Theme               &theme;
-};
+
+    enum class StereoType
+    {
+        LeftRight = 0,
+        MidSide
+    };
+
+}   // namespace CenterSpace

@@ -11,19 +11,21 @@
 #include <JuceHeader.h>
 #include "VUMeter.h"
 #include "OtherLookAndFeel.h"
-//#include "TitleHeader.h"
 #include "TweakModeComponent.h"
 #include "VibeModeComponent.h"
 #include "GuiResources.h"
+#include "GuiHelpers.h"
+#include "signal/Property.h"
 
 class CenterSpaceAudioProcessor;
 class TitleHeader;
 class TitleFooter;
+class StereoSelector;
 
 //==============================================================================
 
 class CenterSpaceAudioProcessorEditor
-    : public juce::AudioProcessorEditor
+    : public  juce::AudioProcessorEditor
     , private juce::Timer
     , private juce::AudioProcessorValueTreeState::Listener
 {
@@ -54,6 +56,11 @@ private:
     
     std::unique_ptr<TitleHeader> titleHeader;
     std::unique_ptr<TitleFooter> titleFooter;
+    
+    std::unique_ptr<StereoSelector> inStereoSelector;
+    std::unique_ptr<StereoSelector> outStereoSelector;
+    juce::Label                     inStereoLabel;
+    juce::Label                     outStereoLabel;
 
 //    OtherLookAndFeel compLookAndFeel;
 //    OtherLookAndFeel dBLookAndFeel;

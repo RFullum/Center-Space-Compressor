@@ -70,6 +70,7 @@ set(CenterSpace_SOURCES
     Source/GUI/VUMeter/VUMeter.h
     Source/GUI/GUIUtils/ColorPalette.h
     Source/GUI/GUIUtils/GuiResources.h
+    Source/GUI/GUIUtils/GuiHelpers.h
     Source/GUI/Components/Selector.cpp
     Source/GUI/Components/Selector.h
     Source/Signal/signal/Signal.h
