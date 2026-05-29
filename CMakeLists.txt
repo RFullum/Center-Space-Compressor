@@ -63,7 +63,8 @@ set(CenterSpace_SOURCES
     Source/GUI/TitleHeader/TitleHeader.cpp
     Source/GUI/TitleHeader/TitleHeader.h
     Source/GUI/VUMeter/VUMeter.cpp
-    Source/GUI/VUMeter/VUMeter.h)
+    Source/GUI/VUMeter/VUMeter.h
+    Source/GUI/GUIUtils/ColorPalette.h)
 
 target_sources(CenterSpace PRIVATE ${CenterSpace_SOURCES})
 
@@ -88,7 +89,8 @@ target_include_directories(CenterSpace PRIVATE
     Source/GUI/LookAndFeel
     Source/GUI/ModeComponents
     Source/GUI/TitleHeader
-    Source/GUI/VUMeter)
+    Source/GUI/VUMeter
+    Source/GUI/GUIUtils)
 
 # --- Binary data --------------------------------------------------------------
 # Compiles assets into a static lib exposing them via `BinaryData::*` symbols.
