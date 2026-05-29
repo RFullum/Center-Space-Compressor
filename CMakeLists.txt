@@ -56,6 +56,8 @@ set(CenterSpace_SOURCES
     Source/DSP/Derivations.h
     Source/GUI/LookAndFeel/OtherLookAndFeel.cpp
     Source/GUI/LookAndFeel/OtherLookAndFeel.h
+    Source/GUI/LookAndFeel/CSLookAndFeel.cpp
+    Source/GUI/LookAndFeel/CSLookAndFeel.h
     Source/GUI/ModeComponents/TweakModeComponent.cpp
     Source/GUI/ModeComponents/TweakModeComponent.h
     Source/GUI/ModeComponents/VibeModeComponent.cpp
@@ -64,7 +66,8 @@ set(CenterSpace_SOURCES
     Source/GUI/TitleHeader/TitleHeader.h
     Source/GUI/VUMeter/VUMeter.cpp
     Source/GUI/VUMeter/VUMeter.h
-    Source/GUI/GUIUtils/ColorPalette.h)
+    Source/GUI/GUIUtils/ColorPalette.h
+    Source/GUI/GUIUtils/GuiResources.h)
 
 target_sources(CenterSpace PRIVATE ${CenterSpace_SOURCES})
 
@@ -122,6 +125,12 @@ target_link_libraries(CenterSpace
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags
         juce::juce_recommended_warning_flags)
+
+# Silence "constructor parameter shadows field" specifically — common pattern
+# in this codebase (e.g. CSLookAndFeel(GuiResources &resources) : resources(resources)).
+# All other -Wshadow categories stay on.
+target_compile_options(CenterSpace PRIVATE
+    $<$<CXX_COMPILER_ID:Clang,AppleClang>:-Wno-shadow-field-in-constructor>)
 
 # --- Per-config Xcode build settings ------------------------------------------
 # Mirrors the .jucer Xcode configurations:

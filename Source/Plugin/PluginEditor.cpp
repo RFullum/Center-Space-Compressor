@@ -12,8 +12,24 @@
 
 //==============================================================================
 
+namespace
+{
+
+    GuiResources MakeResources()
+    {
+        return GuiResources
+        {
+            .theme = Palette::DefaultTheme
+        };
+    }
+
+}   // namespace
+
+//==============================================================================
+
 CenterSpaceAudioProcessorEditor::CenterSpaceAudioProcessorEditor(CenterSpaceAudioProcessor &p)
 : juce::AudioProcessorEditor(&p)
+, resources(MakeResources())
 , tweakModeComp(p.parameters, dBLookAndFeel, boxLookAndFeel)
 , vibeModeComp (p.parameters, compLookAndFeel, boxLookAndFeel)
 , audioProcessor(p)

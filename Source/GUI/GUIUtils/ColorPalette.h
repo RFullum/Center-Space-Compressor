@@ -1,3 +1,15 @@
+/*
+  ==============================================================================
+
+    ColorPalette.h
+    Created: 29 May 2026 11:39:53am
+    Author:  Robert Fullum
+
+  ==============================================================================
+*/
+
+#pragma once
+
 #include <JuceHeader.h>
 
 //==============================================================================
@@ -25,6 +37,6 @@ namespace Palette
         juce::Colour(0xFFFF2D78),   // pinkAccent:      hot pink
         juce::Colour(0xFFD0D8E8),   // textPrimary:     blue-tinted off-white
         juce::Colour(0xFF5A6480)    // textSecondary:   blue-gray
-    }
+    };
 
 }   // namespace Palette

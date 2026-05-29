@@ -14,6 +14,7 @@
 #include "TitleHeader.h"
 #include "TweakModeComponent.h"
 #include "VibeModeComponent.h"
+#include "GuiResources.h"
 
 class CenterSpaceAudioProcessor;
 
@@ -47,6 +48,8 @@ private:
 
     void ApplyUiModeVisibility();
     void ApplyStyleVisibility();
+    
+    GuiResources resources;
 
     OtherLookAndFeel compLookAndFeel;
     OtherLookAndFeel dBLookAndFeel;
