@@ -9,10 +9,11 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "VUMeter.h"
-#include "OtherLookAndFeel.h"
-#include "TweakModeComponent.h"
-#include "VibeModeComponent.h"
+//#include "VUMeter.h"
+//#include "OtherLookAndFeel.h"
+//#include "CSLookAndFeel.h"
+//#include "TweakModeComponent.h"
+//#include "VibeModeComponent.h"
 #include "GuiResources.h"
 #include "GuiHelpers.h"
 #include "signal/Property.h"
@@ -21,6 +22,7 @@ class CenterSpaceAudioProcessor;
 class TitleHeader;
 class TitleFooter;
 class StereoSelector;
+class CSLookAndFeel;
 
 //==============================================================================
 
@@ -52,7 +54,8 @@ private:
     void ApplyUiModeVisibility();
     void ApplyStyleVisibility();
     
-    GuiResources resources;
+    std::unique_ptr<CSLookAndFeel> csLAndF;
+    GuiResources                   resources;
     
     std::unique_ptr<TitleHeader> titleHeader;
     std::unique_ptr<TitleFooter> titleFooter;
@@ -69,9 +72,9 @@ private:
 //    TitleHeader titleHeader;
 //    TitleFooter titleFooter;
 //
-//    juce::Slider inputGainSlider;
+    juce::Slider inGainSlider;
 //    juce::Slider sideChainGainSlider;
-//    juce::Slider outputGainSlider;
+    juce::Slider outGainSlider;
 //
 //    juce::Slider thresholdSlider;
 //    juce::Slider ratioSlider;
@@ -83,9 +86,9 @@ private:
 //    float textBoxW        = 50.0f;
 //    float textBoxH        = 25.0f;
 //
-//    juce::Label inputGainLabel;
+    juce::Label inGainLabel;
 //    juce::Label sideChainGainLabel;
-//    juce::Label outputGainLabel;
+    juce::Label outGainLabel;
 //
 //    juce::Label thresholdLabel;
 //    juce::Label ratioLabel;
@@ -105,9 +108,9 @@ private:
 //    juce::Label    inputTypeLabel;
 //    juce::Label    outputTypeLabel;
 //
-//    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> inputGainSliderAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> inGainSliderAttachment;
 //    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> sideChainGainSliderAttachement;
-//    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> outputGainSliderAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> outGainSliderAttachment;
 //
 //    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> thresholdSliderAttachment;
 //    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> ratioSliderAttachment;

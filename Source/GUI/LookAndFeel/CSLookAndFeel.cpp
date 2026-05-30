@@ -10,10 +10,7 @@
 
 //==============================================================================
 
-
-CSLookAndFeel::CSLookAndFeel(GuiResources &resources)
-: resources(resources)
-, trackBackground(resources.theme.structure)
+CSLookAndFeel::CSLookAndFeel()
 {}
 
 void CSLookAndFeel::drawRotarySlider(juce::Graphics &g, int x, int y, int width, int height
@@ -65,4 +62,9 @@ void CSLookAndFeel::drawRotarySlider(juce::Graphics &g, int x, int y, int width,
 
         g.drawLine(x1, y1, x2, y2, 1.5f);
     }
+}
+
+void CSLookAndFeel::SetTrackBackground(juce::Colour color)
+{
+    trackBackground = color;
 }

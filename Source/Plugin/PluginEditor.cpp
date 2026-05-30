@@ -11,18 +11,21 @@
 #include "TitleHeader.h"
 #include "TitleFooter.h"
 #include "Selector.h"
+#include "CSLookAndFeel.h"
 
 //==============================================================================
 
 namespace
 {
 
-    GuiResources MakeResources(CenterSpaceAudioProcessor &processor)
+    GuiResources MakeResources(CenterSpaceAudioProcessor &processor
+                               , juce::LookAndFeel       &lAndF)
     {
         return GuiResources
         {
-            .apvts = &processor.parameters,
-            .theme = Palette::DefaultTheme
+            .apvts   = &processor.parameters,
+            .theme   =  Palette::DefaultTheme,
+            .csLAndF = &lAndF
         };
     }
 
@@ -32,7 +35,8 @@ namespace
 
 CenterSpaceAudioProcessorEditor::CenterSpaceAudioProcessorEditor(CenterSpaceAudioProcessor &p)
 : juce::AudioProcessorEditor(&p)
-, resources(MakeResources(p))
+, csLAndF(std::make_unique<CSLookAndFeel>())
+, resources(MakeResources(p, *csLAndF))
 , titleHeader(std::make_unique<TitleHeader>(resources))
 , titleFooter(std::make_unique<TitleFooter>(resources))
 , inStereoSelector (std::make_unique<StereoSelector>(resources, "inputType"))
@@ -43,28 +47,44 @@ CenterSpaceAudioProcessorEditor::CenterSpaceAudioProcessorEditor(CenterSpaceAudi
 {
     setSize(1280, 720);
     
-    auto LabelSetup = [&](juce::Label &label, juce::StringRef text, const bool makeVisible)
-    {
-        label.setFont(juce::Font(juce::FontOptions("Helvetica"
-                                                   , 11.0f
-                                                   , juce::Font::plain)));
-        label.setColour(juce::Label::textColourId, resources.theme.textSecondary);
-        label.setText(text, juce::dontSendNotification);
-        label.setJustificationType(juce::Justification::centred);
-        
-        if (makeVisible)
-            addAndMakeVisible(label);
-        else
-            addChildComponent(label);
-    };
+    csLAndF->SetTrackBackground(resources.theme.structure);
+    
+//    auto LabelSetup = [&](juce::Label &label, juce::StringRef text)
+//    {
+//        label.setFont(juce::Font(juce::FontOptions("Helvetica"
+//                                                   , 11.0f
+//                                                   , juce::Font::plain)));
+//        label.setColour(juce::Label::textColourId, resources.theme.textSecondary);
+//        label.setText(text, juce::dontSendNotification);
+//        label.setJustificationType(juce::Justification::centred);
+//        addAndMakeVisible(label);
+//    };
+    
+//    auto SliderSetup = [&](juce::Slider &slider)
+//    {
+//        slider.setLookAndFeel(resources.csLAndF);
+//        slider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
+//        slider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 15);
+//        slider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colour((juce::uint8)0, (juce::uint8)0, (juce::uint8)0, (juce::uint8)0));
+//        slider.setColour(juce::Slider::textBoxTextColourId,    juce::Colours::white);
+//        addAndMakeVisible(slider);
+//    };
     
     addAndMakeVisible(titleHeader.get());
     addAndMakeVisible(titleFooter.get());
     
     addAndMakeVisible(inStereoSelector .get());
     addAndMakeVisible(outStereoSelector.get());
-    LabelSetup(inStereoLabel,  "In Stereo", true);
-    LabelSetup(outStereoLabel, "Out Stereo", true);
+    CenterSpace::SetupLabel(this
+                            , inStereoLabel
+                            , "In Stereo"
+                            , resources.theme.textSecondary
+                            , 11.0f);
+    CenterSpace::SetupLabel(this
+                            , outStereoLabel
+                            , "Out Stereo"
+                            , resources.theme.textSecondary
+                            , 11.0f);
 
 //    compLookAndFeel.SetDialColor(fieryRose);
 //    compLookAndFeel.SetTickColor(onyx);
@@ -89,17 +109,35 @@ CenterSpaceAudioProcessorEditor::CenterSpaceAudioProcessorEditor(CenterSpaceAudi
 //    float largeFontSize = 27.0f;
 //    float smallFontSize = 22.0f;
 
-//    SliderSetup(inputGainSlider, juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag, true);
-//    SliderLabelSetup(inputGainLabel, "In Gain dB", orangePeel, largeFontSize);
-//    inputGainSlider.setLookAndFeel(&dBLookAndFeel);
+    CenterSpace::SetupSlider(this
+                             , inGainSlider
+                             , juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag
+                             , resources.theme.secondaryAccent
+                             , juce::Colours::transparentBlack
+                             , resources.theme.textPrimary);
+    CenterSpace::SetupSlider(this
+                             , outGainSlider
+                             , juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag
+                             , resources.theme.secondaryAccent
+                             , juce::Colours::transparentBlack
+                             , resources.theme.textPrimary);
+    
+    CenterSpace::SetupLabel(this
+                            , inGainLabel
+                            , "In Gain"
+                            , resources.theme.textSecondary
+                            , 11.0f);
+    CenterSpace::SetupLabel(this
+                            , outGainLabel
+                            , "Out Gain"
+                            , resources.theme.textSecondary
+                            , 11.0f);
+    
 //
 //    SliderSetup(sideChainGainSlider, juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag, true);
 //    SliderLabelSetup(sideChainGainLabel, "SCh Gain dB", orangePeel, smallFontSize);
 //    sideChainGainSlider.setLookAndFeel(&dBLookAndFeel);
 //
-//    SliderSetup(outputGainSlider, juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag, true);
-//    SliderLabelSetup(outputGainLabel, "Out Gain dB", orangePeel, largeFontSize);
-//    outputGainSlider.setLookAndFeel(&dBLookAndFeel);
 //
 //    SliderSetup(thresholdSlider, juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag, true);
 //    SliderLabelSetup(thresholdLabel, "Threshold dB", orangePeel, smallFontSize);
@@ -137,9 +175,9 @@ CenterSpaceAudioProcessorEditor::CenterSpaceAudioProcessorEditor(CenterSpaceAudi
 //    addAndMakeVisible(tweakModeComp);
 //    addAndMakeVisible(vibeModeComp);
 //
-//    inputGainSliderAttachment      = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "inGain",     inputGainSlider);
+    inGainSliderAttachment      = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "inGain",     inGainSlider);
 //    sideChainGainSliderAttachement = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "sideInGain", sideChainGainSlider);
-//    outputGainSliderAttachment     = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "outGain",    outputGainSlider);
+    outGainSliderAttachment     = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "outGain",    outGainSlider);
 //
 //    thresholdSliderAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "threshold", thresholdSlider);
 //    ratioSliderAttachment     = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "ratio",     ratioSlider);
@@ -186,9 +224,9 @@ CenterSpaceAudioProcessorEditor::~CenterSpaceAudioProcessorEditor()
 //    inStereoConnection .disconnect();
 //    outStereoConnection.disconnect();
 
-//    inputGainSlider.setLookAndFeel    (nullptr);
+    inGainSlider.setLookAndFeel    (nullptr);
 //    sideChainGainSlider.setLookAndFeel(nullptr);
-//    outputGainSlider.setLookAndFeel   (nullptr);
+    outGainSlider.setLookAndFeel   (nullptr);
 //    thresholdSlider.setLookAndFeel    (nullptr);
 //    ratioSlider.setLookAndFeel        (nullptr);
 //    attackSlider.setLookAndFeel       (nullptr);
@@ -253,6 +291,14 @@ void CenterSpaceAudioProcessorEditor::resized()
     inStereoSelector ->setBounds(leftPanel .removeFromTop(30).withSizeKeepingCentre(88, 30));
     outStereoSelector->setBounds(rightPanel.removeFromTop(30).withSizeKeepingCentre(88, 30));
     
+    leftPanel    .removeFromTop(22);
+    rightPanel   .removeFromTop(22);
+    inGainLabel  .setBounds(leftPanel .removeFromTop(15));
+    outGainLabel .setBounds(rightPanel.removeFromTop(15));
+    inGainSlider .setBounds(leftPanel .removeFromTop(100));
+    outGainSlider.setBounds(rightPanel.removeFromTop(100));
+    
+    
 //    float flanksSize = 0.25f;
 //
 //    juce::Rectangle<int> titleHeaderArea = bounds.removeFromTop(121).removeFromBottom(109);
@@ -299,9 +345,7 @@ void CenterSpaceAudioProcessorEditor::resized()
 //    juce::Rectangle<int> inGainLabelArea  = inControlArea.removeFromTop   (labelH);
 //    juce::Rectangle<int> inGainSliderArea = inControlArea.removeFromTop   (inControlArea.getHeight() * 0.5f - labelH);
 //    juce::Rectangle<int> peakRMSBoxArea   = inControlArea.removeFromBottom(labelH * 4.0f);
-//
-//    inputGainLabel.setBounds (inGainLabelArea);
-//    inputGainSlider.setBounds(inGainSliderArea);
+
 //    peakRMSBox.setBounds     (peakRMSBoxArea.reduced(8, 32));
 //
 //    juce::Rectangle<int> outputArea     = bounds.removeFromRight    (getLocalBounds().getWidth() * flanksSize);
@@ -322,8 +366,6 @@ void CenterSpaceAudioProcessorEditor::resized()
 //    juce::Rectangle<int> outGainSliderArea = outControlArea.removeFromTop   (outControlArea.getHeight() * 0.5f - labelH);
 //    juce::Rectangle<int> outGainSpacerArea = outControlArea.removeFromBottom(labelH * 4.0f);
 //
-//    outputGainLabel.setBounds (outGainLabelArea);
-//    outputGainSlider.setBounds(outGainSliderArea);
 //
 //    juce::Rectangle<int> compressorArea = bounds;
 //

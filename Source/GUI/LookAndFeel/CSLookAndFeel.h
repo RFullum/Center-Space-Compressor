@@ -20,7 +20,7 @@ class CSLookAndFeel
     : public juce::LookAndFeel_V4
 {
 public:
-    CSLookAndFeel(GuiResources &resources);
+    CSLookAndFeel();
     
     void drawRotarySlider(juce::Graphics &g, int x, int y, int width, int height
                           , float sliderPos, float rotaryStartAngle, float rotaryEndAngle
@@ -29,6 +29,5 @@ public:
     void SetTrackBackground(juce::Colour color);
 
 private:
-    GuiResources &resources;
-    juce::Colour  trackBackground;
+    juce::Colour trackBackground = juce::Colours::transparentBlack;
 };
