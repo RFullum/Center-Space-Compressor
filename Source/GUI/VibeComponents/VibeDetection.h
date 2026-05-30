@@ -12,6 +12,8 @@
 #include "GuiResources.h"
 #include <JuceHeader.h>
 
+class LookaheadVibeSelector;
+
 //==============================================================================
 
 class VibeDetection
@@ -21,8 +23,17 @@ public:
     VibeDetection(GuiResources &resources);
     ~VibeDetection();
     
-    void paint(juce::Graphics &) override;
     void resized() override;
     
 private:
+    juce::Slider   compressSlider;
+    juce::Label    compressLabel;
+    juce::Label    laLabel;
+    juce::Label    focusLabel;
+    juce::ComboBox focusBox;
+    
+    std::unique_ptr<LookaheadVibeSelector> laSelector;
+    
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>   compressAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> focusAttachment;
 };

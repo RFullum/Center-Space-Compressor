@@ -27,6 +27,26 @@ namespace CenterSpace
         MidSide
     };
 
+    enum class FeelType
+    {
+        Clean = 0,
+        Smooth
+    };
+
+    enum class DetectionType
+    {
+        Peak = 0,
+        RMS
+    };
+
+    enum class LookaheadMsType
+    {
+        Zero = 0,
+        One,
+        Four,
+        Ten
+    };
+
 
     // Styles a slider with our textbox layout (right of horizontal, below others).
     inline void SetupSlider(juce::Component             *parent

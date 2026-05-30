@@ -12,6 +12,8 @@
 #include "GuiResources.h"
 #include <JuceHeader.h>
 
+class FeelSelector;
+
 //==============================================================================
 
 class VibeDynamics
@@ -21,8 +23,14 @@ public:
     VibeDynamics(GuiResources &resources);
     ~VibeDynamics();
     
-    void paint(juce::Graphics &) override;
     void resized() override;
     
 private:
+    juce::Slider reactSlider;
+    juce::Label  reactLabel;
+    juce::Label  feelLabel;
+    
+    std::unique_ptr<FeelSelector> feelSelector;
+    
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> reactAttachment;
 };
