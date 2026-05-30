@@ -47,6 +47,9 @@ public:
     
 protected:
     GuiResources &resources;
+    
+    juce::RangedAudioParameter                 *parameter = nullptr;
+    std::unique_ptr<juce::ParameterAttachment>  attachment;
 };
 
 //==============================================================================
@@ -68,9 +71,6 @@ private:
     
     std::unique_ptr<SelectorButton> lrButton;
     std::unique_ptr<SelectorButton> msButton;
-    
-    juce::RangedAudioParameter                 *parameter = nullptr;
-    std::unique_ptr<juce::ParameterAttachment>  attachment;
 };
 
 //==============================================================================
@@ -92,9 +92,6 @@ private:
     
     std::unique_ptr<SelectorButton> vibeButton;
     std::unique_ptr<SelectorButton> tweakButton;
-    
-    juce::RangedAudioParameter                 *parameter = nullptr;
-    std::unique_ptr<juce::ParameterAttachment>  attachment;
 };
 
 //==============================================================================
@@ -116,9 +113,6 @@ private:
     
     std::unique_ptr<SelectorButton> offButton;
     std::unique_ptr<SelectorButton> onButton;
-    
-    juce::RangedAudioParameter                 *parameter = nullptr;
-    std::unique_ptr<juce::ParameterAttachment>  attachment;
 };
 
 //==============================================================================
@@ -142,9 +136,6 @@ private:
     std::unique_ptr<SelectorButton> oneButton;
     std::unique_ptr<SelectorButton> fourButton;
     std::unique_ptr<SelectorButton> tenButton;
-    
-    juce::RangedAudioParameter                 *parameter = nullptr;
-    std::unique_ptr<juce::ParameterAttachment>  attachment;
 };
 
 //==============================================================================
@@ -166,9 +157,6 @@ private:
     
     std::unique_ptr<SelectorButton> cleanButton;
     std::unique_ptr<SelectorButton> smoothButton;
-    
-    juce::RangedAudioParameter                 *parameter = nullptr;
-    std::unique_ptr<juce::ParameterAttachment>  attachment;
 };
 
 //==============================================================================
@@ -190,9 +178,6 @@ private:
     
     std::unique_ptr<SelectorButton> peakButton;
     std::unique_ptr<SelectorButton> rmsButton;
-    
-    juce::RangedAudioParameter                 *parameter = nullptr;
-    std::unique_ptr<juce::ParameterAttachment>  attachment;
 };
 
 //==============================================================================
@@ -214,7 +199,4 @@ private:
     
     std::unique_ptr<SelectorButton> vcaButton;
     std::unique_ptr<SelectorButton> optoButton;
-    
-    juce::RangedAudioParameter                 *parameter = nullptr;
-    std::unique_ptr<juce::ParameterAttachment>  attachment;
 };
