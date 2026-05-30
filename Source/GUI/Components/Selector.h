@@ -194,3 +194,27 @@ private:
     juce::RangedAudioParameter                 *parameter = nullptr;
     std::unique_ptr<juce::ParameterAttachment>  attachment;
 };
+
+//==============================================================================
+
+class StyleSelector
+    : public Selector
+{
+public:
+    StyleSelector(GuiResources            &resources
+                  , const juce::StringRef  paramID);
+    ~StyleSelector();
+    
+    void resized() override;
+    
+    Property_ST<CenterSpace::StyleType> Style { CenterSpace::StyleType::VCA };
+    
+private:
+    void OnStyleChanged(CenterSpace::StyleType type);
+    
+    std::unique_ptr<SelectorButton> vcaButton;
+    std::unique_ptr<SelectorButton> optoButton;
+    
+    juce::RangedAudioParameter                 *parameter = nullptr;
+    std::unique_ptr<juce::ParameterAttachment>  attachment;
+};

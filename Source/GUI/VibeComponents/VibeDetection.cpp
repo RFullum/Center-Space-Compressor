@@ -89,9 +89,11 @@ void VibeDetection::resized()
     
     bounds.removeFromTop(20);
     laLabel.setBounds(bounds.removeFromTop(15));
-    laSelector->setBounds(bounds.removeFromTop(30).withSizeKeepingCentre(89, 30));
+    laSelector->setBounds(bounds.removeFromTop(30)
+                                .withSizeKeepingCentre(141, 30));
     
     bounds.removeFromTop(20);
     focusLabel.setBounds(bounds.removeFromTop(15));
-    focusBox.setBounds(bounds.removeFromTop(37).withSizeKeepingCentre(172, 37));
+    focusBox.setBounds(bounds.removeFromTop(37)
+                             .withSizeKeepingCentre(172, 37));
 }

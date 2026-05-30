@@ -44,6 +44,7 @@ TweakDetection::TweakDetection(GuiResources &resources)
                              , resources.theme.primaryAccent
                              , juce::Colours::transparentBlack
                              , resources.theme.textPrimary);
+    
     CenterSpace::SetupLabel(this
                             , scGainLabel
                             , "SC Gain"
@@ -122,6 +123,6 @@ void TweakDetection::resized()
     bounds.removeFromTop(20);
     laLabel.setBounds(bounds.removeFromTop(labelH));
     laSelector->setBounds(bounds.removeFromTop(30)
-                                .withSizeKeepingCentre(134, 30));
+                                .withSizeKeepingCentre(141, 30));
 }
 

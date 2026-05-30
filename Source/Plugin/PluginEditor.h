@@ -121,10 +121,6 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> inGainSliderAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> outGainSliderAttachment;
 //
-//    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> thresholdSliderAttachment;
-//    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> ratioSliderAttachment;
-//    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> attackSliderAttachment;
-//    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> releaseSliderAttachment;
 //
 //    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> peakRMSAttachment;
 //    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> uiModeAttachment;

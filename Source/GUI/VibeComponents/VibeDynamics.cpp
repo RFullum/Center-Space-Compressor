@@ -57,5 +57,6 @@ void VibeDynamics::resized()
     
     bounds.removeFromTop(20);
     feelLabel.setBounds(bounds.removeFromTop(15));
-    feelSelector->setBounds(bounds.removeFromTop(30).withSizeKeepingCentre(89, 30));
+    feelSelector->setBounds(bounds.removeFromTop(30)
+                                  .withSizeKeepingCentre(141, 30));
 }

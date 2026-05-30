@@ -413,3 +413,61 @@ void DetectionSelector::OnDetectionChanged(CenterSpace::DetectionType type)
     // Peak = 0/false; RMS = 1/true
     attachment->setValueAsCompleteGesture(float(type == CenterSpace::DetectionType::RMS));
 }
+
+//==============================================================================
+
+StyleSelector::StyleSelector(GuiResources            &resources
+                             , const juce::StringRef  paramID)
+: Selector(resources)
+, vcaButton (std::make_unique<SelectorButton>("VCA",  resources))
+, optoButton(std::make_unique<SelectorButton>("OPTO", resources))
+{
+    parameter = resources.apvts->getParameter(paramID);
+    
+    jassert(parameter);
+    if (parameter)
+    {
+        attachment = std::make_unique<juce::ParameterAttachment>
+        (*parameter
+         , [this](float newVal)
+         {
+            if (auto *choice = dynamic_cast<juce::AudioParameterChoice*>(parameter))
+                Style.set(choice->getIndex() == 0
+                              ? CenterSpace::StyleType::VCA
+                              : CenterSpace::StyleType::Opto);
+            else
+                Style.set((int)newVal == 0
+                              ? CenterSpace::StyleType::VCA
+                              : CenterSpace::StyleType::Opto);\
+        });
+    }
+    
+    addAndMakeVisible(vcaButton.get());
+    addAndMakeVisible(optoButton.get());
+    vcaButton ->onClick = [&]{ Style.set(CenterSpace::StyleType::VCA);  };
+    optoButton->onClick = [&]{ Style.set(CenterSpace::StyleType::Opto); };
+    
+    Style.on_change.connect(&StyleSelector::OnStyleChanged, this);
+    OnStyleChanged(Style.get());
+}
+
+StyleSelector::~StyleSelector() {}
+
+void StyleSelector::resized()
+{
+    auto bounds = getLocalBounds();
+    auto left = bounds.removeFromLeft(bounds.proportionOfWidth(0.5f));
+    vcaButton ->setBounds(left.reduced(3));
+    optoButton->setBounds(bounds.reduced(3));
+}
+
+void StyleSelector::OnStyleChanged(CenterSpace::StyleType type)
+{
+    vcaButton ->IsSelected.set(type == CenterSpace::StyleType::VCA);
+    optoButton->IsSelected.set(type == CenterSpace::StyleType::Opto);
+    if (!attachment)
+        return;
+    
+    // VCA = 0/false; Opto = 1/true
+    attachment->setValueAsCompleteGesture(float(type == CenterSpace::StyleType::Opto));
+}

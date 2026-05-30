@@ -21,6 +21,12 @@ namespace CenterSpace
         Tweak
     };
 
+    enum class StyleType
+    {
+        VCA = 0,
+        Opto
+    };
+
     enum class StereoType
     {
         LeftRight = 0,
