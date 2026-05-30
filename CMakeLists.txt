@@ -62,6 +62,14 @@ set(CenterSpace_SOURCES
     Source/GUI/ModeComponents/TweakModeComponent.h
     Source/GUI/ModeComponents/VibeModeComponent.cpp
     Source/GUI/ModeComponents/VibeModeComponent.h
+    Source/GUI/TweakComponents/TweakDetection.cpp
+    Source/GUI/TweakComponents/TweakDetection.h
+    Source/GUI/TweakComponents/TweakDynamics.cpp
+    Source/GUI/TweakComponents/TweakDynamics.h
+    Source/GUI/VibeComponents/VibeDetection.cpp
+    Source/GUI/VibeComponents/VibeDetection.h
+    Source/GUI/VibeComponents/VibeDynamics.cpp
+    Source/GUI/VibeComponents/VibeDynamics.h
     Source/GUI/TitleHeaderFooter/TitleHeader.cpp
     Source/GUI/TitleHeaderFooter/TitleHeader.h
     Source/GUI/TitleHeaderFooter/TitleFooter.cpp
@@ -103,6 +111,8 @@ target_include_directories(CenterSpace PRIVATE
     Source/DSP
     Source/GUI/LookAndFeel
     Source/GUI/ModeComponents
+    Source/GUI/TweakComponents
+    Source/GUI/VibeComponents
     Source/GUI/TitleHeaderFooter
     Source/GUI/VUMeter
     Source/GUI/GUIUtils

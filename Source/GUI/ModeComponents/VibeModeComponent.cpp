@@ -8,7 +8,7 @@
 
 #include "VibeModeComponent.h"
 
-
+// TODO: NIX
 //==============================================================================
 
 VibeModeComponent::VibeModeComponent(juce::AudioProcessorValueTreeState &apvts

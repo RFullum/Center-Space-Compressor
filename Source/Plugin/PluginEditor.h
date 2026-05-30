@@ -24,6 +24,11 @@ class TitleFooter;
 class StereoSelector;
 class CSLookAndFeel;
 
+class VibeDetection;
+class VibeDynamics;
+class TweakDetection;
+class TweakDynamics;
+
 //==============================================================================
 
 class CenterSpaceAudioProcessorEditor
@@ -64,6 +69,11 @@ private:
     std::unique_ptr<StereoSelector> outStereoSelector;
     juce::Label                     inStereoLabel;
     juce::Label                     outStereoLabel;
+    
+    std::unique_ptr<VibeDetection>  vibeDetection;
+    std::unique_ptr<VibeDynamics>   vibeDynamics;
+    std::unique_ptr<TweakDetection> tweakDetection;
+    std::unique_ptr<TweakDynamics>  tweakDynamics;
 
 //    OtherLookAndFeel compLookAndFeel;
 //    OtherLookAndFeel dBLookAndFeel;

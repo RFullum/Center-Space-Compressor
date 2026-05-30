@@ -13,6 +13,7 @@
 #include "GuiResources.h"
 #include <JuceHeader.h>
 
+class UIModeSelector;
 
 //==============================================================================
 
@@ -34,6 +35,8 @@ private:
     static constexpr int glyphAreaW   = (glyphW * numGlyphs) + (glyphGap * numGlyphGaps) + glyphW; // center glyph double wide
     
     GuiResources &resources;
+    
+    std::unique_ptr<UIModeSelector> uiModeSelector;
     
     juce::Rectangle<int> fullumMusicArea;
     juce::Rectangle<int> centerArea;

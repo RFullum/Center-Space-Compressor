@@ -12,6 +12,10 @@
 #include "TitleFooter.h"
 #include "Selector.h"
 #include "CSLookAndFeel.h"
+#include "VibeDynamics.h"
+#include "VibeDetection.h"
+#include "TweakDynamics.h"
+#include "TweakDetection.h"
 
 //==============================================================================
 
@@ -41,6 +45,10 @@ CenterSpaceAudioProcessorEditor::CenterSpaceAudioProcessorEditor(CenterSpaceAudi
 , titleFooter(std::make_unique<TitleFooter>(resources))
 , inStereoSelector (std::make_unique<StereoSelector>(resources, "inputType"))
 , outStereoSelector(std::make_unique<StereoSelector>(resources, "outputType"))
+, vibeDetection (std::make_unique<VibeDetection> (resources))
+, vibeDynamics  (std::make_unique<VibeDynamics>  (resources))
+, tweakDetection(std::make_unique<TweakDetection>(resources))
+, tweakDynamics (std::make_unique<TweakDynamics> (resources))
 //, tweakModeComp(p.parameters, dBLookAndFeel, boxLookAndFeel)
 //, vibeModeComp (p.parameters, compLookAndFeel, boxLookAndFeel)
 , audioProcessor(p)
@@ -132,6 +140,11 @@ CenterSpaceAudioProcessorEditor::CenterSpaceAudioProcessorEditor(CenterSpaceAudi
                             , "Out Gain"
                             , resources.theme.textSecondary
                             , 11.0f);
+    
+    addChildComponent(vibeDetection.get());
+    addChildComponent(vibeDynamics.get());
+    addChildComponent(tweakDetection.get());
+    addChildComponent(tweakDynamics.get());
     
 //
 //    SliderSetup(sideChainGainSlider, juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag, true);
@@ -291,12 +304,16 @@ void CenterSpaceAudioProcessorEditor::resized()
     inStereoSelector ->setBounds(leftPanel .removeFromTop(30).withSizeKeepingCentre(88, 30));
     outStereoSelector->setBounds(rightPanel.removeFromTop(30).withSizeKeepingCentre(88, 30));
     
-    leftPanel    .removeFromTop(22);
-    rightPanel   .removeFromTop(22);
-    inGainLabel  .setBounds(leftPanel .removeFromTop(15));
-    outGainLabel .setBounds(rightPanel.removeFromTop(15));
-    inGainSlider .setBounds(leftPanel .removeFromTop(100));
-    outGainSlider.setBounds(rightPanel.removeFromTop(100));
+    leftPanel      .removeFromTop(22);
+    rightPanel     .removeFromTop(22);
+    inGainLabel    .setBounds(leftPanel .removeFromTop(15));
+    outGainLabel   .setBounds(rightPanel.removeFromTop(15));
+    inGainSlider   .setBounds(leftPanel .removeFromTop(100));
+    outGainSlider  .setBounds(rightPanel.removeFromTop(100));
+    vibeDetection ->setBounds(leftPanel);
+    tweakDetection->setBounds(leftPanel);
+    vibeDynamics  ->setBounds(rightPanel);
+    tweakDynamics ->setBounds(rightPanel);
     
     
 //    float flanksSize = 0.25f;
@@ -448,6 +465,11 @@ void CenterSpaceAudioProcessorEditor::ApplyUiModeVisibility()
     auto *uiModeRaw = audioProcessor.parameters.getRawParameterValue("uiMode");
     const bool isTweak = (uiModeRaw != nullptr) && ((int)uiModeRaw->load() == 1);
 
+    vibeDetection ->setVisible(!isTweak);
+    vibeDynamics  ->setVisible(!isTweak);
+    tweakDetection->setVisible( isTweak);
+    tweakDynamics ->setVisible( isTweak);
+    
     // Tweak-only controls
 //    sideChainGainSlider.setVisible(isTweak);
 //    sideChainGainLabel .setVisible(isTweak);
@@ -464,20 +486,22 @@ void CenterSpaceAudioProcessorEditor::ApplyUiModeVisibility()
 //    tweakModeComp.setVisible(isTweak);
 //    vibeModeComp.setVisible (!isTweak);
 
-    if (isTweak)
-        ApplyStyleVisibility();
+//    if (isTweak)
+//        ApplyStyleVisibility();
+    
+    
 }
 
 void CenterSpaceAudioProcessorEditor::ApplyStyleVisibility()
 {
-    auto *styleRaw = audioProcessor.parameters.getRawParameterValue("style");
-    const bool isModernVca = (styleRaw != nullptr) && ((int)styleRaw->load() == 0);
-
-    auto *uiModeRaw = audioProcessor.parameters.getRawParameterValue("uiMode");
-    const bool isTweak = (uiModeRaw != nullptr) && ((int)uiModeRaw->load() == 1);
-
-    // Knee + Peak/RMS visible only in Tweak mode AND when style == Modern VCA.
-    const bool kneeAndPeakVisible = isTweak && isModernVca;
+//    auto *styleRaw = audioProcessor.parameters.getRawParameterValue("style");
+//    const bool isModernVca = (styleRaw != nullptr) && ((int)styleRaw->load() == 0);
+//
+//    auto *uiModeRaw = audioProcessor.parameters.getRawParameterValue("uiMode");
+//    const bool isTweak = (uiModeRaw != nullptr) && ((int)uiModeRaw->load() == 1);
+//
+//    // Knee + Peak/RMS visible only in Tweak mode AND when style == Modern VCA.
+//    const bool kneeAndPeakVisible = isTweak && isModernVca;
 
 //    peakRMSBox.setVisible(kneeAndPeakVisible);
 //    tweakModeComp.SetKneeVisible(kneeAndPeakVisible);

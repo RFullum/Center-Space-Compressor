@@ -10,13 +10,17 @@
 
 #include "TitleHeader.h"
 
+#include "Selector.h"
 
 //==============================================================================
 
 TitleHeader::TitleHeader(GuiResources &resources)
 : resources(resources)
+, uiModeSelector(std::make_unique<UIModeSelector>(resources, "uiMode"))
 {
     setOpaque(false);
+    
+    addAndMakeVisible(uiModeSelector.get());
 }
 
 TitleHeader::~TitleHeader() {}
@@ -24,8 +28,6 @@ TitleHeader::~TitleHeader() {}
 
 void TitleHeader::paint(juce::Graphics &g)
 {
-    
-    
     g.setColour(resources.theme.textPrimary);
     g.setFont(juce::Font(juce::FontOptions("Helvetica"
                                            , 14.0f
@@ -80,5 +82,9 @@ void TitleHeader::resized()
     glyphArea.removeFromBottom(5);
     
     spaceArea       = bounds.removeFromLeft(97);
+    
+    auto tempPatchingArea = bounds.removeFromRight(200);
+    bounds.removeFromRight(10);
+    uiModeSelector->setBounds(bounds.removeFromRight(141).withSizeKeepingCentre(141, 35));
 }
 

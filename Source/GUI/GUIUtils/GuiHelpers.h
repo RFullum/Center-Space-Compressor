@@ -15,11 +15,18 @@
 namespace CenterSpace
 {
 
+    enum class UIModeType
+    {
+        Vibe = 0,
+        Tweak
+    };
+
     enum class StereoType
     {
         LeftRight = 0,
         MidSide
     };
+
 
     // Styles a slider with our textbox layout (right of horizontal, below others).
     inline void SetupSlider(juce::Component             *parent

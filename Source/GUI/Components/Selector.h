@@ -71,3 +71,28 @@ private:
     juce::RangedAudioParameter                 *parameter = nullptr;
     std::unique_ptr<juce::ParameterAttachment>  attachment;
 };
+
+//==============================================================================
+
+class UIModeSelector
+    : public Selector
+{
+public:
+    UIModeSelector(GuiResources            &resources
+                   , const juce::StringRef  paramID);
+    ~UIModeSelector();
+    
+    void paint(juce::Graphics &) override;
+    void resized() override;
+    
+    Property_ST<CenterSpace::UIModeType> UIMode { CenterSpace::UIModeType::Vibe };
+    
+private:
+    void OnUIModeChanged(CenterSpace::UIModeType type);
+    
+    std::unique_ptr<SelectorButton> vibeButton;
+    std::unique_ptr<SelectorButton> tweakButton;
+    
+    juce::RangedAudioParameter                 *parameter = nullptr;
+    std::unique_ptr<juce::ParameterAttachment>  attachment;
+};
