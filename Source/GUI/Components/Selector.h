@@ -40,13 +40,20 @@ class Selector
     : public juce::Component
 {
 public:
-    Selector(GuiResources &resources);
+    Selector(GuiResources                      &resources
+             , const juce::StringRef            paramID
+             , std::unique_ptr<SelectorButton>  left
+             , std::unique_ptr<SelectorButton>  right);
     ~Selector() override;
     
     void paint(juce::Graphics &) override;
+    void resized() override;
     
 protected:
     GuiResources &resources;
+    
+    std::unique_ptr<SelectorButton> leftButton;
+    std::unique_ptr<SelectorButton> rightButton;
     
     juce::RangedAudioParameter                 *parameter = nullptr;
     std::unique_ptr<juce::ParameterAttachment>  attachment;
@@ -62,15 +69,10 @@ public:
                    , const juce::StringRef  paramID);
     ~StereoSelector() override;
     
-    void resized() override;
-    
     Property_ST<CenterSpace::StereoType> Stereo { CenterSpace::StereoType::LeftRight };
     
 private:
     void OnStereoChanged(CenterSpace::StereoType type);
-    
-    std::unique_ptr<SelectorButton> lrButton;
-    std::unique_ptr<SelectorButton> msButton;
 };
 
 //==============================================================================
@@ -83,15 +85,10 @@ public:
                    , const juce::StringRef  paramID);
     ~UIModeSelector();
     
-    void resized() override;
-    
     Property_ST<CenterSpace::UIModeType> UIMode { CenterSpace::UIModeType::Vibe };
     
 private:
     void OnUIModeChanged(CenterSpace::UIModeType type);
-    
-    std::unique_ptr<SelectorButton> vibeButton;
-    std::unique_ptr<SelectorButton> tweakButton;
 };
 
 //==============================================================================
@@ -104,15 +101,10 @@ public:
                           , const juce::StringRef  paramID);
     ~LookaheadVibeSelector();
     
-    void resized() override;
-    
     Property_ST<bool> LookaheadOn { false };
     
 private:
     void OnLookaheadOnChanged(bool isOn);
-    
-    std::unique_ptr<SelectorButton> offButton;
-    std::unique_ptr<SelectorButton> onButton;
 };
 
 //==============================================================================
@@ -148,15 +140,10 @@ public:
                  , const juce::StringRef  paramID);
     ~FeelSelector();
     
-    void resized() override;
-    
     Property_ST<CenterSpace::FeelType> Feel { CenterSpace::FeelType::Clean };
     
 private:
     void OnFeelChanged(CenterSpace::FeelType type);
-    
-    std::unique_ptr<SelectorButton> cleanButton;
-    std::unique_ptr<SelectorButton> smoothButton;
 };
 
 //==============================================================================
@@ -169,15 +156,10 @@ public:
                       , const juce::StringRef  paramID);
     ~DetectionSelector();
     
-    void resized() override;
-    
     Property_ST<CenterSpace::DetectionType> Detection { CenterSpace::DetectionType::Peak };
     
 private:
     void OnDetectionChanged(CenterSpace::DetectionType type);
-    
-    std::unique_ptr<SelectorButton> peakButton;
-    std::unique_ptr<SelectorButton> rmsButton;
 };
 
 //==============================================================================
@@ -190,13 +172,8 @@ public:
                   , const juce::StringRef  paramID);
     ~StyleSelector();
     
-    void resized() override;
-    
     Property_ST<CenterSpace::StyleType> Style { CenterSpace::StyleType::VCA };
     
 private:
     void OnStyleChanged(CenterSpace::StyleType type);
-    
-    std::unique_ptr<SelectorButton> vcaButton;
-    std::unique_ptr<SelectorButton> optoButton;
 };

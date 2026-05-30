@@ -38,10 +38,23 @@ void SelectorButton::paintButton(juce::Graphics &g, bool, bool)
 
 //==============================================================================
 
-Selector::Selector(GuiResources &resources)
+Selector::Selector(GuiResources                      &resources
+                   , const juce::StringRef            paramID
+                   , std::unique_ptr<SelectorButton>  left
+                   , std::unique_ptr<SelectorButton>  right)
 : resources(resources)
+, leftButton(std::move(left))
+, rightButton(std::move(right))
 {
     setOpaque(false);
+    
+    parameter = resources.apvts->getParameter(paramID);
+    
+    if (!leftButton || !rightButton)
+        return;
+    
+    addAndMakeVisible(leftButton.get());
+    addAndMakeVisible(rightButton.get());
 }
 
 Selector::~Selector() {}
@@ -57,16 +70,26 @@ void Selector::paint(juce::Graphics &g)
     g.drawRoundedRectangle(bounds.toFloat(), 4.0f, 2.0f);
 }
 
+void Selector::resized()
+{
+    if (!leftButton || !rightButton)
+        return;
+    
+    auto bounds = getLocalBounds();
+    leftButton->setBounds(bounds.removeFromLeft(bounds.proportionOfWidth(0.5f))
+                                .reduced(3));
+    rightButton->setBounds(bounds.reduced(3));
+}
+
 //==============================================================================
 
 StereoSelector::StereoSelector(GuiResources            &resources
                                , const juce::StringRef  paramID)
-: Selector(resources)
-, lrButton(std::make_unique<SelectorButton>("LR",  resources))
-, msButton(std::make_unique<SelectorButton>("M/S", resources))
+: Selector(resources
+           , paramID
+           , std::make_unique<SelectorButton>("LR",  resources)
+           , std::make_unique<SelectorButton>("M/S", resources))
 {
-    parameter = resources.apvts->getParameter(paramID);
-    
     jassert(parameter);
     if (parameter)
     {
@@ -85,11 +108,8 @@ StereoSelector::StereoSelector(GuiResources            &resources
          });
     }
         
-    
-    addAndMakeVisible(lrButton.get());
-    addAndMakeVisible(msButton.get());
-    lrButton->onClick = [&]{ Stereo.set(CenterSpace::StereoType::LeftRight); };
-    msButton->onClick = [&]{ Stereo.set(CenterSpace::StereoType::MidSide);   };
+    leftButton ->onClick = [&]{ Stereo.set(CenterSpace::StereoType::LeftRight); };
+    rightButton->onClick = [&]{ Stereo.set(CenterSpace::StereoType::MidSide);   };
     
     Stereo.on_change.connect(&StereoSelector::OnStereoChanged, this);
     OnStereoChanged(Stereo.get());
@@ -97,18 +117,10 @@ StereoSelector::StereoSelector(GuiResources            &resources
 
 StereoSelector::~StereoSelector() {}
 
-void StereoSelector::resized()
-{
-    auto bounds = getLocalBounds();
-    auto left = bounds.removeFromLeft(bounds.proportionOfWidth(0.5f));
-    lrButton->setBounds(left.reduced(3));
-    msButton->setBounds(bounds.reduced(3));
-}
-
 void StereoSelector::OnStereoChanged(CenterSpace::StereoType type)
 {
-    lrButton->IsSelected.set(type == CenterSpace::StereoType::LeftRight);
-    msButton->IsSelected.set(type == CenterSpace::StereoType::MidSide);
+    leftButton ->IsSelected.set(type == CenterSpace::StereoType::LeftRight);
+    rightButton->IsSelected.set(type == CenterSpace::StereoType::MidSide);
     if (!attachment)
         return;
     
@@ -120,12 +132,11 @@ void StereoSelector::OnStereoChanged(CenterSpace::StereoType type)
 
 UIModeSelector::UIModeSelector(GuiResources            &resources
                                , const juce::StringRef  paramID)
-: Selector(resources)
-, vibeButton (std::make_unique<SelectorButton>("VIBE",  resources))
-, tweakButton(std::make_unique<SelectorButton>("TWEAK", resources))
+: Selector(resources
+           , paramID
+           , std::make_unique<SelectorButton>("VIBE",  resources)
+           , std::make_unique<SelectorButton>("TWEAK", resources))
 {
-    parameter = resources.apvts->getParameter(paramID);
-    
     jassert(parameter);
     if (parameter)
     {
@@ -144,10 +155,8 @@ UIModeSelector::UIModeSelector(GuiResources            &resources
         });
     }
     
-    addAndMakeVisible(vibeButton.get());
-    addAndMakeVisible(tweakButton.get());
-    vibeButton ->onClick = [&]{ UIMode.set(CenterSpace::UIModeType::Vibe);  };
-    tweakButton->onClick = [&]{ UIMode.set(CenterSpace::UIModeType::Tweak); };
+    leftButton ->onClick = [&]{ UIMode.set(CenterSpace::UIModeType::Vibe);  };
+    rightButton->onClick = [&]{ UIMode.set(CenterSpace::UIModeType::Tweak); };
     
     UIMode.on_change.connect(&UIModeSelector::OnUIModeChanged, this);
     OnUIModeChanged(UIMode.get());
@@ -155,18 +164,10 @@ UIModeSelector::UIModeSelector(GuiResources            &resources
 
 UIModeSelector::~UIModeSelector() {}
 
-void UIModeSelector::resized()
-{
-    auto bounds = getLocalBounds();
-    auto left = bounds.removeFromLeft(bounds.proportionOfWidth(0.5f));
-    vibeButton ->setBounds(left.reduced(3));
-    tweakButton->setBounds(bounds.reduced(3));
-}
-
 void UIModeSelector::OnUIModeChanged(CenterSpace::UIModeType type)
 {
-    vibeButton ->IsSelected.set(type == CenterSpace::UIModeType::Vibe);
-    tweakButton->IsSelected.set(type == CenterSpace::UIModeType::Tweak);
+    leftButton ->IsSelected.set(type == CenterSpace::UIModeType::Vibe);
+    rightButton->IsSelected.set(type == CenterSpace::UIModeType::Tweak);
     if (!attachment)
         return;
     
@@ -178,12 +179,11 @@ void UIModeSelector::OnUIModeChanged(CenterSpace::UIModeType type)
 
 LookaheadVibeSelector::LookaheadVibeSelector(GuiResources            &resources
                                              , const juce::StringRef  paramID)
-: Selector(resources)
-, offButton(std::make_unique<SelectorButton>("OFF", resources))
-, onButton (std::make_unique<SelectorButton>("ON",  resources))
+: Selector(resources
+           , paramID
+           , std::make_unique<SelectorButton>("OFF", resources)
+           , std::make_unique<SelectorButton>("ON",  resources))
 {
-    parameter = resources.apvts->getParameter(paramID);
-    
     jassert(parameter);
     if (parameter)
     {
@@ -198,10 +198,8 @@ LookaheadVibeSelector::LookaheadVibeSelector(GuiResources            &resources
         });
     }
     
-    addAndMakeVisible(offButton.get());
-    addAndMakeVisible(onButton.get());
-    offButton->onClick = [&]{ LookaheadOn.set(false); };
-    onButton ->onClick = [&]{ LookaheadOn.set(true);  };
+    leftButton ->onClick = [&]{ LookaheadOn.set(false); };
+    rightButton->onClick = [&]{ LookaheadOn.set(true);  };
     
     LookaheadOn.on_change.connect(&LookaheadVibeSelector::OnLookaheadOnChanged, this);
     OnLookaheadOnChanged(LookaheadOn.get());
@@ -209,18 +207,10 @@ LookaheadVibeSelector::LookaheadVibeSelector(GuiResources            &resources
 
 LookaheadVibeSelector::~LookaheadVibeSelector() {}
 
-void LookaheadVibeSelector::resized()
-{
-    auto bounds = getLocalBounds();
-    auto left = bounds.removeFromLeft(bounds.proportionOfWidth(0.5f));
-    offButton->setBounds(left.reduced(3));
-    onButton ->setBounds(bounds.reduced(3));
-}
-
 void LookaheadVibeSelector::OnLookaheadOnChanged(bool isOn)
 {
-    offButton->IsSelected.set(!isOn);
-    onButton ->IsSelected.set( isOn);
+    leftButton ->IsSelected.set(!isOn);
+    rightButton->IsSelected.set( isOn);
     if (!attachment)
         return;
     
@@ -231,14 +221,15 @@ void LookaheadVibeSelector::OnLookaheadOnChanged(bool isOn)
 
 LookaheadTweakSelector::LookaheadTweakSelector(GuiResources            &resources
                                                , const juce::StringRef  paramID)
-: Selector(resources)
+: Selector(resources
+           , paramID
+           , nullptr
+           , nullptr)
 , zeroButton(std::make_unique<SelectorButton>("0",  resources))
 , oneButton (std::make_unique<SelectorButton>("1",  resources))
 , fourButton(std::make_unique<SelectorButton>("4",  resources))
 , tenButton (std::make_unique<SelectorButton>("10", resources))
 {
-    parameter = resources.apvts->getParameter(paramID);
-    
     jassert(parameter);
     if (parameter)
     {
@@ -301,12 +292,11 @@ void LookaheadTweakSelector::OnLookaheadMSChanged(CenterSpace::LookaheadMsType t
 
 FeelSelector::FeelSelector(GuiResources            &resources
                            , const juce::StringRef  paramID)
-: Selector(resources)
-, cleanButton (std::make_unique<SelectorButton>("CLEAN",  resources))
-, smoothButton(std::make_unique<SelectorButton>("SMOOTH", resources))
+: Selector(resources
+           , paramID
+           , std::make_unique<SelectorButton>("CLEAN",  resources)
+           , std::make_unique<SelectorButton>("SMOOTH", resources))
 {
-    parameter = resources.apvts->getParameter(paramID);
-    
     jassert(parameter);
     if (parameter)
     {
@@ -325,10 +315,8 @@ FeelSelector::FeelSelector(GuiResources            &resources
         });
     }
     
-    addAndMakeVisible(cleanButton.get());
-    addAndMakeVisible(smoothButton.get());
-    cleanButton ->onClick = [&]{ Feel.set(CenterSpace::FeelType::Clean);  };
-    smoothButton->onClick = [&]{ Feel.set(CenterSpace::FeelType::Smooth); };
+    leftButton ->onClick = [&]{ Feel.set(CenterSpace::FeelType::Clean);  };
+    rightButton->onClick = [&]{ Feel.set(CenterSpace::FeelType::Smooth); };
     
     Feel.on_change.connect(&FeelSelector::OnFeelChanged, this);
     OnFeelChanged(Feel.get());
@@ -336,18 +324,10 @@ FeelSelector::FeelSelector(GuiResources            &resources
 
 FeelSelector::~FeelSelector() {}
 
-void FeelSelector::resized()
-{
-    auto bounds = getLocalBounds();
-    auto left = bounds.removeFromLeft(bounds.proportionOfWidth(0.5f));
-    cleanButton ->setBounds(left.reduced(3));
-    smoothButton->setBounds(bounds.reduced(3));
-}
-
 void FeelSelector::OnFeelChanged(CenterSpace::FeelType type)
 {
-    cleanButton ->IsSelected.set(type == CenterSpace::FeelType::Clean);
-    smoothButton->IsSelected.set(type == CenterSpace::FeelType::Smooth);
+    leftButton ->IsSelected.set(type == CenterSpace::FeelType::Clean);
+    rightButton->IsSelected.set(type == CenterSpace::FeelType::Smooth);
     if (!attachment)
         return;
     
@@ -359,12 +339,11 @@ void FeelSelector::OnFeelChanged(CenterSpace::FeelType type)
 
 DetectionSelector::DetectionSelector(GuiResources            &resources
                                      , const juce::StringRef  paramID)
-: Selector(resources)
-, peakButton(std::make_unique<SelectorButton>("PEAK", resources))
-, rmsButton (std::make_unique<SelectorButton>("RMS",  resources))
+: Selector(resources
+           , paramID
+           , std::make_unique<SelectorButton>("PEAK", resources)
+           , std::make_unique<SelectorButton>("RMS",  resources))
 {
-    parameter = resources.apvts->getParameter(paramID);
-    
     jassert(parameter);
     if (parameter)
     {
@@ -383,10 +362,8 @@ DetectionSelector::DetectionSelector(GuiResources            &resources
         });
     }
     
-    addAndMakeVisible(peakButton.get());
-    addAndMakeVisible(rmsButton.get());
-    peakButton->onClick = [&]{ Detection.set(CenterSpace::DetectionType::Peak); };
-    rmsButton ->onClick = [&]{ Detection.set(CenterSpace::DetectionType::RMS);  };
+    leftButton ->onClick = [&]{ Detection.set(CenterSpace::DetectionType::Peak); };
+    rightButton->onClick = [&]{ Detection.set(CenterSpace::DetectionType::RMS);  };
     
     Detection.on_change.connect(&DetectionSelector::OnDetectionChanged, this);
     OnDetectionChanged(Detection.get());
@@ -394,18 +371,10 @@ DetectionSelector::DetectionSelector(GuiResources            &resources
 
 DetectionSelector::~DetectionSelector() {}
 
-void DetectionSelector::resized()
-{
-    auto bounds = getLocalBounds();
-    auto left = bounds.removeFromLeft(bounds.proportionOfWidth(0.5f));
-    peakButton->setBounds(left.reduced(3));
-    rmsButton ->setBounds(bounds.reduced(3));
-}
-
 void DetectionSelector::OnDetectionChanged(CenterSpace::DetectionType type)
 {
-    peakButton->IsSelected.set(type == CenterSpace::DetectionType::Peak);
-    rmsButton ->IsSelected.set(type == CenterSpace::DetectionType::RMS);
+    leftButton ->IsSelected.set(type == CenterSpace::DetectionType::Peak);
+    rightButton->IsSelected.set(type == CenterSpace::DetectionType::RMS);
     
     if (!attachment)
         return;
@@ -418,12 +387,11 @@ void DetectionSelector::OnDetectionChanged(CenterSpace::DetectionType type)
 
 StyleSelector::StyleSelector(GuiResources            &resources
                              , const juce::StringRef  paramID)
-: Selector(resources)
-, vcaButton (std::make_unique<SelectorButton>("VCA",  resources))
-, optoButton(std::make_unique<SelectorButton>("OPTO", resources))
+: Selector(resources
+           , paramID
+           , std::make_unique<SelectorButton>("VCA",  resources)
+           , std::make_unique<SelectorButton>("OPTO", resources))
 {
-    parameter = resources.apvts->getParameter(paramID);
-    
     jassert(parameter);
     if (parameter)
     {
@@ -442,10 +410,8 @@ StyleSelector::StyleSelector(GuiResources            &resources
         });
     }
     
-    addAndMakeVisible(vcaButton.get());
-    addAndMakeVisible(optoButton.get());
-    vcaButton ->onClick = [&]{ Style.set(CenterSpace::StyleType::VCA);  };
-    optoButton->onClick = [&]{ Style.set(CenterSpace::StyleType::Opto); };
+    leftButton ->onClick = [&]{ Style.set(CenterSpace::StyleType::VCA);  };
+    rightButton->onClick = [&]{ Style.set(CenterSpace::StyleType::Opto); };
     
     Style.on_change.connect(&StyleSelector::OnStyleChanged, this);
     OnStyleChanged(Style.get());
@@ -453,18 +419,10 @@ StyleSelector::StyleSelector(GuiResources            &resources
 
 StyleSelector::~StyleSelector() {}
 
-void StyleSelector::resized()
-{
-    auto bounds = getLocalBounds();
-    auto left = bounds.removeFromLeft(bounds.proportionOfWidth(0.5f));
-    vcaButton ->setBounds(left.reduced(3));
-    optoButton->setBounds(bounds.reduced(3));
-}
-
 void StyleSelector::OnStyleChanged(CenterSpace::StyleType type)
 {
-    vcaButton ->IsSelected.set(type == CenterSpace::StyleType::VCA);
-    optoButton->IsSelected.set(type == CenterSpace::StyleType::Opto);
+    leftButton ->IsSelected.set(type == CenterSpace::StyleType::VCA);
+    rightButton->IsSelected.set(type == CenterSpace::StyleType::Opto);
     if (!attachment)
         return;
     
