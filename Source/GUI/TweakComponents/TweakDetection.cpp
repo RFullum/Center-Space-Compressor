@@ -15,7 +15,8 @@
 //==============================================================================
 
 TweakDetection::TweakDetection(GuiResources &resources)
-: detectionSelector(std::make_unique<DetectionSelector>     (resources, "peakRMS"))
+: resources(resources)
+, detectionSelector(std::make_unique<DetectionSelector>     (resources, "peakRMS"))
 , laSelector       (std::make_unique<LookaheadTweakSelector>(resources, "lookahead"))
 {
     setOpaque(false);
@@ -80,10 +81,14 @@ TweakDetection::TweakDetection(GuiResources &resources)
     addAndMakeVisible(detectionSelector.get());
     addAndMakeVisible(laSelector.get());
     
+    resources.apvts->addParameterListener("style",  this);
+    
     scGainSliderAttachement = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(*resources.apvts, "sideInGain", scGainSlider);
     threshSliderAttachment  = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(*resources.apvts, "threshold",  threshSlider);
     scHpfAttachment         = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(*resources.apvts, "scHpfHz",    scHpfSlider);
     scLpfAttachment         = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(*resources.apvts, "scLpfHz",    scLpfSlider);
+    
+    Update();
 }
 
 TweakDetection::~TweakDetection()
@@ -92,6 +97,8 @@ TweakDetection::~TweakDetection()
     threshSlider.setLookAndFeel(nullptr);
     scHpfSlider .setLookAndFeel(nullptr);
     scLpfSlider .setLookAndFeel(nullptr);
+    
+    resources.apvts->removeParameterListener("style",  this);
 }
 
 void TweakDetection::resized()
@@ -126,3 +133,32 @@ void TweakDetection::resized()
                                 .withSizeKeepingCentre(141, 30));
 }
 
+void TweakDetection::parameterChanged(const juce::String &paramId, float /*newValue*/)
+{
+    // Listener fires on whichever thread set the value (incl. audio thread via
+    // automation). Hop to the message thread before touching Components.
+    juce::Component::SafePointer<TweakDetection> safeThis(this);
+    juce::MessageManager::callAsync([safeThis, paramId]
+    {
+        if (!safeThis)
+            return;
+        
+       if (paramId == "style")
+           safeThis->Update();
+    });
+}
+
+void TweakDetection::Update()
+{
+    auto *styleRaw = resources.apvts->getRawParameterValue("style");
+    jassert(styleRaw);
+    if (!styleRaw)
+        return;
+    
+    const bool isVCA = (int)styleRaw->load() == 0;
+    if (isShowing())
+    {
+        detectionLabel    .setVisible(isVCA);
+        detectionSelector->setVisible(isVCA);
+    }
+}

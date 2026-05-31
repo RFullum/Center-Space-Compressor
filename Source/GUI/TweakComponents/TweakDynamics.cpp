@@ -15,7 +15,8 @@
 //==============================================================================
 
 TweakDynamics::TweakDynamics(GuiResources &resources)
-: styleSelector(std::make_unique<StyleSelector>(resources, "style"))
+: resources(resources)
+, styleSelector(std::make_unique<StyleSelector>(resources, "style"))
 {
     setOpaque(false);
     
@@ -73,10 +74,14 @@ TweakDynamics::TweakDynamics(GuiResources &resources)
     
     addAndMakeVisible(styleSelector.get());
     
+    resources.apvts->addParameterListener("style",  this);
+    
     ratioSliderAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(*resources.apvts, "ratio",   ratioSlider);
     kneeAttachment        = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(*resources.apvts, "knee",    kneeSlider);
     atkSliderAttachment   = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(*resources.apvts, "attack",  atkSlider);
     relSliderAttachment   = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(*resources.apvts, "release", relSlider);
+    
+    Update();
 }
 
 TweakDynamics::~TweakDynamics()
@@ -85,6 +90,8 @@ TweakDynamics::~TweakDynamics()
     kneeSlider .setLookAndFeel(nullptr);
     atkSlider  .setLookAndFeel(nullptr);
     relSlider  .setLookAndFeel(nullptr);
+    
+    resources.apvts->removeParameterListener("style",  this);
 }
 
 void TweakDynamics::resized()
@@ -113,4 +120,34 @@ void TweakDynamics::resized()
     styleLabel.setBounds(bounds.removeFromTop(labelH));
     styleSelector->setBounds(bounds.removeFromTop(30)
                                    .withSizeKeepingCentre(141, 30));
+}
+
+void TweakDynamics::parameterChanged(const juce::String &paramId, float /*newValue*/)
+{
+    // Listener fires on whichever thread set the value (incl. audio thread via
+    // automation). Hop to the message thread before touching Components.
+    juce::Component::SafePointer<TweakDynamics> safeThis(this);
+    juce::MessageManager::callAsync([safeThis, paramId]
+    {
+        if (!safeThis)
+            return;
+        
+       if (paramId == "style")
+           safeThis->Update();
+    });
+}
+
+void TweakDynamics::Update()
+{
+    auto *styleRaw = resources.apvts->getRawParameterValue("style");
+    jassert(styleRaw);
+    if (!styleRaw)
+        return;
+    
+    const bool isVCA = (int)styleRaw->load() == 0;
+    if (isShowing())
+    {
+        kneeLabel .setVisible(isVCA);
+        kneeSlider.setVisible(isVCA);
+    }
 }

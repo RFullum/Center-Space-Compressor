@@ -17,7 +17,8 @@ class StyleSelector;
 //==============================================================================
 
 class TweakDynamics
-    : public juce::Component
+    : public  juce::Component
+    , private juce::AudioProcessorValueTreeState::Listener
 {
 public:
     TweakDynamics(GuiResources &resources);
@@ -26,6 +27,12 @@ public:
     void resized() override;
     
 private:
+    void parameterChanged(const juce::String &paramId, float newValue) override;
+     
+    void Update();
+    
+    GuiResources &resources;
+    
     juce::Slider ratioSlider;
     juce::Slider kneeSlider;
     juce::Slider atkSlider;

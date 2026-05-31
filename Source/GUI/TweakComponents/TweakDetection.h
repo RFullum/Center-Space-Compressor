@@ -18,7 +18,8 @@ class LookaheadTweakSelector;
 //==============================================================================
 
 class TweakDetection
-    : public juce::Component
+    : public  juce::Component
+    , private juce::AudioProcessorValueTreeState::Listener
 {
 public:
     TweakDetection(GuiResources &resources);
@@ -27,6 +28,12 @@ public:
     void resized() override;
     
 private:
+    void parameterChanged(const juce::String &paramId, float newValue) override;
+    
+    void Update();
+    
+    GuiResources &resources;
+    
     juce::Slider scGainSlider;
     juce::Slider threshSlider;
     juce::Slider scHpfSlider;
