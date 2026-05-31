@@ -79,6 +79,7 @@ CenterSpaceAudioProcessor::CenterSpaceAudioProcessor()
     , std::make_unique<juce::AudioParameterBool>  (juce::ParameterID{"lookaheadOnOff", 1}, "Lookahead On/Off",    false)
   })
 , patchManager(parameters)
+, abCompareManager(parameters)
 {
     // Shared
     uiModeChoice         = parameters.getRawParameterValue("uiMode");
@@ -109,6 +110,7 @@ CenterSpaceAudioProcessor::CenterSpaceAudioProcessor()
     lookaheadOnOffParam  = dynamic_cast<juce::AudioParameterBool *>(parameters.getParameter("lookaheadOnOff"));
 
     patchManager.Init();
+    abCompareManager.Init();
 }
 
 CenterSpaceAudioProcessor::~CenterSpaceAudioProcessor() {}
@@ -555,13 +557,14 @@ juce::AudioProcessorEditor *CenterSpaceAudioProcessor::createEditor()
 void CenterSpaceAudioProcessor::getStateInformation(juce::MemoryBlock &destData)
 {
     auto state = parameters.copyState();
+    state.setProperty("currentPatchPath"
+                      , patchManager.GetCurrentPatchFile().getFullPathName()
+                      , nullptr);
+    state.removeChild(state.getChildWithName(juce::Identifier(ABCompareManager::stateTagName))
+                      , nullptr);
 
-    // Stash the current patch file path so the editor can restore the patch
-    // name display on session reload. The path is informational only — patch
-    // contents themselves live in the APVTS state, not the file.
-    state.setProperty("currentPatchPath",
-                      patchManager.GetCurrentPatchFile().getFullPathName(),
-                      nullptr);
+    if (auto abState = abCompareManager.SerializeState(); abState.isValid())
+        state.appendChild(abState, nullptr);
 
     std::unique_ptr<juce::XmlElement> xml(state.createXml());
     copyXmlToBinary(*xml, destData);
@@ -581,6 +584,12 @@ void CenterSpaceAudioProcessor::setStateInformation(const void *data, int sizeIn
             const auto restoredPath = restored.getProperty("currentPatchPath").toString();
             if (restoredPath.isNotEmpty())
                 patchManager.SetCurrentFromRestoredPath(juce::File(restoredPath));
+
+            if (auto abState = restored.getChildWithName(juce::Identifier(ABCompareManager::stateTagName));
+                abState.isValid())
+            {
+                abCompareManager.RestoreState(abState);
+            }
         }
     }
 }

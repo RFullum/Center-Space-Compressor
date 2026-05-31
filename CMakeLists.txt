@@ -55,6 +55,8 @@ set(CenterSpace_SOURCES
     Source/Plugin/PluginEditor.h
     Source/Plugin/PatchEngine/PatchManager.cpp
     Source/Plugin/PatchEngine/PatchManager.h
+    Source/Plugin/PatchEngine/ABCompareManager.cpp
+    Source/Plugin/PatchEngine/ABCompareManager.h
     Source/DSP/Derivations.h
     Source/GUI/LookAndFeel/CSLookAndFeel.cpp
     Source/GUI/LookAndFeel/CSLookAndFeel.h

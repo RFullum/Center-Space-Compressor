@@ -10,6 +10,7 @@
 
 #include <JuceHeader.h>
 #include "PatchManager.h"
+#include "ABCompareManager.h"
 
 
 //==============================================================================
@@ -53,7 +54,8 @@ public:
 
     juce::AudioProcessorValueTreeState parameters;
 
-    PatchManager patchManager;
+    PatchManager     patchManager;
+    ABCompareManager abCompareManager;
 
     std::atomic<float> inMidLevel      { 0.0f };
     std::atomic<float> inLevelChan0    { 0.0f };
