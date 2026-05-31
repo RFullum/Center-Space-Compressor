@@ -83,6 +83,10 @@ set(CenterSpace_SOURCES
     Source/GUI/Metering/Metering.h
     Source/GUI/Metering/StereoFieldMeter.cpp
     Source/GUI/Metering/StereoFieldMeter.h
+    Source/GUI/Metering/SidechainGainMeter.cpp
+    Source/GUI/Metering/SidechainGainMeter.h
+    Source/GUI/Metering/GainReductionMeter.cpp
+    Source/GUI/Metering/GainReductionMeter.h
     Source/Signal/signal/Signal.h
     Source/Signal/signal/Property.h
     Source/Signal/signal/OwnedProperty.h

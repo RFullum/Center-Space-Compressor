@@ -9,18 +9,30 @@
 
 #include "Metering.h"
 
+#include "SidechainGainMeter.h"
+#include "GainReductionMeter.h"
 #include "StereoFieldMeter.h"
 
 //==============================================================================
 
+namespace
+{
+    constexpr int barWidth = 28;
+    constexpr int barGap   = 2;
+}
+
 Metering::Metering(GuiResources &res)
 : resources(res)
-, stereoFieldMeter(std::make_unique<StereoFieldMeter>(res))
+, sidechainGainMeter(std::make_unique<SidechainGainMeter>(res))
+, gainReductionMeter(std::make_unique<GainReductionMeter>(res))
+, stereoFieldMeter  (std::make_unique<StereoFieldMeter>  (res))
 {
     setOpaque(false);
 
-    addAndMakeVisible(stereoFieldMeter.get());
-    
+    addAndMakeVisible(sidechainGainMeter.get());
+    addAndMakeVisible(gainReductionMeter.get());
+    addAndMakeVisible(stereoFieldMeter  .get());
+
     startTimerHz(60);
 }
 
@@ -34,12 +46,16 @@ void Metering::paint(juce::Graphics &) {}
 void Metering::resized()
 {
     auto bounds = getLocalBounds();
-
-    // TODO: Update when SC and GR meters implemented
-    stereoFieldMeter->setBounds(bounds);
+    sidechainGainMeter->setBounds(bounds.removeFromLeft(barWidth));
+    bounds.removeFromLeft(barGap);
+    gainReductionMeter->setBounds(bounds.removeFromLeft(barWidth));
+    bounds.removeFromLeft(barGap);
+    stereoFieldMeter  ->setBounds(bounds);
 }
 
 void Metering::timerCallback()
 {
-    stereoFieldMeter->Update();
+    sidechainGainMeter->Update();
+    gainReductionMeter->Update();
+    stereoFieldMeter  ->Update();
 }

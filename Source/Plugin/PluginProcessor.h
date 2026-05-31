@@ -67,6 +67,9 @@ public:
     std::atomic<float> outLevelChan1   { 0.0f };
     std::atomic<float> gainReduction   { 0.0f };
 
+    // True when the sidechain has been below ~-60 dB for >250 ms.
+    std::atomic<bool>  sidechainSilent { true };
+
 private:
     // Effective-value derivation layer.
     // Tweak (full control) mode: returns the matching primitive directly (Opto style override applied to peakMode and knee);
@@ -83,7 +86,8 @@ private:
     float GetEffectiveKneeDb()           const;
     int   GetEffectiveLookaheadSamples() const;
 
-    double currentSampleRate = 44100.0;
+    double currentSampleRate      = 44100.0;
+    int    sidechainSilentSamples = 0;
 
     // Shared
     std::atomic<float>       *uiModeChoice         = nullptr;

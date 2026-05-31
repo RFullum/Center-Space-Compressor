@@ -40,6 +40,11 @@ private:
     float DbToY(float db, float plotTop, float plotBottom) const;
     void AdvancePoint(SamplePoint &point, float targetDb, float dtSeconds);
 
+    void BuildTopPath(juce::Path                 &path
+                      , const SamplePoint        &l
+                      , const SamplePoint        &c
+                      , const SamplePoint        &r
+                      , juce::Rectangle<float>    plotBounds) const;
     void BuildCurvePath(juce::Path               &path
                         , const SamplePoint      &l
                         , const SamplePoint      &c
@@ -52,9 +57,12 @@ private:
 
     GuiResources &resources;
 
+    void DrawSilenceOverlay(juce::Graphics &g, juce::Rectangle<float> plotBounds) const;
+
     SamplePoint inL, inC, inR;
     SamplePoint outL, outC, outR;
-    float       grDb { 0.0f };
+    float       grDb           { 0.0f };
+    bool        sidechainSilent { true };
 
     double lastUpdateMs { 0.0 };
 

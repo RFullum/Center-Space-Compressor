@@ -16,17 +16,13 @@
 
 namespace
 {
-
-    // dB axis bounds
     constexpr float minDb   = -36.0f;
     constexpr float maxDb   =   3.0f;
     constexpr float floorDb = -120.0f;   // input atomics below this are treated as silence
 
-    // Per-point smoothing time constants (asymmetric: fast rise, slow fall)
     constexpr float riseTimeMs = 20.0f;
     constexpr float fallTimeMs = 250.0f;
 
-    // Paint
     constexpr float plotInsetX     = 24.0f;   // room for dB labels on the left
     constexpr float plotInsetTop   = 18.0f;   // room for L / C / R labels
     constexpr float plotInsetBot   = 18.0f;   // room for dB axis label
@@ -40,12 +36,12 @@ namespace
     constexpr float axisLabelFontPx      = 10.0f;
     constexpr float grOverlayFontPx      = 12.0f;
 
-    // Gridline dB values (in addition to the boundary 0 / maxDb / minDb)
     constexpr float gridDb[] = { 0.0f, -6.0f, -12.0f, -24.0f };
 
-    // Repaint only when something moved at least this much — saves redraws on
-    // near-silent material.
     constexpr float repaintThresholdDb = 0.1f;
+
+    constexpr float silenceDimAlpha   = 0.35f;   // curves dim to this fraction when SC is silent
+    constexpr float silenceBadgeFontPx = 12.0f;
 
 }   // namespace
 
@@ -100,7 +96,11 @@ void StereoFieldMeter::Update()
 
     grDb = processor->gainReduction.load();
 
-    const bool moved = std::abs(inL .currentDb - priorInL ) > repaintThresholdDb
+    const bool priorSilent = sidechainSilent;
+    sidechainSilent        = processor->sidechainSilent.load(std::memory_order_relaxed);
+
+    const bool moved = (sidechainSilent != priorSilent)
+                    || std::abs(inL .currentDb - priorInL ) > repaintThresholdDb
                     || std::abs(inC .currentDb - priorInC ) > repaintThresholdDb
                     || std::abs(inR .currentDb - priorInR ) > repaintThresholdDb
                     || std::abs(outL.currentDb - priorOutL) > repaintThresholdDb
@@ -131,11 +131,11 @@ float StereoFieldMeter::DbToY(float db, float plotTop, float plotBottom) const
     return juce::jmap(t, 0.0f, 1.0f, plotBottom, plotTop);
 }
 
-void StereoFieldMeter::BuildCurvePath(juce::Path               &path
-                                      , const SamplePoint      &l
-                                      , const SamplePoint      &c
-                                      , const SamplePoint      &r
-                                      , juce::Rectangle<float>  plotBounds) const
+void StereoFieldMeter::BuildTopPath(juce::Path               &path
+                                    , const SamplePoint      &l
+                                    , const SamplePoint      &c
+                                    , const SamplePoint      &r
+                                    , juce::Rectangle<float>  plotBounds) const
 {
     const float left   = plotBounds.getX();
     const float right  = plotBounds.getRight();
@@ -147,11 +147,23 @@ void StereoFieldMeter::BuildCurvePath(juce::Path               &path
     const float yC = DbToY(c.currentDb, top, bottom);
     const float yR = DbToY(r.currentDb, top, bottom);
 
-    path.startNewSubPath(left,   yL);
-    path.lineTo         (centre, yC);
-    path.lineTo         (right,  yR);
-    path.lineTo         (right,  bottom);
-    path.lineTo         (left,   bottom);
+    const float midLC = (left + centre) * 0.5f;
+    const float midCR = (centre + right) * 0.5f;
+
+    path.startNewSubPath(left, yL);
+    path.cubicTo(midLC, yL, midLC, yC, centre, yC);
+    path.cubicTo(midCR, yC, midCR, yR, right,  yR);
+}
+
+void StereoFieldMeter::BuildCurvePath(juce::Path               &path
+                                      , const SamplePoint      &l
+                                      , const SamplePoint      &c
+                                      , const SamplePoint      &r
+                                      , juce::Rectangle<float>  plotBounds) const
+{
+    BuildTopPath(path, l, c, r, plotBounds);
+    path.lineTo(plotBounds.getRight(), plotBounds.getBottom());
+    path.lineTo(plotBounds.getX(),     plotBounds.getBottom());
     path.closeSubPath();
 }
 
@@ -167,19 +179,19 @@ void StereoFieldMeter::paint(juce::Graphics &g)
 
     DrawGrid(g, plot);
 
+    const float dim = sidechainSilent ? silenceDimAlpha : 1.0f;
+
     // Input curve (drawn first, drawn under)
     {
         juce::Path inputPath;
         BuildCurvePath(inputPath, inL, inC, inR, plot);
 
-        g.setColour(resources.theme.textSecondary.withAlpha(inputFillAlpha));
+        g.setColour(resources.theme.textSecondary.withAlpha(inputFillAlpha * dim));
         g.fillPath(inputPath);
 
         juce::Path inputTop;
-        inputTop.startNewSubPath(plot.getX(),         DbToY(inL.currentDb, plot.getY(), plot.getBottom()));
-        inputTop.lineTo         (plot.getCentreX(),   DbToY(inC.currentDb, plot.getY(), plot.getBottom()));
-        inputTop.lineTo         (plot.getRight(),     DbToY(inR.currentDb, plot.getY(), plot.getBottom()));
-        g.setColour(resources.theme.textSecondary);
+        BuildTopPath(inputTop, inL, inC, inR, plot);
+        g.setColour(resources.theme.textSecondary.withAlpha(dim));
         g.strokePath(inputTop, juce::PathStrokeType(strokeWidth));
     }
 
@@ -188,19 +200,33 @@ void StereoFieldMeter::paint(juce::Graphics &g)
         juce::Path outputPath;
         BuildCurvePath(outputPath, outL, outC, outR, plot);
 
-        g.setColour(resources.theme.primaryAccent.withAlpha(outputFillAlpha));
+        g.setColour(resources.theme.primaryAccent.withAlpha(outputFillAlpha * dim));
         g.fillPath(outputPath);
 
         juce::Path outputTop;
-        outputTop.startNewSubPath(plot.getX(),       DbToY(outL.currentDb, plot.getY(), plot.getBottom()));
-        outputTop.lineTo         (plot.getCentreX(), DbToY(outC.currentDb, plot.getY(), plot.getBottom()));
-        outputTop.lineTo         (plot.getRight(),   DbToY(outR.currentDb, plot.getY(), plot.getBottom()));
-        g.setColour(resources.theme.primaryAccent);
+        BuildTopPath(outputTop, outL, outC, outR, plot);
+        g.setColour(resources.theme.primaryAccent.withAlpha(dim));
         g.strokePath(outputTop, juce::PathStrokeType(strokeWidth));
     }
 
     DrawAxisLabels(g, plot);
     DrawGrOverlay (g, plot);
+    DrawSilenceOverlay(g, plot);
+}
+
+void StereoFieldMeter::DrawSilenceOverlay(juce::Graphics &g, juce::Rectangle<float> plot) const
+{
+    if (! sidechainSilent)
+        return;
+
+    g.setFont(juce::Font(juce::FontOptions("Helvetica", silenceBadgeFontPx, juce::Font::bold)));
+    g.setColour(resources.theme.textSecondary);
+
+    const auto badge = juce::Rectangle<float>(plot.getX()
+                                              , plot.getCentreY() - 10.0f
+                                              , plot.getWidth()
+                                              , 20.0f);
+    g.drawText("NO SIDECHAIN INPUT", badge, juce::Justification::centred);
 }
 
 void StereoFieldMeter::DrawGrid(juce::Graphics &g, juce::Rectangle<float> plot) const
