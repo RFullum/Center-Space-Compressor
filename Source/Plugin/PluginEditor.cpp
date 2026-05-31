@@ -16,6 +16,7 @@
 #include "VibeDetection.h"
 #include "TweakDynamics.h"
 #include "TweakDetection.h"
+#include "Metering.h"
 
 //==============================================================================
 
@@ -50,6 +51,7 @@ CenterSpaceAudioProcessorEditor::CenterSpaceAudioProcessorEditor(CenterSpaceAudi
 , vibeDynamics  (std::make_unique<VibeDynamics>  (resources))
 , tweakDetection(std::make_unique<TweakDetection>(resources))
 , tweakDynamics (std::make_unique<TweakDynamics> (resources))
+, metering(std::make_unique<Metering>())
 , audioProcessor(p)
 {
     setSize(1280, 720);
@@ -100,6 +102,8 @@ CenterSpaceAudioProcessorEditor::CenterSpaceAudioProcessorEditor(CenterSpaceAudi
     addChildComponent(vibeDynamics.get());
     addChildComponent(tweakDetection.get());
     addChildComponent(tweakDynamics.get());
+    
+    addAndMakeVisible(metering.get());
     
     inGainSliderAttachment  = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "inGain",     inGainSlider);
     outGainSliderAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "outGain",    outGainSlider);
@@ -183,6 +187,8 @@ void CenterSpaceAudioProcessorEditor::resized()
     tweakDetection->setBounds(leftPanel);
     vibeDynamics  ->setBounds(rightPanel);
     tweakDynamics ->setBounds(rightPanel);
+    
+    metering->setBounds(bounds);
 }
 
 void CenterSpaceAudioProcessorEditor::timerCallback() {}

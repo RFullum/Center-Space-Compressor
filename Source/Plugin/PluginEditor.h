@@ -25,6 +25,8 @@ class VibeDynamics;
 class TweakDetection;
 class TweakDynamics;
 
+class Metering;
+
 //==============================================================================
 
 class CenterSpaceAudioProcessorEditor
@@ -60,6 +62,8 @@ private:
     std::unique_ptr<VibeDynamics>   vibeDynamics;
     std::unique_ptr<TweakDetection> tweakDetection;
     std::unique_ptr<TweakDynamics>  tweakDynamics;
+    
+    std::unique_ptr<Metering> metering;
 
     juce::Slider inGainSlider;
     juce::Slider outGainSlider;

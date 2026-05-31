@@ -72,8 +72,6 @@ set(CenterSpace_SOURCES
     Source/GUI/TitleHeaderFooter/TitleHeader.h
     Source/GUI/TitleHeaderFooter/TitleFooter.cpp
     Source/GUI/TitleHeaderFooter/TitleFooter.h
-    Source/GUI/VUMeter/VUMeter.cpp
-    Source/GUI/VUMeter/VUMeter.h
     Source/GUI/GUIUtils/ColorPalette.h
     Source/GUI/GUIUtils/GuiResources.h
     Source/GUI/GUIUtils/GuiHelpers.h
@@ -81,6 +79,8 @@ set(CenterSpace_SOURCES
     Source/GUI/Components/Selector.h
     Source/GUI/Components/PatchControls.cpp
     Source/GUI/Components/PatchControls.h
+    Source/GUI/Metering/Metering.cpp
+    Source/GUI/Metering/Metering.h
     Source/Signal/signal/Signal.h
     Source/Signal/signal/Property.h
     Source/Signal/signal/OwnedProperty.h
@@ -114,7 +114,7 @@ target_include_directories(CenterSpace PRIVATE
     Source/GUI/TweakComponents
     Source/GUI/VibeComponents
     Source/GUI/TitleHeaderFooter
-    Source/GUI/VUMeter
+    Source/GUI/Metering
     Source/GUI/GUIUtils
     Source/GUI/Components
     Source/Signal
