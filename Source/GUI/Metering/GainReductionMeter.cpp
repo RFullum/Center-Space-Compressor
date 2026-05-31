@@ -7,19 +7,19 @@
 */
 
 #include "GainReductionMeter.h"
+#include "MeterScaling.h"
 #include "PluginProcessor.h"
 
 #include <cmath>
 
 
 //==============================================================================
-// Tuning constants — Step 5c lands here.
+// Tuning constants
+// GR axis bounds (0 → 24 dB of reduction) live in MeterScaling so every meter
+// + the scale-label component agree on placement.
 
 namespace
 {
-    // GR axis bounds, in dB-of-reduction (positive).
-    constexpr float minGrDb       = 0.0f;    // bar empty at this value
-    constexpr float maxGrDb       = 24.0f;   // bar full at this value
     constexpr float attackTimeMs  = 5.0f;
     constexpr float releaseTimeMs = 400.0f;
 
@@ -41,8 +41,6 @@ GainReductionMeter::GainReductionMeter(GuiResources &res)
 }
 
 void GainReductionMeter::resized() {}
-
-//==============================================================================
 
 void GainReductionMeter::Update()
 {
@@ -72,18 +70,16 @@ void GainReductionMeter::AdvanceLevel(float targetDb, float dtSeconds)
     currentDb += alpha * (targetDb - currentDb);
 }
 
-//==============================================================================
-
 void GainReductionMeter::paint(juce::Graphics &g)
 {
-    const auto bounds = getLocalBounds().toFloat().reduced(slotInsetX, slotInsetY);
+    const auto bounds = getLocalBounds().toFloat(); // .reduced(slotInsetX, slotInsetY);
 
     g.setColour(resources.theme.structure);
     g.fillRoundedRectangle(bounds, slotCornerRadius);
 
-    const float clamped = juce::jlimit(minGrDb, maxGrDb, currentDb);
-    const float t       = (clamped - minGrDb) / (maxGrDb - minGrDb);   // 0..1
-    const float fillH   = t * bounds.getHeight();
+    // GR fills top-down: the bar's bottom edge tracks the dB-mapped Y position.
+    const float fillBottomY = MeterScaling::grDbToY(currentDb, bounds.getY(), bounds.getBottom());
+    const float fillH       = fillBottomY - bounds.getY();
 
     if (fillH > 0.5f)
     {

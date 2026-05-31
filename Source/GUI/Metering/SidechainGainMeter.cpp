@@ -7,6 +7,7 @@
 */
 
 #include "SidechainGainMeter.h"
+#include "MeterScaling.h"
 #include "PluginProcessor.h"
 
 #include <cmath>
@@ -16,8 +17,9 @@
 
 namespace
 {
-    constexpr float minDb   = -36.0f;
-    constexpr float maxDb   =   3.0f;
+    // dB range comes from MeterScaling — shared with stereo-field meter and
+    // the dB MeterScale labels so all three stay aligned.
+
     constexpr float floorDb = -120.0f;
 
     constexpr float riseTimeMs = 20.0f;
@@ -99,21 +101,14 @@ void SidechainGainMeter::AdvancePeakHold(float dtSeconds)
     peakHoldDb  = juce::jmax(peakHoldDb, floorDb);
 }
 
-float SidechainGainMeter::DbToY(float db, float top, float bottom) const
-{
-    const float clamped = juce::jlimit(minDb, maxDb, db);
-    const float t       = (clamped - minDb) / (maxDb - minDb);
-    return juce::jmap(t, 0.0f, 1.0f, bottom, top);
-}
-
 void SidechainGainMeter::paint(juce::Graphics &g)
 {
-    const auto bounds = getLocalBounds().toFloat().reduced(slotInsetX, slotInsetY);
+    const auto bounds = getLocalBounds().toFloat();// .reduced(slotInsetX, slotInsetY);
 
     g.setColour(resources.theme.structure);
     g.fillRoundedRectangle(bounds, slotCornerRadius);
 
-    const float fillTopY = DbToY(currentDb, bounds.getY(), bounds.getBottom());
+    const float fillTopY = MeterScaling::levelDbToY(currentDb, bounds.getY(), bounds.getBottom());
     auto fill = juce::Rectangle<float>(bounds.getX()
                                        , fillTopY
                                        , bounds.getWidth()
@@ -123,7 +118,7 @@ void SidechainGainMeter::paint(juce::Graphics &g)
 
     if (peakHoldDb > floorDb + 1.0f)
     {
-        const float peakY = DbToY(peakHoldDb, bounds.getY(), bounds.getBottom());
+        const float peakY = MeterScaling::levelDbToY(peakHoldDb, bounds.getY(), bounds.getBottom());
         const auto  tick  = juce::Rectangle<float>(bounds.getX()
                                                    , peakY - (peakTickHeight * 0.5f)
                                                    , bounds.getWidth()

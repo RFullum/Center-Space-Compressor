@@ -15,7 +15,7 @@
 class StereoFieldMeter;
 class SidechainGainMeter;
 class GainReductionMeter;
-
+class MeterScale;
 
 //==============================================================================
 
@@ -31,6 +31,8 @@ public:
     void resized() override;
 
 private:
+    static constexpr int colorBlockSize = 10;
+    
     void timerCallback() override;
 
     GuiResources &resources;
@@ -38,6 +40,17 @@ private:
     std::unique_ptr<SidechainGainMeter> sidechainGainMeter;
     std::unique_ptr<GainReductionMeter> gainReductionMeter;
     std::unique_ptr<StereoFieldMeter>   stereoFieldMeter;
-
+    std::unique_ptr<MeterScale>         meterScale;
+    std::unique_ptr<MeterScale>         grMeterScale;
+    
+    juce::Rectangle<int> lArea;
+    juce::Rectangle<int> cArea;
+    juce::Rectangle<int> rArea;
+    
+    juce::Rectangle<int> inArea;
+    juce::Rectangle<int> inTextArea;
+    juce::Rectangle<int> outArea;
+    juce::Rectangle<int> outTextArea;
+    
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Metering)
 };

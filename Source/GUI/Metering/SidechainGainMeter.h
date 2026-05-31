@@ -27,7 +27,6 @@ public:
     void Update();
 
 private:
-    float DbToY(float db, float top, float bottom) const;
     void  AdvanceLevel(float targetDb, float dtSeconds);
     void  AdvancePeakHold(float dtSeconds);
 

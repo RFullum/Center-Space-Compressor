@@ -87,6 +87,9 @@ set(CenterSpace_SOURCES
     Source/GUI/Metering/SidechainGainMeter.h
     Source/GUI/Metering/GainReductionMeter.cpp
     Source/GUI/Metering/GainReductionMeter.h
+    Source/GUI/Metering/MeterScale.cpp
+    Source/GUI/Metering/MeterScale.h
+    Source/GUI/Metering/MeterScaling.h
     Source/Signal/signal/Signal.h
     Source/Signal/signal/Property.h
     Source/Signal/signal/OwnedProperty.h

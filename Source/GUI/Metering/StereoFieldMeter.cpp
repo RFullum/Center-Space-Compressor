@@ -7,6 +7,7 @@
 */
 
 #include "StereoFieldMeter.h"
+#include "MeterScaling.h"
 #include "PluginProcessor.h"
 
 #include <cmath>
@@ -16,16 +17,13 @@
 
 namespace
 {
-    constexpr float minDb   = -36.0f;
-    constexpr float maxDb   =   3.0f;
+    // dB range and tick positions come from MeterScaling — single source of
+    // truth shared with SC meter, GR meter, and MeterScale labels.
+
     constexpr float floorDb = -120.0f;   // input atomics below this are treated as silence
 
     constexpr float riseTimeMs = 20.0f;
     constexpr float fallTimeMs = 250.0f;
-
-    constexpr float plotInsetX     = 24.0f;   // room for dB labels on the left
-    constexpr float plotInsetTop   = 18.0f;   // room for L / C / R labels
-    constexpr float plotInsetBot   = 18.0f;   // room for dB axis label
 
     constexpr float inputFillAlpha   = 0.18f;
     constexpr float outputFillAlpha  = 0.32f;
@@ -33,10 +31,7 @@ namespace
     constexpr float gridStrokeWidth  = 0.5f;
 
     constexpr float grOverlayThresholdDb = 0.5f;
-    constexpr float axisLabelFontPx      = 10.0f;
     constexpr float grOverlayFontPx      = 12.0f;
-
-    constexpr float gridDb[] = { 0.0f, -6.0f, -12.0f, -24.0f };
 
     constexpr float repaintThresholdDb = 0.1f;
 
@@ -124,13 +119,6 @@ void StereoFieldMeter::AdvancePoint(SamplePoint &point, float targetDb, float dt
     point.currentDb += alpha * (targetDb - point.currentDb);
 }
 
-float StereoFieldMeter::DbToY(float db, float plotTop, float plotBottom) const
-{
-    const float clamped = juce::jlimit(minDb, maxDb, db);
-    const float t       = (clamped - minDb) / (maxDb - minDb);     // 0 at bottom, 1 at top
-    return juce::jmap(t, 0.0f, 1.0f, plotBottom, plotTop);
-}
-
 void StereoFieldMeter::BuildTopPath(juce::Path               &path
                                     , const SamplePoint      &l
                                     , const SamplePoint      &c
@@ -143,9 +131,9 @@ void StereoFieldMeter::BuildTopPath(juce::Path               &path
     const float top    = plotBounds.getY();
     const float bottom = plotBounds.getBottom();
 
-    const float yL = DbToY(l.currentDb, top, bottom);
-    const float yC = DbToY(c.currentDb, top, bottom);
-    const float yR = DbToY(r.currentDb, top, bottom);
+    const float yL = MeterScaling::levelDbToY(l.currentDb, top, bottom);
+    const float yC = MeterScaling::levelDbToY(c.currentDb, top, bottom);
+    const float yR = MeterScaling::levelDbToY(r.currentDb, top, bottom);
 
     const float midLC = (left + centre) * 0.5f;
     const float midCR = (centre + right) * 0.5f;
@@ -169,10 +157,7 @@ void StereoFieldMeter::BuildCurvePath(juce::Path               &path
 
 void StereoFieldMeter::paint(juce::Graphics &g)
 {
-    const auto fullBounds = getLocalBounds().toFloat();
-    auto plot = fullBounds.reduced(plotInsetX, 0.0f);
-    plot.removeFromTop   (plotInsetTop);
-    plot.removeFromBottom(plotInsetBot);
+    const auto plot = getLocalBounds().toFloat();
 
     g.setColour(resources.theme.structure.withAlpha(0.35f));
     g.fillRoundedRectangle(plot, 4.0f);
@@ -209,8 +194,7 @@ void StereoFieldMeter::paint(juce::Graphics &g)
         g.strokePath(outputTop, juce::PathStrokeType(strokeWidth));
     }
 
-    DrawAxisLabels(g, plot);
-    DrawGrOverlay (g, plot);
+    DrawGrOverlay     (g, plot);
     DrawSilenceOverlay(g, plot);
 }
 
@@ -233,9 +217,9 @@ void StereoFieldMeter::DrawGrid(juce::Graphics &g, juce::Rectangle<float> plot) 
 {
     g.setColour(resources.theme.structure.brighter(0.2f));
 
-    for (float db : gridDb)
+    for (float db : MeterScaling::levelTicksDb)
     {
-        const float y = DbToY(db, plot.getY(), plot.getBottom());
+        const float y = MeterScaling::levelDbToY(db, plot.getY(), plot.getBottom());
         g.drawHorizontalLine((int) std::round(y), plot.getX(), plot.getRight());
     }
 
@@ -249,43 +233,14 @@ void StereoFieldMeter::DrawGrid(juce::Graphics &g, juce::Rectangle<float> plot) 
     g.strokePath(dashed, juce::PathStrokeType(gridStrokeWidth));
 }
 
-void StereoFieldMeter::DrawAxisLabels(juce::Graphics &g, juce::Rectangle<float> plot) const
-{
-    g.setFont(juce::Font(juce::FontOptions("Helvetica", axisLabelFontPx, juce::Font::plain)));
-    g.setColour(resources.theme.textSecondary);
-
-    // dB ticks on the left
-    auto drawDbTick = [&] (float db)
-    {
-        const float y = DbToY(db, plot.getY(), plot.getBottom());
-        const auto text = juce::String(db, db == 0.0f ? 0 : 0) + " dB";
-        const auto area = juce::Rectangle<float>(0.0f, y - 8.0f, plot.getX() - 4.0f, 16.0f);
-        g.drawText(text, area, juce::Justification::centredRight);
-    };
-
-    drawDbTick(0.0f);
-    drawDbTick(-6.0f);
-    drawDbTick(-12.0f);
-    drawDbTick(-24.0f);
-    drawDbTick(minDb);
-
-    // L / C / R labels along the top
-    const float topY = plot.getY() - plotInsetTop;
-    const float labelH = plotInsetTop;
-
-    g.drawText("L", juce::Rectangle<float>(plot.getX() - 8.0f,       topY, 16.0f, labelH), juce::Justification::centred);
-    g.drawText("C", juce::Rectangle<float>(plot.getCentreX() - 8.0f, topY, 16.0f, labelH), juce::Justification::centred);
-    g.drawText("R", juce::Rectangle<float>(plot.getRight()  - 8.0f,  topY, 16.0f, labelH), juce::Justification::centred);
-}
-
 void StereoFieldMeter::DrawGrOverlay(juce::Graphics &g, juce::Rectangle<float> plot) const
 {
     if (grDb < grOverlayThresholdDb)
         return;
 
     const float xC      = plot.getCentreX();
-    const float yInC    = DbToY(inC .currentDb, plot.getY(), plot.getBottom());
-    const float yOutC   = DbToY(outC.currentDb, plot.getY(), plot.getBottom());
+    const float yInC    = MeterScaling::levelDbToY(inC .currentDb, plot.getY(), plot.getBottom());
+    const float yOutC   = MeterScaling::levelDbToY(outC.currentDb, plot.getY(), plot.getBottom());
     const float midY    = (yInC + yOutC) * 0.5f;
 
     const auto label = juce::String("GR ") + juce::String(grDb, 1) + " dB";

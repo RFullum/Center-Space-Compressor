@@ -37,7 +37,6 @@ private:
         float currentDb = -120.0f;  // last smoothed value, dB
     };
 
-    float DbToY(float db, float plotTop, float plotBottom) const;
     void AdvancePoint(SamplePoint &point, float targetDb, float dtSeconds);
 
     void BuildTopPath(juce::Path                 &path
@@ -52,7 +51,6 @@ private:
                         , juce::Rectangle<float>  plotBounds) const;
 
     void DrawGrid(juce::Graphics &g, juce::Rectangle<float> plotBounds) const;
-    void DrawAxisLabels(juce::Graphics &g, juce::Rectangle<float> plotBounds) const;
     void DrawGrOverlay(juce::Graphics &g, juce::Rectangle<float> plotBounds) const;
 
     GuiResources &resources;
