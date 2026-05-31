@@ -81,6 +81,8 @@ set(CenterSpace_SOURCES
     Source/GUI/Components/PatchControls.h
     Source/GUI/Metering/Metering.cpp
     Source/GUI/Metering/Metering.h
+    Source/GUI/Metering/StereoFieldMeter.cpp
+    Source/GUI/Metering/StereoFieldMeter.h
     Source/Signal/signal/Signal.h
     Source/Signal/signal/Property.h
     Source/Signal/signal/OwnedProperty.h

@@ -51,7 +51,7 @@ CenterSpaceAudioProcessorEditor::CenterSpaceAudioProcessorEditor(CenterSpaceAudi
 , vibeDynamics  (std::make_unique<VibeDynamics>  (resources))
 , tweakDetection(std::make_unique<TweakDetection>(resources))
 , tweakDynamics (std::make_unique<TweakDynamics> (resources))
-, metering(std::make_unique<Metering>())
+, metering(std::make_unique<Metering>(resources))
 , audioProcessor(p)
 {
     setSize(1280, 720);
@@ -111,8 +111,6 @@ CenterSpaceAudioProcessorEditor::CenterSpaceAudioProcessorEditor(CenterSpaceAudi
     audioProcessor.parameters.addParameterListener("uiMode", this);
 
     Update();
-
-    juce::Timer::startTimerHz(60);
 }
 
 CenterSpaceAudioProcessorEditor::~CenterSpaceAudioProcessorEditor()
@@ -121,8 +119,6 @@ CenterSpaceAudioProcessorEditor::~CenterSpaceAudioProcessorEditor()
     
     inGainSlider.setLookAndFeel (nullptr);
     outGainSlider.setLookAndFeel(nullptr);
-
-    juce::Timer::stopTimer();
 }
 
 void CenterSpaceAudioProcessorEditor::paint(juce::Graphics &g)
@@ -190,8 +186,6 @@ void CenterSpaceAudioProcessorEditor::resized()
     
     metering->setBounds(bounds);
 }
-
-void CenterSpaceAudioProcessorEditor::timerCallback() {}
 
 void CenterSpaceAudioProcessorEditor::parameterChanged(const juce::String &paramId, float /*newValue*/)
 {

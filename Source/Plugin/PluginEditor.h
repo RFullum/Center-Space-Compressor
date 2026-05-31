@@ -31,7 +31,6 @@ class Metering;
 
 class CenterSpaceAudioProcessorEditor
     : public  juce::AudioProcessorEditor
-    , private juce::Timer
     , private juce::AudioProcessorValueTreeState::Listener
 {
 public:
@@ -42,7 +41,6 @@ public:
     void resized() override;
 
 private:
-    void timerCallback() override;
     void parameterChanged(const juce::String &paramId, float newValue) override;
 
     void Update();
