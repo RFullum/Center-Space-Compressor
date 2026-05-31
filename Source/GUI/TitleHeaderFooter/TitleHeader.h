@@ -14,6 +14,7 @@
 #include <JuceHeader.h>
 
 class UIModeSelector;
+class PatchControls;
 
 //==============================================================================
 
@@ -37,6 +38,7 @@ private:
     GuiResources &resources;
     
     std::unique_ptr<UIModeSelector> uiModeSelector;
+    std::unique_ptr<PatchControls>  patchControls;
     
     juce::Rectangle<int> fullumMusicArea;
     juce::Rectangle<int> centerArea;

@@ -27,9 +27,10 @@ namespace
     {
         return GuiResources
         {
-            .apvts   = &processor.parameters,
-            .theme   =  Palette::DefaultTheme,
-            .csLAndF = &lAndF
+            .apvts     = &processor.parameters,
+            .theme     =  Palette::DefaultTheme,
+            .csLAndF   = &lAndF,
+            .processor = &processor
         };
     }
 

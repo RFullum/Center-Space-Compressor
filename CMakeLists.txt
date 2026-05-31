@@ -79,6 +79,8 @@ set(CenterSpace_SOURCES
     Source/GUI/GUIUtils/GuiHelpers.h
     Source/GUI/Components/Selector.cpp
     Source/GUI/Components/Selector.h
+    Source/GUI/Components/PatchControls.cpp
+    Source/GUI/Components/PatchControls.h
     Source/Signal/signal/Signal.h
     Source/Signal/signal/Property.h
     Source/Signal/signal/OwnedProperty.h

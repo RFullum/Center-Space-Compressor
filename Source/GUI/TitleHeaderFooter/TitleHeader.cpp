@@ -11,6 +11,8 @@
 #include "TitleHeader.h"
 
 #include "Selector.h"
+#include "PatchControls.h"
+#include "PluginProcessor.h"
 
 //==============================================================================
 
@@ -19,8 +21,16 @@ TitleHeader::TitleHeader(GuiResources &resources)
 , uiModeSelector(std::make_unique<UIModeSelector>(resources, "uiMode"))
 {
     setOpaque(false);
-    
+
     addAndMakeVisible(uiModeSelector.get());
+
+    if (resources.processor != nullptr)
+    {
+        patchControls = std::make_unique<PatchControls>(resources
+                                                        , resources.processor->patchManager
+                                                        , resources.processor->abCompareManager);
+        addAndMakeVisible(patchControls.get());
+    }
 }
 
 TitleHeader::~TitleHeader() {}
@@ -84,7 +94,9 @@ void TitleHeader::resized()
     spaceArea       = bounds.removeFromLeft(97);
     
     auto patchingArea = bounds.removeFromRight(300);
-    
+    if (patchControls != nullptr)
+        patchControls->setBounds(patchingArea.withSizeKeepingCentre(patchingArea.getWidth(), 60));
+
     bounds.removeFromRight(10);
     uiModeSelector->setBounds(bounds.removeFromRight(141).withSizeKeepingCentre(141, 35));
 }
