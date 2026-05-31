@@ -104,7 +104,6 @@ CenterSpaceAudioProcessorEditor::CenterSpaceAudioProcessorEditor(CenterSpaceAudi
     outGainSliderAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "outGain",    outGainSlider);
 
     audioProcessor.parameters.addParameterListener("uiMode", this);
-    audioProcessor.parameters.addParameterListener("style",  this);
 
     Update();
 
@@ -114,7 +113,6 @@ CenterSpaceAudioProcessorEditor::CenterSpaceAudioProcessorEditor(CenterSpaceAudi
 CenterSpaceAudioProcessorEditor::~CenterSpaceAudioProcessorEditor()
 {
     audioProcessor.parameters.removeParameterListener("uiMode", this);
-    audioProcessor.parameters.removeParameterListener("style",  this);
     
     inGainSlider.setLookAndFeel (nullptr);
     outGainSlider.setLookAndFeel(nullptr);

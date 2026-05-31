@@ -9,6 +9,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "PatchManager.h"
 
 
 //==============================================================================
@@ -51,6 +52,8 @@ public:
     void setStateInformation(const void *data, int sizeInBytes) override;
 
     juce::AudioProcessorValueTreeState parameters;
+
+    PatchManager patchManager;
 
     std::atomic<float> inMidLevel      { 0.0f };
     std::atomic<float> inLevelChan0    { 0.0f };

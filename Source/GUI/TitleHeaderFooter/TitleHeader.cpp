@@ -83,7 +83,8 @@ void TitleHeader::resized()
     
     spaceArea       = bounds.removeFromLeft(97);
     
-    auto tempPatchingArea = bounds.removeFromRight(200);
+    auto patchingArea = bounds.removeFromRight(300);
+    
     bounds.removeFromRight(10);
     uiModeSelector->setBounds(bounds.removeFromRight(141).withSizeKeepingCentre(141, 35));
 }

@@ -16,7 +16,7 @@
 namespace
 {
     // Vibe = minimal UI controls; Tweak = all UI param controls
-    static constexpr int uiModeVibe  = 0;
+//    static constexpr int uiModeVibe  = 0;
     static constexpr int uiModeTweak = 1;
 }
 
@@ -78,6 +78,7 @@ CenterSpaceAudioProcessor::CenterSpaceAudioProcessor()
                                                                                                                                      , "Hats Range"}), 0)
     , std::make_unique<juce::AudioParameterBool>  (juce::ParameterID{"lookaheadOnOff", 1}, "Lookahead On/Off",    false)
   })
+, patchManager(parameters)
 {
     // Shared
     uiModeChoice         = parameters.getRawParameterValue("uiMode");
@@ -106,6 +107,8 @@ CenterSpaceAudioProcessor::CenterSpaceAudioProcessor()
     reactParam           = parameters.getRawParameterValue("react");
     focusChoice          = parameters.getRawParameterValue("focus");
     lookaheadOnOffParam  = dynamic_cast<juce::AudioParameterBool *>(parameters.getParameter("lookaheadOnOff"));
+
+    patchManager.Init();
 }
 
 CenterSpaceAudioProcessor::~CenterSpaceAudioProcessor() {}
@@ -552,6 +555,14 @@ juce::AudioProcessorEditor *CenterSpaceAudioProcessor::createEditor()
 void CenterSpaceAudioProcessor::getStateInformation(juce::MemoryBlock &destData)
 {
     auto state = parameters.copyState();
+
+    // Stash the current patch file path so the editor can restore the patch
+    // name display on session reload. The path is informational only — patch
+    // contents themselves live in the APVTS state, not the file.
+    state.setProperty("currentPatchPath",
+                      patchManager.GetCurrentPatchFile().getFullPathName(),
+                      nullptr);
+
     std::unique_ptr<juce::XmlElement> xml(state.createXml());
     copyXmlToBinary(*xml, destData);
 }
@@ -563,7 +574,14 @@ void CenterSpaceAudioProcessor::setStateInformation(const void *data, int sizeIn
     if (xmlState.get() != nullptr)
     {
         if (xmlState->hasTagName(parameters.state.getType()))
-            parameters.replaceState(juce::ValueTree::fromXml(*xmlState));
+        {
+            const auto restored = juce::ValueTree::fromXml(*xmlState);
+            parameters.replaceState(restored);
+
+            const auto restoredPath = restored.getProperty("currentPatchPath").toString();
+            if (restoredPath.isNotEmpty())
+                patchManager.SetCurrentFromRestoredPath(juce::File(restoredPath));
+        }
     }
 }
 

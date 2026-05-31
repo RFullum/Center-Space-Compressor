@@ -53,15 +53,11 @@ set(CenterSpace_SOURCES
     Source/Plugin/PluginProcessor.h
     Source/Plugin/PluginEditor.cpp
     Source/Plugin/PluginEditor.h
+    Source/Plugin/PatchEngine/PatchManager.cpp
+    Source/Plugin/PatchEngine/PatchManager.h
     Source/DSP/Derivations.h
-    Source/GUI/LookAndFeel/OtherLookAndFeel.cpp
-    Source/GUI/LookAndFeel/OtherLookAndFeel.h
     Source/GUI/LookAndFeel/CSLookAndFeel.cpp
     Source/GUI/LookAndFeel/CSLookAndFeel.h
-    Source/GUI/ModeComponents/TweakModeComponent.cpp
-    Source/GUI/ModeComponents/TweakModeComponent.h
-    Source/GUI/ModeComponents/VibeModeComponent.cpp
-    Source/GUI/ModeComponents/VibeModeComponent.h
     Source/GUI/TweakComponents/TweakDetection.cpp
     Source/GUI/TweakComponents/TweakDetection.h
     Source/GUI/TweakComponents/TweakDynamics.cpp
@@ -108,9 +104,9 @@ source_group("JUCE Library Code" FILES ${_juce_module_files})
 # directives keep working without per-file path prefixes.
 target_include_directories(CenterSpace PRIVATE
     Source/Plugin
+    Source/Plugin/PatchEngine
     Source/DSP
     Source/GUI/LookAndFeel
-    Source/GUI/ModeComponents
     Source/GUI/TweakComponents
     Source/GUI/VibeComponents
     Source/GUI/TitleHeaderFooter
@@ -138,6 +134,20 @@ juce_generate_juce_header(CenterSpace)
 # --- Module linkage -----------------------------------------------------------
 # juce_audio_plugin_client and juce_audio_processors are linked automatically
 # by juce_add_plugin. Everything else the source uses goes here.
+# Targeted warning suppressions, applied AFTER juce_recommended_warning_flags
+# so they sit last on the compile command line and aren't clobbered by JUCE's
+# -Wshadow-all (which would re-enable -Wshadow-field-in-constructor).
+#   -Wno-shadow-field-in-constructor          — common pattern in this codebase
+#       (e.g. CSLookAndFeel(GuiResources &resources) : resources(resources)).
+#       All other -Wshadow categories stay on.
+#   -Wno-inconsistent-missing-destructor-override
+#       — silences the destructor-specific "needs override" warning. Regular
+#         method-override checks stay on.
+add_library(centerspace_warning_overrides INTERFACE)
+target_compile_options(centerspace_warning_overrides INTERFACE
+    $<$<CXX_COMPILER_ID:Clang,AppleClang>:-Wno-shadow-field-in-constructor>
+    $<$<CXX_COMPILER_ID:Clang,AppleClang>:-Wno-inconsistent-missing-destructor-override>)
+
 target_link_libraries(CenterSpace
     PRIVATE
         juce::juce_audio_utils
@@ -149,13 +159,8 @@ target_link_libraries(CenterSpace
     PUBLIC
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags
-        juce::juce_recommended_warning_flags)
-
-# Silence "constructor parameter shadows field" specifically — common pattern
-# in this codebase (e.g. CSLookAndFeel(GuiResources &resources) : resources(resources)).
-# All other -Wshadow categories stay on.
-target_compile_options(CenterSpace PRIVATE
-    $<$<CXX_COMPILER_ID:Clang,AppleClang>:-Wno-shadow-field-in-constructor>)
+        juce::juce_recommended_warning_flags
+        centerspace_warning_overrides)
 
 # --- Per-config Xcode build settings ------------------------------------------
 # Mirrors the .jucer Xcode configurations:

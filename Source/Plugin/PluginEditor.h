@@ -10,7 +10,6 @@
 
 #include "GuiResources.h"
 #include "GuiHelpers.h"
-#include "signal/Property.h"
 
 #include <JuceHeader.h>
 
