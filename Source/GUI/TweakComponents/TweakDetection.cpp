@@ -73,7 +73,7 @@ TweakDetection::TweakDetection(GuiResources &resources)
                             , 12.0f);
     CenterSpace::SetupLabel(this
                             , laLabel
-                            , "LOOKAHEAD"
+                            , "LOOKAHEAD (ms)"
                             , resources.theme.textPrimary
                             , 12.0f);
     
