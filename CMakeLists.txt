@@ -79,6 +79,8 @@ set(CenterSpace_SOURCES
     Source/GUI/Components/Selector.h
     Source/GUI/Components/PatchControls.cpp
     Source/GUI/Components/PatchControls.h
+    Source/GUI/Components/PatchSelectionPopup.cpp
+    Source/GUI/Components/PatchSelectionPopup.h
     Source/GUI/Metering/Metering.cpp
     Source/GUI/Metering/Metering.h
     Source/GUI/Metering/StereoFieldMeter.cpp

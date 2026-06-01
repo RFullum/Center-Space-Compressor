@@ -54,6 +54,7 @@ PatchControls::PatchControls(GuiResources       &res
 , patchManager(pm)
 , abCompareManager(ab)
 , abButton(res, ab)
+, selectionPopup(res, pm)
 {
     auto styleFrame = [this] (juce::TextButton &b, const juce::String &text)
     {
@@ -170,52 +171,14 @@ void PatchControls::HandlePatchNameClicked()
 
 void PatchControls::ShowPatchPopupMenu()
 {
-    patchManager.RefreshPatchList();
-    const auto &list = patchManager.GetPatchList();
-
-    juce::PopupMenu menu;
-    menu.addItem("Init", [this] { HandleInit(); });
-    menu.addSeparator();
-
-    if (list.empty())
-    {
-        menu.addItem("(no patches)", false, false, [] {});
-    }
-    else
-    {
-        bool factoryHeader = false;
-        bool userHeader    = false;
-
-        for (size_t i = 0; i < list.size(); ++i)
-        {
-            const auto &info = list[i];
-
-            if (info.source == PatchManager::Source::Factory && ! factoryHeader)
-            {
-                menu.addSectionHeader("Factory");
-                factoryHeader = true;
-            }
-            if (info.source == PatchManager::Source::User && ! userHeader)
-            {
-                if (factoryHeader) menu.addSeparator();
-                menu.addSectionHeader("User");
-                userHeader = true;
-            }
-
-            const auto file = info.file;
-            const auto name = info.name;
-            const bool isCurrent = (file == patchManager.GetCurrentPatchFile());
-
-            menu.addItem(name, true, isCurrent, [this, file]
-            {
-                if (patchManager.LoadPatch(file))
-                    abCompareManager.ResetToLiveState();
-                RefreshDisplay();
-            });
-        }
-    }
-
-    menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(&patchNameButton));
+    selectionPopup.Show(&patchNameButton,
+                        [this] (const juce::File &chosen)
+                        {
+                            if (patchManager.LoadPatch(chosen))
+                                abCompareManager.ResetToLiveState();
+        
+                            RefreshDisplay();
+                        });
 }
 
 void PatchControls::HandleInit()

@@ -14,6 +14,7 @@
 
 #include "GuiResources.h"
 #include "ABCompareManager.h"
+#include "PatchSelectionPopup.h"
 #include <JuceHeader.h>
 
 class PatchManager;
@@ -75,6 +76,8 @@ private:
     juce::TextButton saveAsButton;
     juce::TextButton deleteButton;
     ABButton         abButton;
+
+    PatchSelectionPopup selectionPopup;
 
     // Async dialog ownership — re-used so successive Save As / Delete prompts
     // don't leak.
