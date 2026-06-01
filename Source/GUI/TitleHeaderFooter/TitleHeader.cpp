@@ -84,6 +84,7 @@ void TitleHeader::resized()
 {
     auto bounds = getLocalBounds();
     bounds.reduce(10, 0);
+    const auto absoluteCenter = bounds.getCentre();
     
     fullumMusicArea = bounds.removeFromRight(131);
     centerArea      = bounds.removeFromLeft(118);
@@ -97,7 +98,7 @@ void TitleHeader::resized()
     if (patchControls != nullptr)
         patchControls->setBounds(patchingArea.withSizeKeepingCentre(patchingArea.getWidth(), 60));
 
-    bounds.removeFromRight(10);
+    bounds.removeFromRight(56);
     uiModeSelector->setBounds(bounds.removeFromRight(141).withSizeKeepingCentre(141, 35));
 }
 
