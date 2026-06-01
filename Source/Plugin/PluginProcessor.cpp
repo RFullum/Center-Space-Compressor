@@ -17,7 +17,8 @@ namespace
 {
     // Vibe = minimal UI controls; Tweak = all UI param controls
 //    static constexpr int uiModeVibe  = 0;
-    static constexpr int uiModeTweak = 1;
+    static constexpr int   uiModeTweak           = 1;
+    static constexpr float multiplicativeFloorDb = -200.0f;
 }
 
 //==============================================================================
@@ -224,9 +225,9 @@ void CenterSpaceAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
     scHpfSmoothed.reset           (sampleRate, rampSec);
     scLpfSmoothed.reset           (sampleRate, rampSec);
 
-    inGainSmoothed.setCurrentAndTargetValue         (juce::Decibels::decibelsToGain(inputGainParam->load()));
-    outGainSmoothed.setCurrentAndTargetValue        (juce::Decibels::decibelsToGain(outputGainParam->load()));
-    sideGainSmoothed.setCurrentAndTargetValue       (juce::Decibels::decibelsToGain(GetEffectiveSideInGainDb()));
+    inGainSmoothed.setCurrentAndTargetValue         (juce::Decibels::decibelsToGain(inputGainParam->load(),       multiplicativeFloorDb));
+    outGainSmoothed.setCurrentAndTargetValue        (juce::Decibels::decibelsToGain(outputGainParam->load(),      multiplicativeFloorDb));
+    sideGainSmoothed.setCurrentAndTargetValue       (juce::Decibels::decibelsToGain(GetEffectiveSideInGainDb(),   multiplicativeFloorDb));
     thresholdSmoothed.setCurrentAndTargetValue      (GetEffectiveThresholdDb());
     ratioReciprocalSmoothed.setCurrentAndTargetValue(1.0f / GetEffectiveRatio());
     kneeSmoothed.setCurrentAndTargetValue           (GetEffectiveKneeDb());
@@ -265,9 +266,9 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
     const int numSamples = buffer.getNumSamples();
     const int peakMode   = GetEffectivePeakMode();
 
-    inGainSmoothed.setTargetValue          (juce::Decibels::decibelsToGain(inputGainParam->load()));
-    outGainSmoothed.setTargetValue         (juce::Decibels::decibelsToGain(outputGainParam->load()));
-    sideGainSmoothed.setTargetValue        (juce::Decibels::decibelsToGain(GetEffectiveSideInGainDb()));
+    inGainSmoothed.setTargetValue          (juce::Decibels::decibelsToGain(inputGainParam->load(),     multiplicativeFloorDb));
+    outGainSmoothed.setTargetValue         (juce::Decibels::decibelsToGain(outputGainParam->load(),    multiplicativeFloorDb));
+    sideGainSmoothed.setTargetValue        (juce::Decibels::decibelsToGain(GetEffectiveSideInGainDb(), multiplicativeFloorDb));
     thresholdSmoothed.setTargetValue       (GetEffectiveThresholdDb());
     ratioReciprocalSmoothed.setTargetValue (1.0f / GetEffectiveRatio());
     kneeSmoothed.setTargetValue            (GetEffectiveKneeDb());
