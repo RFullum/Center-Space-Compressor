@@ -32,8 +32,9 @@ private:
 
     GuiResources &resources;
 
-    float  currentDb    { 0.0f };   // smoothed GR amount in dB (0 = no reduction)
-    double lastUpdateMs { 0.0 };
+    float  currentDb     { 0.0f };  // smoothed GR amount in dB (0 = no reduction)
+    float  lastPaintedDb { 0.0f };  // displayed value as of the most recent repaint
+    double lastUpdateMs  { 0.0  };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GainReductionMeter)
 };

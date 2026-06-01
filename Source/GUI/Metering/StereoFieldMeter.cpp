@@ -74,14 +74,6 @@ void StereoFieldMeter::Update()
     const float tOutC = linearToDb(processor->outMidLevel  .load());
     const float tOutR = linearToDb(processor->outLevelChan1.load());
 
-    const float priorInL  = inL .currentDb;
-    const float priorInC  = inC .currentDb;
-    const float priorInR  = inR .currentDb;
-    const float priorOutL = outL.currentDb;
-    const float priorOutC = outC.currentDb;
-    const float priorOutR = outR.currentDb;
-    const float priorGr   = grDb;
-
     AdvancePoint(inL,  tInL,  dtSecs);
     AdvancePoint(inC,  tInC,  dtSecs);
     AdvancePoint(inR,  tInR,  dtSecs);
@@ -95,16 +87,25 @@ void StereoFieldMeter::Update()
     sidechainSilent        = processor->sidechainSilent.load(std::memory_order_relaxed);
 
     const bool moved = (sidechainSilent != priorSilent)
-                    || std::abs(inL .currentDb - priorInL ) > repaintThresholdDb
-                    || std::abs(inC .currentDb - priorInC ) > repaintThresholdDb
-                    || std::abs(inR .currentDb - priorInR ) > repaintThresholdDb
-                    || std::abs(outL.currentDb - priorOutL) > repaintThresholdDb
-                    || std::abs(outC.currentDb - priorOutC) > repaintThresholdDb
-                    || std::abs(outR.currentDb - priorOutR) > repaintThresholdDb
-                    || std::abs(grDb           - priorGr  ) > repaintThresholdDb;
+                    || std::abs(inL .currentDb - inL .lastPaintedDb) > repaintThresholdDb
+                    || std::abs(inC .currentDb - inC .lastPaintedDb) > repaintThresholdDb
+                    || std::abs(inR .currentDb - inR .lastPaintedDb) > repaintThresholdDb
+                    || std::abs(outL.currentDb - outL.lastPaintedDb) > repaintThresholdDb
+                    || std::abs(outC.currentDb - outC.lastPaintedDb) > repaintThresholdDb
+                    || std::abs(outR.currentDb - outR.lastPaintedDb) > repaintThresholdDb
+                    || std::abs(grDb           - grDbLastPainted)    > repaintThresholdDb;
 
     if (moved)
+    {
         repaint();
+        inL .lastPaintedDb = inL .currentDb;
+        inC .lastPaintedDb = inC .currentDb;
+        inR .lastPaintedDb = inR .currentDb;
+        outL.lastPaintedDb = outL.currentDb;
+        outC.lastPaintedDb = outC.currentDb;
+        outR.lastPaintedDb = outR.currentDb;
+        grDbLastPainted    = grDb;
+    }
 }
 
 void StereoFieldMeter::AdvancePoint(SamplePoint &point, float targetDb, float dtSeconds)
@@ -194,7 +195,6 @@ void StereoFieldMeter::paint(juce::Graphics &g)
         g.strokePath(outputTop, juce::PathStrokeType(strokeWidth));
     }
 
-    DrawGrOverlay     (g, plot);
     DrawSilenceOverlay(g, plot);
 }
 
@@ -231,23 +231,4 @@ void StereoFieldMeter::DrawGrid(juce::Graphics &g, juce::Rectangle<float> plot) 
     const float dashes[] = { 3.0f, 3.0f };
     juce::PathStrokeType(gridStrokeWidth).createDashedStroke(dashed, dashed, dashes, 2);
     g.strokePath(dashed, juce::PathStrokeType(gridStrokeWidth));
-}
-
-void StereoFieldMeter::DrawGrOverlay(juce::Graphics &g, juce::Rectangle<float> plot) const
-{
-    if (grDb < grOverlayThresholdDb)
-        return;
-
-    const float xC      = plot.getCentreX();
-    const float yInC    = MeterScaling::levelDbToY(inC .currentDb, plot.getY(), plot.getBottom());
-    const float yOutC   = MeterScaling::levelDbToY(outC.currentDb, plot.getY(), plot.getBottom());
-    const float midY    = (yInC + yOutC) * 0.5f;
-
-    const auto label = juce::String("GR ") + juce::String(grDb, 1) + " dB";
-
-    g.setFont(juce::Font(juce::FontOptions("Helvetica", grOverlayFontPx, juce::Font::bold)));
-    g.setColour(resources.theme.primaryAccent);
-
-    const auto area = juce::Rectangle<float>(xC - 60.0f, midY - 10.0f, 120.0f, 20.0f);
-    g.drawText(label, area, juce::Justification::centred);
 }

@@ -34,7 +34,8 @@ public:
 private:
     struct SamplePoint
     {
-        float currentDb = -120.0f;  // last smoothed value, dB
+        float currentDb     = -120.0f;  // last smoothed value, dB
+        float lastPaintedDb = -120.0f;  // value as of the most recent repaint
     };
 
     void AdvancePoint(SamplePoint &point, float targetDb, float dtSeconds);
@@ -51,7 +52,6 @@ private:
                         , juce::Rectangle<float>  plotBounds) const;
 
     void DrawGrid(juce::Graphics &g, juce::Rectangle<float> plotBounds) const;
-    void DrawGrOverlay(juce::Graphics &g, juce::Rectangle<float> plotBounds) const;
 
     GuiResources &resources;
 
@@ -59,8 +59,9 @@ private:
 
     SamplePoint inL, inC, inR;
     SamplePoint outL, outC, outR;
-    float       grDb           { 0.0f };
-    bool        sidechainSilent { true };
+    float       grDb             { 0.0f };
+    float       grDbLastPainted  { 0.0f };
+    bool        sidechainSilent  { true };
 
     double lastUpdateMs { 0.0 };
 

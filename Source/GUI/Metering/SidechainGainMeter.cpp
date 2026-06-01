@@ -60,16 +60,15 @@ void SidechainGainMeter::Update()
 
     const float targetDb = juce::Decibels::gainToDecibels(processor->sideChainLevel.load(), floorDb);
 
-    const float priorCurrent = currentDb;
-    const float priorPeak    = peakHoldDb;
-
     AdvanceLevel   (targetDb, dtSecs);
     AdvancePeakHold(dtSecs);
 
-    if (std::abs(currentDb  - priorCurrent) > repaintThresholdDb
-        || std::abs(peakHoldDb - priorPeak)  > repaintThresholdDb)
+    if (std::abs(currentDb  - lastPaintedDb)   > repaintThresholdDb
+        || std::abs(peakHoldDb - lastPaintedPeak) > repaintThresholdDb)
     {
         repaint();
+        lastPaintedDb   = currentDb;
+        lastPaintedPeak = peakHoldDb;
     }
 }
 

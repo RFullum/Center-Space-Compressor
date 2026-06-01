@@ -32,9 +32,11 @@ private:
 
     GuiResources &resources;
 
-    float currentDb     { -120.0f };  // smoothed level
-    float peakHoldDb    { -120.0f };  // peak-hold display value
-    float peakHoldTimer { 0.0f };     // seconds remaining at current peak before decay starts
+    float currentDb        { -120.0f };  // smoothed level
+    float peakHoldDb       { -120.0f };  // peak-hold display value
+    float peakHoldTimer    { 0.0f    };  // seconds remaining at current peak before decay starts
+    float lastPaintedDb    { -120.0f };  // displayed level as of last repaint
+    float lastPaintedPeak  { -120.0f };  // displayed peak as of last repaint
 
     double lastUpdateMs { 0.0 };
 

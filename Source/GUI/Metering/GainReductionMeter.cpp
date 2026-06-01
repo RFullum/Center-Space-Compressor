@@ -28,6 +28,9 @@ namespace
     constexpr float slotInsetY       = 4.0f;
 
     constexpr float repaintThresholdDb = 0.1f;
+
+    // Snap to avoid asymptotic never-getting there
+    constexpr float snapToTargetDb = 0.05f;
 }
 
 
@@ -53,12 +56,24 @@ void GainReductionMeter::Update()
     lastUpdateMs = nowMs;
 
     const float targetDb = processor->gainReduction.load();   // already dB
-    const float prior    = currentDb;
 
     AdvanceLevel(targetDb, dtSecs);
 
-    if (std::abs(currentDb - prior) > repaintThresholdDb)
+    // Snap to target when very close — otherwise the smoother asymptotes at
+    // a non-zero plateau and the meter never empties.
+    bool snapped = false;
+    
+    if (!juce::approximatelyEqual(currentDb, targetDb) && std::abs(currentDb - targetDb) < snapToTargetDb)
+    {
+        currentDb = targetDb;
+        snapped   = true;
+    }
+
+    if (snapped || std::abs(currentDb - lastPaintedDb) > repaintThresholdDb)
+    {
         repaint();
+        lastPaintedDb = currentDb;
+    }
 }
 
 void GainReductionMeter::AdvanceLevel(float targetDb, float dtSeconds)
