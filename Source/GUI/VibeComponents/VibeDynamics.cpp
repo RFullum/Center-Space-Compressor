@@ -25,6 +25,8 @@ VibeDynamics::VibeDynamics(GuiResources &resources)
                              , resources.theme.primaryAccent
                              , juce::Colours::transparentBlack
                              , resources.theme.textPrimary);
+    reactSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+
     CenterSpace::SetupLabel(this
                             , reactLabel
                             , "React"

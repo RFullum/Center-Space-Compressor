@@ -45,7 +45,7 @@ TweakDetection::TweakDetection(GuiResources &resources)
                              , resources.theme.primaryAccent
                              , juce::Colours::transparentBlack
                              , resources.theme.textPrimary);
-    
+
     CenterSpace::SetupLabel(this
                             , scGainLabel
                             , "SC Gain"
@@ -87,6 +87,16 @@ TweakDetection::TweakDetection(GuiResources &resources)
     threshSliderAttachment  = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(*resources.apvts, "threshold",  threshSlider);
     scHpfAttachment         = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(*resources.apvts, "scHpfHz",    scHpfSlider);
     scLpfAttachment         = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(*resources.apvts, "scLpfHz",    scLpfSlider);
+
+    // Must happen AFTER attachments are constructed — see PluginEditor.cpp.
+    scGainSlider.textFromValueFunction = CenterSpace::SliderText::Db;
+    threshSlider.textFromValueFunction = CenterSpace::SliderText::Db;
+    scHpfSlider .textFromValueFunction = CenterSpace::SliderText::Hz;
+    scLpfSlider .textFromValueFunction = CenterSpace::SliderText::Hz;
+    scGainSlider.updateText();
+    threshSlider.updateText();
+    scHpfSlider .updateText();
+    scLpfSlider .updateText();
     
     Update();
 }

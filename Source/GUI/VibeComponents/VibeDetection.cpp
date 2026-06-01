@@ -25,6 +25,8 @@ VibeDetection::VibeDetection(GuiResources &resources)
                              , resources.theme.primaryAccent
                              , juce::Colours::transparentBlack
                              , resources.theme.textPrimary);
+    compressSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+
     CenterSpace::SetupLabel(this
                             , compressLabel
                             , "Compress"

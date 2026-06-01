@@ -86,7 +86,7 @@ CenterSpaceAudioProcessorEditor::CenterSpaceAudioProcessorEditor(CenterSpaceAudi
                              , resources.theme.secondaryAccent
                              , juce::Colours::transparentBlack
                              , resources.theme.textPrimary);
-    
+
     CenterSpace::SetupLabel(this
                             , inGainLabel
                             , "In Gain"
@@ -107,6 +107,15 @@ CenterSpaceAudioProcessorEditor::CenterSpaceAudioProcessorEditor(CenterSpaceAudi
     
     inGainSliderAttachment  = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "inGain",     inGainSlider);
     outGainSliderAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.parameters, "outGain",    outGainSlider);
+
+    // Override the SliderAttachment's default text formatter (which uses the
+    // parameter's getText()) with our project-wide formatters. Must happen
+    // AFTER the attachment is constructed — the attachment's ctor overwrites
+    // textFromValueFunction with its own lambda.
+    inGainSlider .textFromValueFunction = CenterSpace::SliderText::Db;
+    outGainSlider.textFromValueFunction = CenterSpace::SliderText::Db;
+    inGainSlider .updateText();
+    outGainSlider.updateText();
 
     audioProcessor.parameters.addParameterListener("uiMode", this);
 

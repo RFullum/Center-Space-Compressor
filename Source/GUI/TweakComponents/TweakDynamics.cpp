@@ -44,7 +44,7 @@ TweakDynamics::TweakDynamics(GuiResources &resources)
                              , resources.theme.primaryAccent
                              , juce::Colours::transparentBlack
                              , resources.theme.textPrimary);
-    
+
     CenterSpace::SetupLabel(this
                             , ratioLabel
                             , "Ratio"
@@ -80,6 +80,16 @@ TweakDynamics::TweakDynamics(GuiResources &resources)
     kneeAttachment        = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(*resources.apvts, "knee",    kneeSlider);
     atkSliderAttachment   = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(*resources.apvts, "attack",  atkSlider);
     relSliderAttachment   = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(*resources.apvts, "release", relSlider);
+
+    // Must happen AFTER attachments are constructed — see PluginEditor.cpp.
+    ratioSlider.textFromValueFunction = CenterSpace::SliderText::Ratio;
+    kneeSlider .textFromValueFunction = CenterSpace::SliderText::Db;
+    atkSlider  .textFromValueFunction = CenterSpace::SliderText::Ms;
+    relSlider  .textFromValueFunction = CenterSpace::SliderText::Ms;
+    ratioSlider.updateText();
+    kneeSlider .updateText();
+    atkSlider  .updateText();
+    relSlider  .updateText();
     
     Update();
 }
