@@ -22,16 +22,14 @@ namespace
 
     constexpr float floorDb = -120.0f;   // input atomics below this are treated as silence
 
-    constexpr float riseTimeMs = 20.0f;
-    constexpr float fallTimeMs = 250.0f;
+    // StereoFieldMeter smoothness
+    constexpr float riseTimeMs = 80.0f;
+    constexpr float fallTimeMs = 400.0f;
 
     constexpr float inputFillAlpha   = 0.18f;
     constexpr float outputFillAlpha  = 0.32f;
     constexpr float strokeWidth      = 1.5f;
     constexpr float gridStrokeWidth  = 0.5f;
-
-//    constexpr float grOverlayThresholdDb = 0.5f;
-//    constexpr float grOverlayFontPx      = 12.0f;
 
     constexpr float repaintThresholdDb = 0.1f;
 
