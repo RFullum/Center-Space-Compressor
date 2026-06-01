@@ -41,7 +41,7 @@ namespace
 
 CenterSpaceAudioProcessorEditor::CenterSpaceAudioProcessorEditor(CenterSpaceAudioProcessor &p)
 : juce::AudioProcessorEditor(&p)
-, csLAndF(std::make_unique<CSLookAndFeel>())
+, csLAndF(std::make_unique<CSLookAndFeel>(Palette::DefaultTheme))
 , resources(MakeResources(p, *csLAndF))
 , titleHeader(std::make_unique<TitleHeader>(resources))
 , titleFooter(std::make_unique<TitleFooter>(resources))
@@ -55,8 +55,13 @@ CenterSpaceAudioProcessorEditor::CenterSpaceAudioProcessorEditor(CenterSpaceAudi
 , audioProcessor(p)
 {
     setSize(1280, 720);
-    
+
     csLAndF->SetTrackBackground(resources.theme.structure);
+
+    // Attach our LookAndFeel at the editor level — every child component
+    // (including sliders inside Tweak/Vibe sub-components) inherits it via
+    // the component tree, so no per-slider setLookAndFeel call is needed.
+    setLookAndFeel(csLAndF.get());
     
     addAndMakeVisible(titleHeader.get());
     addAndMakeVisible(titleFooter.get());
@@ -125,9 +130,11 @@ CenterSpaceAudioProcessorEditor::CenterSpaceAudioProcessorEditor(CenterSpaceAudi
 CenterSpaceAudioProcessorEditor::~CenterSpaceAudioProcessorEditor()
 {
     audioProcessor.parameters.removeParameterListener("uiMode", this);
-    
-    inGainSlider.setLookAndFeel (nullptr);
-    outGainSlider.setLookAndFeel(nullptr);
+
+    // Clear the editor's LookAndFeel before csLAndF is destroyed — any
+    // children that haven't already cleared their own LookAndFeel are still
+    // pointing at it through the inheritance chain.
+    setLookAndFeel(nullptr);
 }
 
 void CenterSpaceAudioProcessorEditor::paint(juce::Graphics &g)
