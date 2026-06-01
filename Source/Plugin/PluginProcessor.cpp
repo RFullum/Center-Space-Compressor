@@ -48,7 +48,7 @@ CenterSpaceAudioProcessor::CenterSpaceAudioProcessor()
       // Tweak-mode primitives
     , std::make_unique<juce::AudioParameterFloat> (juce::ParameterID{"sideInGain", 1}, "Sidechain Input Gain dB", juce::NormalisableRange<float>(-100.0f, 12.0f, 0.01f, 4.0f, false),    0.0f, "dB")
     , std::make_unique<juce::AudioParameterFloat> (juce::ParameterID{"scHpfHz",    1}, "SC HPF Hz",               juce::NormalisableRange<float>(20.0f, 2000.0f, 0.01f, 0.3f, false),    20.0f, "Hz")
-    , std::make_unique<juce::AudioParameterFloat> (juce::ParameterID{"scLpfHz",    1}, "SC LPF Hz",               juce::NormalisableRange<float>(200.0f, 20000.0f, 0.01f, 0.3f, false),  20000.0f, "Hz")
+    , std::make_unique<juce::AudioParameterFloat> (juce::ParameterID{"scLpfHz",    1}, "SC LPF Hz",               juce::NormalisableRange<float>(80.0f, 20000.0f, 0.01f, 0.3f, false),   20000.0f, "Hz")
     , std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{"peakRMS",    1}, "Peak/RMS",                juce::StringArray({"Peak", "RMS"}), 0)
     , std::make_unique<juce::AudioParameterFloat> (juce::ParameterID{"attack",     1}, "Attack ms",               juce::NormalisableRange<float>(0.01f, 2000.0f, 0.01f, 0.15f, false),   10.0f, "ms")
     , std::make_unique<juce::AudioParameterFloat> (juce::ParameterID{"release",    1}, "Release ms",              juce::NormalisableRange<float>(1.0f, 2000.0f, 0.01f, 0.15f, false),    100.0f, "ms")
@@ -64,19 +64,13 @@ CenterSpaceAudioProcessor::CenterSpaceAudioProcessor()
     , std::make_unique<juce::AudioParameterFloat> (juce::ParameterID{"react",      1}, "React",                   juce::NormalisableRange<float>(0.0f, 1.0f, 0.001f),                    0.5f)
     , std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{"focus",      1}, "Focus",                   juce::StringArray({"Full Range"
                                                                                                                                      , "Reduce Bass"
-                                                                                                                                     , "Transient Focus"
-                                                                                                                                     , "Lows"
-                                                                                                                                     , "Low Mid"
-                                                                                                                                     , "High Mid"
-                                                                                                                                     , "High"
-                                                                                                                                     , "Vocal Body"
-                                                                                                                                     , "Vocal Clarity"
-                                                                                                                                     , "Kick Thump"
-                                                                                                                                     , "Kick Smack"
-                                                                                                                                     , "Snare Thump"
-                                                                                                                                     , "Snare Smack"
-                                                                                                                                     , "Bass Body"
-                                                                                                                                     , "Hats Range"}), 0)
+                                                                                                                                     , "Vocal"
+                                                                                                                                     , "Kick"
+                                                                                                                                     , "Bass"
+                                                                                                                                     , "Transients"
+                                                                                                                                     , "Low"
+                                                                                                                                     , "Mid"
+                                                                                                                                     , "High"}), 0)
     , std::make_unique<juce::AudioParameterBool>  (juce::ParameterID{"lookaheadOnOff", 1}, "Lookahead On/Off",    false)
   })
 , patchManager(parameters)

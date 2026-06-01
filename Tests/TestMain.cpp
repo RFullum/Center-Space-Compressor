@@ -658,19 +658,22 @@ namespace
         using namespace CenterSpace::Derivations;
         std::cout << "[test] focus presets\n";
 
-        const auto fullRange    = FocusToScCutoffs(FocusPreset::FullRange);
-        const auto kickThump    = FocusToScCutoffs(FocusPreset::KickThump);
-        const auto vocalClarity = FocusToScCutoffs(FocusPreset::VocalClarity);
-        const auto hatsRange    = FocusToScCutoffs(FocusPreset::HatsRange);
+        const auto fullRange  = FocusToScCutoffs(FocusPreset::FullRange);
+        const auto vocal      = FocusToScCutoffs(FocusPreset::Vocal);
+        const auto kick       = FocusToScCutoffs(FocusPreset::Kick);
+        const auto transients = FocusToScCutoffs(FocusPreset::Transients);
+        const auto high       = FocusToScCutoffs(FocusPreset::High);
 
-        EXPECT_NEAR(fullRange.hpfHz,       20.0f, 1e-5f);
-        EXPECT_NEAR(fullRange.lpfHz,    20000.0f, 1e-5f);
-        EXPECT_NEAR(kickThump.hpfHz,       40.0f, 1e-5f);
-        EXPECT_NEAR(kickThump.lpfHz,       90.0f, 1e-5f);
-        EXPECT_NEAR(vocalClarity.hpfHz,  1000.0f, 1e-5f);
-        EXPECT_NEAR(vocalClarity.lpfHz,  3000.0f, 1e-5f);
-        EXPECT_NEAR(hatsRange.hpfHz,      350.0f, 1e-5f);
-        EXPECT_NEAR(hatsRange.lpfHz,    20000.0f, 1e-5f);
+        EXPECT_NEAR(fullRange.hpfHz,      20.0f, 1e-5f);
+        EXPECT_NEAR(fullRange.lpfHz,   20000.0f, 1e-5f);
+        EXPECT_NEAR(vocal.hpfHz,         250.0f, 1e-5f);
+        EXPECT_NEAR(vocal.lpfHz,        3000.0f, 1e-5f);
+        EXPECT_NEAR(kick.hpfHz,           40.0f, 1e-5f);
+        EXPECT_NEAR(kick.lpfHz,           90.0f, 1e-5f);
+        EXPECT_NEAR(transients.hpfHz,    400.0f, 1e-5f);
+        EXPECT_NEAR(transients.lpfHz,  15000.0f, 1e-5f);
+        EXPECT_NEAR(high.hpfHz,          800.0f, 1e-5f);
+        EXPECT_NEAR(high.lpfHz,        20000.0f, 1e-5f);
     }
 
 

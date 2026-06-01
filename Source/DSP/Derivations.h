@@ -59,22 +59,16 @@ enum class FocusPreset
 {
     FullRange = 0,
     ReduceBass,
-    TransientFocus,
-    Lows,
-    LowMid,
-    HighMid,
-    High,
-    VocalBody,
-    VocalClarity,
-    KickThump,
-    KickSmack,
-    SnareThump,
-    SnareSmack,
-    BassBody,
-    HatsRange
+    Vocal,
+    Kick,
+    Bass,
+    Transients,
+    Low,
+    Mid,
+    High
 };
 
-constexpr int kNumFocusPresets = 15;
+constexpr int kNumFocusPresets = 9;
 
 
 //==============================================================================
@@ -195,19 +189,13 @@ inline ScCutoffs FocusToScCutoffs(FocusPreset preset)
     constexpr std::array<ScCutoffs, kNumFocusPresets> table = {{
         {    20.0f, 20000.0f },   // Full Range
         {    80.0f, 20000.0f },   // Reduce Bass
-        {   120.0f, 15000.0f },   // Transient Focus
-        {    40.0f,   250.0f },   // Lows
-        {   250.0f,   500.0f },   // Low Mid
-        {   500.0f,  2000.0f },   // High Mid
-        {  2000.0f, 20000.0f },   // High
-        {   250.0f,   500.0f },   // Vocal Body
-        {  1000.0f,  3000.0f },   // Vocal Clarity
-        {    40.0f,    90.0f },   // Kick Thump
-        {  2500.0f,  4000.0f },   // Kick Smack
-        {   100.0f,   300.0f },   // Snare Thump
-        {   650.0f, 20000.0f },   // Snare Smack
-        {    80.0f,   350.0f },   // Bass Body
-        {   350.0f, 20000.0f }    // Hats Range
+        {   250.0f,  3000.0f },   // Vocal
+        {    40.0f,    90.0f },   // Kick
+        {    80.0f,   350.0f },   // Bass
+        {   400.0f, 15000.0f },   // Transients
+        {    20.0f,   250.0f },   // Low
+        {   250.0f,   800.0f },   // Mid
+        {   800.0f, 20000.0f }    // High
     }};
 
     const int idx = (int)preset;
