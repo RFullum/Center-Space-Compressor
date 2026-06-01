@@ -47,6 +47,9 @@ private:
     juce::Rectangle<int> cArea;
     juce::Rectangle<int> rArea;
     
+    juce::Rectangle<int> grArea;
+    juce::Rectangle<int> scArea;
+    
     juce::Rectangle<int> inArea;
     juce::Rectangle<int> inTextArea;
     juce::Rectangle<int> outArea;

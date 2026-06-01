@@ -50,6 +50,9 @@ void Metering::paint(juce::Graphics &g)
     g.drawText("C", cArea, juce::Justification::centredBottom);
     g.drawText("R", rArea, juce::Justification::bottomRight);
     
+    g.drawText("GR", grArea, juce::Justification::centredBottom);
+    g.drawText("SC", scArea, juce::Justification::centredBottom);
+    
     g.drawText("IN",  inTextArea,  juce::Justification::centred);
     g.drawText("OUT", outTextArea, juce::Justification::centred);
     
@@ -61,10 +64,10 @@ void Metering::paint(juce::Graphics &g)
 
 void Metering::resized()
 {
-    static constexpr int yMargin        = 50;
-    static constexpr int barW           = 32;
-    static constexpr int gap            = 4;
-    static constexpr int letterW        = 10;
+    static constexpr int yMargin = 50;
+    static constexpr int barW    = 32;
+    static constexpr int gap     = 4;
+    static constexpr int letterW = 10;
     
     auto bounds = getLocalBounds();
     auto topRow = bounds.removeFromTop(yMargin);
@@ -99,6 +102,9 @@ void Metering::resized()
                                  , letterY
                                  , letterW
                                  , letterH);
+    
+    grArea = juce::Rectangle<int>(gainReductionMeter->getX(), letterY, gainReductionMeter->getWidth(), letterH);
+    scArea = juce::Rectangle<int>(sidechainGainMeter->getX(), letterY, sidechainGainMeter->getWidth(), letterH);
     
     topRow.removeFromRight(8);
     outTextArea = topRow.removeFromRight(34);
