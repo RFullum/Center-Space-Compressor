@@ -55,13 +55,10 @@ private:
 
     GuiResources &resources;
 
-    void DrawSilenceOverlay(juce::Graphics &g, juce::Rectangle<float> plotBounds) const;
-
     SamplePoint inL, inC, inR;
     SamplePoint outL, outC, outR;
     float       grDb             { 0.0f };
     float       grDbLastPainted  { 0.0f };
-    bool        sidechainSilent  { true };
 
     double lastUpdateMs { 0.0 };
 

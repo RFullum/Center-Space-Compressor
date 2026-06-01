@@ -232,9 +232,6 @@ void CenterSpaceAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
     kneeSmoothed.setCurrentAndTargetValue           (GetEffectiveKneeDb());
     scHpfSmoothed.setCurrentAndTargetValue          (GetEffectiveScHpfHz());
     scLpfSmoothed.setCurrentAndTargetValue          (GetEffectiveScLpfHz());
-
-    sidechainSilentSamples = 0;
-    sidechainSilent.store(true, std::memory_order_relaxed);
 }
 
 void CenterSpaceAudioProcessor::releaseResources()
@@ -353,10 +350,6 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
         outMidLevel    = 0.0f;
         outLevelChan1  = 0.0f;
         gainReduction  = 0.0f;
-
-        // If no signal flowing → SC is silent
-        sidechainSilent.store(true, std::memory_order_relaxed);
-        sidechainSilentSamples = 0;
 
         return;
     }
@@ -541,23 +534,6 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
 
     // GR meter: publish the block's deepest compressor reduction in dB
     gainReduction = juce::jmax(0.0f, -juce::Decibels::gainToDecibels(minCompGain));
-
-    constexpr float silenceThresholdLinear = 0.001f;   // ~-60 dB
-    constexpr float silenceDwellSeconds    = 0.25f;
-
-    const int dwellSamples = (int) std::ceil(silenceDwellSeconds * currentSampleRate);
-
-    if (sideChainLevel.load() < silenceThresholdLinear)
-    {
-        sidechainSilentSamples = juce::jmin(sidechainSilentSamples + numSamples, dwellSamples);
-        if (sidechainSilentSamples >= dwellSamples)
-            sidechainSilent.store(true,  std::memory_order_relaxed);
-    }
-    else
-    {
-        sidechainSilentSamples = 0;
-        sidechainSilent.store(false, std::memory_order_relaxed);
-    }
 }
 
 juce::AudioProcessorParameter *CenterSpaceAudioProcessor::getBypassParameter() const

@@ -30,13 +30,10 @@ namespace
     constexpr float strokeWidth      = 1.5f;
     constexpr float gridStrokeWidth  = 0.5f;
 
-    constexpr float grOverlayThresholdDb = 0.5f;
-    constexpr float grOverlayFontPx      = 12.0f;
+//    constexpr float grOverlayThresholdDb = 0.5f;
+//    constexpr float grOverlayFontPx      = 12.0f;
 
     constexpr float repaintThresholdDb = 0.1f;
-
-    constexpr float silenceDimAlpha   = 0.35f;   // curves dim to this fraction when SC is silent
-    constexpr float silenceBadgeFontPx = 12.0f;
 
 }   // namespace
 
@@ -83,11 +80,7 @@ void StereoFieldMeter::Update()
 
     grDb = processor->gainReduction.load();
 
-    const bool priorSilent = sidechainSilent;
-    sidechainSilent        = processor->sidechainSilent.load(std::memory_order_relaxed);
-
-    const bool moved = (sidechainSilent != priorSilent)
-                    || std::abs(inL .currentDb - inL .lastPaintedDb) > repaintThresholdDb
+    const bool moved = std::abs(inL .currentDb - inL .lastPaintedDb) > repaintThresholdDb
                     || std::abs(inC .currentDb - inC .lastPaintedDb) > repaintThresholdDb
                     || std::abs(inR .currentDb - inR .lastPaintedDb) > repaintThresholdDb
                     || std::abs(outL.currentDb - outL.lastPaintedDb) > repaintThresholdDb
@@ -165,19 +158,17 @@ void StereoFieldMeter::paint(juce::Graphics &g)
 
     DrawGrid(g, plot);
 
-    const float dim = sidechainSilent ? silenceDimAlpha : 1.0f;
-
     // Input curve (drawn first, drawn under)
     {
         juce::Path inputPath;
         BuildCurvePath(inputPath, inL, inC, inR, plot);
 
-        g.setColour(resources.theme.textSecondary.withAlpha(inputFillAlpha * dim));
+        g.setColour(resources.theme.textSecondary.withAlpha(inputFillAlpha));
         g.fillPath(inputPath);
 
         juce::Path inputTop;
         BuildTopPath(inputTop, inL, inC, inR, plot);
-        g.setColour(resources.theme.textSecondary.withAlpha(dim));
+        g.setColour(resources.theme.textSecondary);
         g.strokePath(inputTop, juce::PathStrokeType(strokeWidth));
     }
 
@@ -186,32 +177,16 @@ void StereoFieldMeter::paint(juce::Graphics &g)
         juce::Path outputPath;
         BuildCurvePath(outputPath, outL, outC, outR, plot);
 
-        g.setColour(resources.theme.primaryAccent.withAlpha(outputFillAlpha * dim));
+        g.setColour(resources.theme.primaryAccent.withAlpha(outputFillAlpha));
         g.fillPath(outputPath);
 
         juce::Path outputTop;
         BuildTopPath(outputTop, outL, outC, outR, plot);
-        g.setColour(resources.theme.primaryAccent.withAlpha(dim));
+        g.setColour(resources.theme.primaryAccent);
         g.strokePath(outputTop, juce::PathStrokeType(strokeWidth));
     }
-
-    DrawSilenceOverlay(g, plot);
 }
 
-void StereoFieldMeter::DrawSilenceOverlay(juce::Graphics &g, juce::Rectangle<float> plot) const
-{
-    if (! sidechainSilent)
-        return;
-
-    g.setFont(juce::Font(juce::FontOptions("Helvetica", silenceBadgeFontPx, juce::Font::bold)));
-    g.setColour(resources.theme.textSecondary);
-
-    const auto badge = juce::Rectangle<float>(plot.getX()
-                                              , plot.getCentreY() - 10.0f
-                                              , plot.getWidth()
-                                              , 20.0f);
-    g.drawText("NO SIDECHAIN INPUT", badge, juce::Justification::centred);
-}
 
 void StereoFieldMeter::DrawGrid(juce::Graphics &g, juce::Rectangle<float> plot) const
 {
