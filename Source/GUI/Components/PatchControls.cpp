@@ -214,6 +214,7 @@ void PatchControls::HandleSaveAs()
     alertWindow.reset(new juce::AlertWindow("Save Patch As",
                                             "Name for the new patch:",
                                             juce::MessageBoxIconType::NoIcon));
+    alertWindow->setLookAndFeel(resources.csLAndF);
 
     alertWindow->addTextEditor("name", patchManager.GetCurrentPatchName(), {});
     alertWindow->addButton("Save",   1, juce::KeyPress(juce::KeyPress::returnKey));
@@ -246,6 +247,7 @@ void PatchControls::HandleDelete()
     alertWindow.reset(new juce::AlertWindow("Delete Patch",
                                             "Delete \"" + name + "\"? This cannot be undone.",
                                             juce::MessageBoxIconType::WarningIcon));
+    alertWindow->setLookAndFeel(resources.csLAndF);
     alertWindow->addButton("Delete", 1, juce::KeyPress(juce::KeyPress::returnKey));
     alertWindow->addButton("Cancel", 0, juce::KeyPress(juce::KeyPress::escapeKey));
 
