@@ -69,11 +69,13 @@ Source/
                               Lookahead choice — Tweak-mode SC side
       TweakDynamics.{cpp,h}   Ratio, Knee, Attack, Release, Style —
                               Tweak-mode compressor side
-      TweakLayout.{cpp,h}     Wrapper that hosts the two above, owns spacing
+      TweakLayout.{cpp,h}     Shared base class for the two above — owns
+                              the slider/label Rectangle members and the
+                              resized() layout math
     VibeComponents/
       VibeDetection.{cpp,h}   Compress macro + Focus combo + Lookahead on/off
       VibeDynamics.{cpp,h}    React macro + Feel toggle
-      VibeLayout.{cpp,h}      Wrapper that hosts the two above
+      VibeLayout.{cpp,h}      Shared base class for the two above
     Metering/
       Metering.{cpp,h}        Host component — owns 60 Hz timer,
                               lays out [GR][grScale][SC][levelScale][SFM]
@@ -84,8 +86,9 @@ Source/
       MeterScale.{cpp,h}      Reusable dB-label component (Level / GR types)
       MeterScaling.h          Shared dB → Y math, tick value tables
   Signal/
-    signal/*.h                In-house property/signal lib (unused in v2.0 GUI;
-                              kept for future use)
+    signal/*.h                In-house property/signal lib — Selector
+                              subclasses use Property_ST + on_change.connect()
+                              to react to APVTS changes
   ThirdParty/
     sigslot/signal.hpp        Dep of Signal lib
 Tests/
@@ -352,7 +355,7 @@ The inactive set is stored but not read by the DSP.
 
 **UI layout:**
 - Shared params (top-of-list above) are visible in both modes, in the same positions on the editor.
-- Mode-specific controls live in their own `juce::Component`s under `Source/GUI/{Tweak,Vibe}Components/`. Each mode has a `*Layout` wrapper that hosts a `*Detection` and a `*Dynamics` component side by side. The editor toggles visibility of the two wrappers in `Update()` based on `uiMode`. Avoids per-control show/hide and resize churn.
+- Mode-specific controls live in their own `juce::Component`s under `Source/GUI/{Tweak,Vibe}Components/`. Each mode has a `*Layout` shared base class that the `*Detection` and `*Dynamics` leaf components inherit from — the base owns the `juce::Rectangle<int>` members and the `resized()` layout math, the leaves own the actual sliders/selectors. The editor owns the four leaf components directly and toggles their visibility in `Update()` based on `uiMode`. Avoids per-control show/hide and resize churn.
 
 ---
 

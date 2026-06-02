@@ -108,13 +108,11 @@ namespace
                          , const juce::File                           &currentFile
                          , std::function<void(juce::File)>             onSelectIn
                          , int                                         viewportHeightIn)
-        : viewportHeight(viewportHeightIn)
-        , onSelect      (std::move(onSelectIn))
+        : onSelect(std::move(onSelectIn))
         {
             setOpaque(false);
 
-            const int rowH = juce::jmax(28, viewportHeight / itemsPerColumn);
-            itemHeight     = rowH;
+            itemHeight = juce::jmax(28, viewportHeightIn / itemsPerColumn);
 
             items.reserve(patches.size());
 
@@ -161,8 +159,7 @@ namespace
         }
 
     private:
-        int viewportHeight = 0;
-        int itemHeight     = 0;
+        int itemHeight = 0;
 
         std::vector<std::unique_ptr<PatchGridItem>> items;
         std::function<void(juce::File)>             onSelect;
