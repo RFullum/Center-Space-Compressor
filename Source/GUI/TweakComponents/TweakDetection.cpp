@@ -19,8 +19,6 @@ TweakDetection::TweakDetection(GuiResources &resources)
 , detectionSelector(std::make_unique<DetectionSelector>     (resources, "peakRMS"))
 , laSelector       (std::make_unique<LookaheadTweakSelector>(resources, "lookahead"))
 {
-    setOpaque(false);
-    
     CenterSpace::SetupSlider(this
                              , scGainSlider
                              , juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag
@@ -120,34 +118,22 @@ TweakDetection::~TweakDetection()
 
 void TweakDetection::resized()
 {
-    static constexpr int labelH = 16;
+    TweakLayout::resized();
     
-    auto bounds = getLocalBounds();
-    bounds.removeFromTop(20);
+    scGainLabel .setBounds(sliderLabel1Area);
+    scGainSlider.setBounds(slider1Area);
+    threshLabel .setBounds(sliderLabel2Area);
+    threshSlider.setBounds(slider2Area);
+    scHpfLabel  .setBounds(sliderLabel3Area);
+    scHpfSlider .setBounds(slider3Area);
+    scLpfLabel  .setBounds(sliderLabel4Area);
+    scLpfSlider .setBounds(slider4Area);
     
-    auto slidersArea = bounds.removeFromTop(222)
-                             .withSizeKeepingCentre(150, 222);
-    auto topRow      = slidersArea.removeFromTop(slidersArea.proportionOfHeight(0.5f));
-    auto scGainArea  = topRow.removeFromLeft(topRow.proportionOfWidth(0.5f));
-    scGainLabel .setBounds(scGainArea.removeFromTop(labelH));
-    scGainSlider.setBounds(scGainArea);
-    threshLabel .setBounds(topRow.removeFromTop(labelH));
-    threshSlider.setBounds(topRow);
+    detectionLabel    .setBounds(slot1LabelArea);
+    detectionSelector->setBounds(slot1Area);
     
-    auto hpfArea = slidersArea.removeFromLeft(slidersArea.proportionOfWidth(0.5f));
-    scHpfLabel .setBounds(hpfArea.removeFromTop(labelH));
-    scHpfSlider.setBounds(hpfArea);
-    scLpfLabel .setBounds(slidersArea.removeFromTop(labelH));
-    scLpfSlider.setBounds(slidersArea);
-    
-    bounds.removeFromTop(20);
-    detectionLabel.setBounds(bounds.removeFromTop(labelH));
-    detectionSelector->setBounds(bounds.removeFromTop(30)
-                                       .withSizeKeepingCentre(141, 30));
-    bounds.removeFromTop(20);
-    laLabel.setBounds(bounds.removeFromTop(labelH));
-    laSelector->setBounds(bounds.removeFromTop(30)
-                                .withSizeKeepingCentre(141, 30));
+    laLabel    .setBounds(slot2LabelArea);
+    laSelector->setBounds(slot2Area);
 }
 
 void TweakDetection::parameterChanged(const juce::String &paramId, float /*newValue*/)

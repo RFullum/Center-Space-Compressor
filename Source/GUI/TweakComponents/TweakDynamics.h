@@ -10,6 +10,7 @@
 #pragma once
 
 #include "GuiResources.h"
+#include "TweakLayout.h"
 #include <JuceHeader.h>
 
 class StyleSelector;
@@ -17,7 +18,7 @@ class StyleSelector;
 //==============================================================================
 
 class TweakDynamics
-    : public  juce::Component
+    : public  TweakLayout
     , private juce::AudioProcessorValueTreeState::Listener
 {
 public:

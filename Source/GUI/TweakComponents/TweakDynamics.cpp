@@ -18,8 +18,6 @@ TweakDynamics::TweakDynamics(GuiResources &resources)
 : resources(resources)
 , styleSelector(std::make_unique<StyleSelector>(resources, "style"))
 {
-    setOpaque(false);
-    
     CenterSpace::SetupSlider(this
                              , ratioSlider
                              , juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag
@@ -112,30 +110,19 @@ TweakDynamics::~TweakDynamics()
 
 void TweakDynamics::resized()
 {
-    static constexpr int labelH = 16;
+    TweakLayout::resized();
     
-    auto bounds = getLocalBounds();
-    bounds.removeFromTop(20);
+    ratioLabel .setBounds(sliderLabel1Area);
+    ratioSlider.setBounds(slider1Area);
+    kneeLabel  .setBounds(sliderLabel2Area);
+    kneeSlider .setBounds(slider2Area);
+    atkLabel   .setBounds(sliderLabel3Area);
+    atkSlider  .setBounds(slider3Area);
+    relLabel   .setBounds(sliderLabel4Area);
+    relSlider  .setBounds(slider4Area);
     
-    auto slidersArea = bounds.removeFromTop(222)
-                             .withSizeKeepingCentre(150, 222);
-    auto topRow      = slidersArea.removeFromTop(slidersArea.proportionOfHeight(0.5f));
-    auto ratioArea   = topRow.removeFromLeft(topRow.proportionOfWidth(0.5f));
-    ratioLabel .setBounds(ratioArea.removeFromTop(labelH));
-    ratioSlider.setBounds(ratioArea);
-    kneeLabel  .setBounds(topRow.removeFromTop(labelH));
-    kneeSlider .setBounds(topRow);
-    
-    auto atkArea = slidersArea.removeFromLeft(slidersArea.proportionOfWidth(0.5f));
-    atkLabel .setBounds(atkArea.removeFromTop(labelH));
-    atkSlider.setBounds(atkArea);
-    relLabel .setBounds(slidersArea.removeFromTop(labelH));
-    relSlider.setBounds(slidersArea);
-    
-    bounds.removeFromTop(20);
-    styleLabel.setBounds(bounds.removeFromTop(labelH));
-    styleSelector->setBounds(bounds.removeFromTop(30)
-                                   .withSizeKeepingCentre(141, 30));
+    styleLabel    .setBounds(slot2LabelArea);
+    styleSelector->setBounds(slot2Area);
 }
 
 void TweakDynamics::parameterChanged(const juce::String &paramId, float /*newValue*/)

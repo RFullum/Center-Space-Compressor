@@ -64,6 +64,8 @@ set(CenterSpace_SOURCES
     Source/GUI/TweakComponents/TweakDetection.h
     Source/GUI/TweakComponents/TweakDynamics.cpp
     Source/GUI/TweakComponents/TweakDynamics.h
+    Source/GUI/TweakComponents/TweakLayout.cpp
+    Source/GUI/TweakComponents/TweakLayout.h
     Source/GUI/VibeComponents/VibeDetection.cpp
     Source/GUI/VibeComponents/VibeDetection.h
     Source/GUI/VibeComponents/VibeDynamics.cpp

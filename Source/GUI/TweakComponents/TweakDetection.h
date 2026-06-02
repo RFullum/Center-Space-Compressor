@@ -10,6 +10,7 @@
 #pragma once
 
 #include "GuiResources.h"
+#include "TweakLayout.h"
 #include <JuceHeader.h>
 
 class DetectionSelector;
@@ -18,7 +19,7 @@ class LookaheadTweakSelector;
 //==============================================================================
 
 class TweakDetection
-    : public  juce::Component
+    : public  TweakLayout
     , private juce::AudioProcessorValueTreeState::Listener
 {
 public:
