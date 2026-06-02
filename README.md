@@ -4,7 +4,7 @@ A stereo sidechain compressor that only compresses the **center** of the stereo 
 
 If no signal hits the sidechain, the compressor does nothing — but the M/S encode/decode and input/output gain still run, so you can also use Center Space as a stereo-type converter on its own.
 
-> Screenshots: TODO
+![Vibe mode](docs/screenshots/vibe-mode.png)
 
 ---
 
@@ -13,14 +13,22 @@ If no signal hits the sidechain, the compressor does nothing — but the M/S enc
 - **Two UI modes**:
   - **Vibe** — macro controls (`Compress`, `React`, `Focus`, `Feel`, `Lookahead On/Off`). Quick to dial in.
   - **Tweak** — full sidechain compressor with Threshold, Ratio, Knee, Attack, Release, SC HPF/LPF, SC Gain, Peak/RMS detection, Style, and Lookahead time.
+
+  ![Tweak mode](docs/screenshots/tweak-mode.png)
 - **9 Focus presets** for the sidechain filter pair (Full Range, Reduce Bass, Vocal, Kick, Bass, Transients, Low, Mid, High).
 - **Two compressor styles** — Modern VCA (clean) and Opto (smooth, soft-knee, RMS).
 - **Lookahead** — 0, 1, 4, or 10 ms. Reports latency to the host.
 - **M/S input + output conversion** — feed L/R or already-encoded M/S; output as either.
 - **Patch system** — factory presets included, user patches save to `~/Library/Application Support/FullumMusic/Center Space/Patches/` as `.cspatch` files. Browse with a grid-style popup picker.
+
+  ![Patch popup](docs/screenshots/patch-popup.png)
 - **A/B compare** — two independent snapshot slots with implicit-copy semantics.
+
+  ![A/B compare](docs/screenshots/ab-compare.png)
 - **Custom metering** — sidechain level (with peak-hold), gain reduction, and a stereo-field meter that shows input and output at the L/C/R points of the field.
 - **Tooltips on every control**, toggleable via the title-bar right-click menu.
+
+  ![Options menu](docs/screenshots/options-menu.png)
 
 ---
 
