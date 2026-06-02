@@ -12,5 +12,5 @@ Expected files:
 | `vibe-mode.png` | Vibe mode with kick-driven SC; curve dipping at C, meters active |
 | `tweak-mode.png` | Tweak mode with snare-driven SC; full Tweak panel + curve |
 | `patch-popup.png` | Patch grid popup with factory presets visible (orange) |
-| `ab-compare.png` | A/B toggle visible, ideally mid-switch |
+| `tooltips.png` | Tooltip visible over a control |
 | `options-menu.png` | Title right-click options menu (tooltip toggle) |

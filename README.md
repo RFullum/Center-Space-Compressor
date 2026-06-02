@@ -23,10 +23,10 @@ If no signal hits the sidechain, the compressor does nothing — but the M/S enc
 
   ![Patch popup](docs/screenshots/patch-popup.png)
 - **A/B compare** — two independent snapshot slots with implicit-copy semantics.
-
-  ![A/B compare](docs/screenshots/ab-compare.png)
 - **Custom metering** — sidechain level (with peak-hold), gain reduction, and a stereo-field meter that shows input and output at the L/C/R points of the field.
 - **Tooltips on every control**, toggleable via the title-bar right-click menu.
+
+  ![Tooltip](docs/screenshots/tooltips.png)
 
   ![Options menu](docs/screenshots/options-menu.png)
 
