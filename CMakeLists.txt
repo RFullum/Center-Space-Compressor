@@ -68,6 +68,8 @@ set(CenterSpace_SOURCES
     Source/GUI/VibeComponents/VibeDetection.h
     Source/GUI/VibeComponents/VibeDynamics.cpp
     Source/GUI/VibeComponents/VibeDynamics.h
+    Source/GUI/VibeComponents/VibeLayout.cpp
+    Source/GUI/VibeComponents/VibeLayout.h
     Source/GUI/TitleHeaderFooter/TitleHeader.cpp
     Source/GUI/TitleHeaderFooter/TitleHeader.h
     Source/GUI/TitleHeaderFooter/TitleFooter.cpp

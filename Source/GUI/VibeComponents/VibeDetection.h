@@ -10,6 +10,7 @@
 #pragma once
 
 #include "GuiResources.h"
+#include "VibeLayout.h"
 #include <JuceHeader.h>
 
 class LookaheadVibeSelector;
@@ -17,7 +18,7 @@ class LookaheadVibeSelector;
 //==============================================================================
 
 class VibeDetection
-    : public juce::Component
+    : public VibeLayout
 {
 public:
     VibeDetection(GuiResources &resources);

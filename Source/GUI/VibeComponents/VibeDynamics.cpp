@@ -17,8 +17,6 @@
 VibeDynamics::VibeDynamics(GuiResources &resources)
 : feelSelector(std::make_unique<FeelSelector>(resources, "feel"))
 {
-    setOpaque(false);
-    
     CenterSpace::SetupSlider(this
                              , reactSlider
                              , juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag
@@ -51,17 +49,13 @@ VibeDynamics::~VibeDynamics()
     reactSlider.setLookAndFeel(nullptr);
 }
 
-// TODO: Adjust layout
 void VibeDynamics::resized()
 {
-    auto bounds = getLocalBounds();
-    bounds.removeFromTop(20);
+    VibeLayout::resized();
     
-    reactLabel .setBounds(bounds.removeFromTop(15));
-    reactSlider.setBounds(bounds.removeFromTop(122));
+    reactLabel .setBounds(sliderLabelArea);
+    reactSlider.setBounds(sliderArea);
     
-    bounds.removeFromTop(20);
-    feelLabel.setBounds(bounds.removeFromTop(15));
-    feelSelector->setBounds(bounds.removeFromTop(30)
-                                  .withSizeKeepingCentre(141, 30));
+    feelLabel    .setBounds(slot2LabelArea);
+    feelSelector->setBounds(slot2Area);
 }

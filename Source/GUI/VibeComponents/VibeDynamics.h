@@ -10,6 +10,7 @@
 #pragma once
 
 #include "GuiResources.h"
+#include "VibeLayout.h"
 #include <JuceHeader.h>
 
 class FeelSelector;
@@ -17,7 +18,7 @@ class FeelSelector;
 //==============================================================================
 
 class VibeDynamics
-    : public juce::Component
+    : public VibeLayout
 {
 public:
     VibeDynamics(GuiResources &resources);

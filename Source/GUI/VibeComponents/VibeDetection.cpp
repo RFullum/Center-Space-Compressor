@@ -17,8 +17,6 @@
 VibeDetection::VibeDetection(GuiResources &resources)
 : laSelector(std::make_unique<LookaheadVibeSelector>(resources, "lookaheadOnOff"))
 {
-    setOpaque(false);
-    
     CenterSpace::SetupSlider(this
                              , compressSlider
                              , juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag
@@ -79,22 +77,16 @@ VibeDetection::~VibeDetection()
     compressSlider.setLookAndFeel(nullptr);
 }
 
-// TODO: Adjust layout
 void VibeDetection::resized()
 {
-    auto bounds = getLocalBounds();
-    bounds.removeFromTop(20);
+    VibeLayout::resized();
     
-    compressLabel .setBounds(bounds.removeFromTop(15));
-    compressSlider.setBounds(bounds.removeFromTop(122));
+    compressLabel .setBounds(sliderLabelArea);
+    compressSlider.setBounds(sliderArea);
     
-    bounds.removeFromTop(20);
-    laLabel.setBounds(bounds.removeFromTop(15));
-    laSelector->setBounds(bounds.removeFromTop(30)
-                                .withSizeKeepingCentre(141, 30));
+    focusLabel.setBounds(slot1LabelArea);
+    focusBox  .setBounds(slot1Area);
     
-    bounds.removeFromTop(20);
-    focusLabel.setBounds(bounds.removeFromTop(15));
-    focusBox.setBounds(bounds.removeFromTop(37)
-                             .withSizeKeepingCentre(172, 37));
+    laLabel    .setBounds(slot2LabelArea);
+    laSelector->setBounds(slot2Area);
 }
