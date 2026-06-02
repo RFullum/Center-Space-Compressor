@@ -59,6 +59,8 @@ protected:
     
     juce::RangedAudioParameter                 *parameter = nullptr;
     std::unique_ptr<juce::ParameterAttachment>  attachment;
+
+    bool syncingFromParam = false;
 };
 
 //==============================================================================

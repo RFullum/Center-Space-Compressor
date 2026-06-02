@@ -104,6 +104,7 @@ StereoSelector::StereoSelector(GuiResources            &resources
         (*parameter
          , [this](float newVal)
          {
+             const juce::ScopedValueSetter<bool> svs(syncingFromParam, true);
              if (auto *choice = dynamic_cast<juce::AudioParameterChoice*>(parameter))
                  Stereo.set(choice->getIndex() == 0
                                 ? CenterSpace::StereoType::LeftRight
@@ -114,12 +115,17 @@ StereoSelector::StereoSelector(GuiResources            &resources
                             : CenterSpace::StereoType::MidSide);
          });
     }
-        
+
     leftButton ->onClick = [&]{ Stereo.set(CenterSpace::StereoType::LeftRight); };
     rightButton->onClick = [&]{ Stereo.set(CenterSpace::StereoType::MidSide);   };
-    
+
     Stereo.on_change.connect(&StereoSelector::OnStereoChanged, this);
-    OnStereoChanged(Stereo.get());
+    if (attachment)
+        attachment->sendInitialUpdate();
+    {
+        const juce::ScopedValueSetter<bool> svs(syncingFromParam, true);
+        OnStereoChanged(Stereo.get());
+    }
 }
 
 StereoSelector::~StereoSelector() {}
@@ -128,7 +134,7 @@ void StereoSelector::OnStereoChanged(CenterSpace::StereoType type)
 {
     leftButton ->IsSelected.set(type == CenterSpace::StereoType::LeftRight);
     rightButton->IsSelected.set(type == CenterSpace::StereoType::MidSide);
-    if (!attachment)
+    if (!attachment || syncingFromParam)
         return;
     
     // LR = 0/false; M/S = 1/true
@@ -151,6 +157,7 @@ UIModeSelector::UIModeSelector(GuiResources            &resources
         (*parameter
          , [this](float newVal)
          {
+            const juce::ScopedValueSetter<bool> svs(syncingFromParam, true);
             if (auto *choice = dynamic_cast<juce::AudioParameterChoice*>(parameter))
                 UIMode.set(choice->getIndex() == 0
                             ? CenterSpace::UIModeType::Vibe
@@ -161,12 +168,17 @@ UIModeSelector::UIModeSelector(GuiResources            &resources
                             : CenterSpace::UIModeType::Tweak);
         });
     }
-    
+
     leftButton ->onClick = [&]{ UIMode.set(CenterSpace::UIModeType::Vibe);  };
     rightButton->onClick = [&]{ UIMode.set(CenterSpace::UIModeType::Tweak); };
-    
+
     UIMode.on_change.connect(&UIModeSelector::OnUIModeChanged, this);
-    OnUIModeChanged(UIMode.get());
+    if (attachment)
+        attachment->sendInitialUpdate();
+    {
+        const juce::ScopedValueSetter<bool> svs(syncingFromParam, true);
+        OnUIModeChanged(UIMode.get());
+    }
 }
 
 UIModeSelector::~UIModeSelector() {}
@@ -175,7 +187,7 @@ void UIModeSelector::OnUIModeChanged(CenterSpace::UIModeType type)
 {
     leftButton ->IsSelected.set(type == CenterSpace::UIModeType::Vibe);
     rightButton->IsSelected.set(type == CenterSpace::UIModeType::Tweak);
-    if (!attachment)
+    if (!attachment || syncingFromParam)
         return;
     
     // Vibe = 0/false; Tweak = 1/true
@@ -198,18 +210,24 @@ LookaheadVibeSelector::LookaheadVibeSelector(GuiResources            &resources
         (*parameter
          , [this](float newVal)
          {
+            const juce::ScopedValueSetter<bool> svs(syncingFromParam, true);
             if (auto *choice = dynamic_cast<juce::AudioParameterChoice*>(parameter))
                 LookaheadOn.set((bool)choice->getIndex());
             else
                 LookaheadOn.set((bool)newVal);
         });
     }
-    
+
     leftButton ->onClick = [&]{ LookaheadOn.set(false); };
     rightButton->onClick = [&]{ LookaheadOn.set(true);  };
-    
+
     LookaheadOn.on_change.connect(&LookaheadVibeSelector::OnLookaheadOnChanged, this);
-    OnLookaheadOnChanged(LookaheadOn.get());
+    if (attachment)
+        attachment->sendInitialUpdate();
+    {
+        const juce::ScopedValueSetter<bool> svs(syncingFromParam, true);
+        OnLookaheadOnChanged(LookaheadOn.get());
+    }
 }
 
 LookaheadVibeSelector::~LookaheadVibeSelector() {}
@@ -218,7 +236,7 @@ void LookaheadVibeSelector::OnLookaheadOnChanged(bool isOn)
 {
     leftButton ->IsSelected.set(!isOn);
     rightButton->IsSelected.set( isOn);
-    if (!attachment)
+    if (!attachment || syncingFromParam)
         return;
     
     attachment->setValueAsCompleteGesture(float(isOn));
@@ -244,6 +262,7 @@ LookaheadTweakSelector::LookaheadTweakSelector(GuiResources            &resource
         (*parameter
          , [this](float newVal)
          {
+            const juce::ScopedValueSetter<bool> svs(syncingFromParam, true);
             if (auto *choice = dynamic_cast<juce::AudioParameterChoice*>(parameter))
             {
                 const auto lookaheadTypeChoice = CenterSpace::LookaheadMsType(choice->getIndex());
@@ -256,7 +275,7 @@ LookaheadTweakSelector::LookaheadTweakSelector(GuiResources            &resource
             }
         });
     }
-    
+
     addAndMakeVisible(zeroButton.get());
     addAndMakeVisible(oneButton.get());
     addAndMakeVisible(fourButton.get());
@@ -265,9 +284,14 @@ LookaheadTweakSelector::LookaheadTweakSelector(GuiResources            &resource
     oneButton ->onClick = [&]{ LookaheadMS.set(CenterSpace::LookaheadMsType::One);  };
     fourButton->onClick = [&]{ LookaheadMS.set(CenterSpace::LookaheadMsType::Four); };
     tenButton ->onClick = [&]{ LookaheadMS.set(CenterSpace::LookaheadMsType::Ten);  };
-    
+
     LookaheadMS.on_change.connect(&LookaheadTweakSelector::OnLookaheadMSChanged, this);
-    OnLookaheadMSChanged(LookaheadMS.get());
+    if (attachment)
+        attachment->sendInitialUpdate();
+    {
+        const juce::ScopedValueSetter<bool> svs(syncingFromParam, true);
+        OnLookaheadMSChanged(LookaheadMS.get());
+    }
 }
 
 LookaheadTweakSelector::~LookaheadTweakSelector() {}
@@ -288,7 +312,7 @@ void LookaheadTweakSelector::OnLookaheadMSChanged(CenterSpace::LookaheadMsType t
     oneButton ->IsSelected.set(type == CenterSpace::LookaheadMsType::One);
     fourButton->IsSelected.set(type == CenterSpace::LookaheadMsType::Four);
     tenButton ->IsSelected.set(type == CenterSpace::LookaheadMsType::Ten);
-    if (!attachment)
+    if (!attachment || syncingFromParam)
         return;
     
     const int typeIdx = (int)type;
@@ -311,6 +335,7 @@ FeelSelector::FeelSelector(GuiResources            &resources
         (*parameter
          , [this](float newVal)
          {
+            const juce::ScopedValueSetter<bool> svs(syncingFromParam, true);
             if (auto *choice = dynamic_cast<juce::AudioParameterChoice*>(parameter))
                 Feel.set(choice->getIndex() == 0
                             ? CenterSpace::FeelType::Clean
@@ -321,12 +346,17 @@ FeelSelector::FeelSelector(GuiResources            &resources
                             : CenterSpace::FeelType::Smooth);
         });
     }
-    
+
     leftButton ->onClick = [&]{ Feel.set(CenterSpace::FeelType::Clean);  };
     rightButton->onClick = [&]{ Feel.set(CenterSpace::FeelType::Smooth); };
-    
+
     Feel.on_change.connect(&FeelSelector::OnFeelChanged, this);
-    OnFeelChanged(Feel.get());
+    if (attachment)
+        attachment->sendInitialUpdate();
+    {
+        const juce::ScopedValueSetter<bool> svs(syncingFromParam, true);
+        OnFeelChanged(Feel.get());
+    }
 }
 
 FeelSelector::~FeelSelector() {}
@@ -335,7 +365,7 @@ void FeelSelector::OnFeelChanged(CenterSpace::FeelType type)
 {
     leftButton ->IsSelected.set(type == CenterSpace::FeelType::Clean);
     rightButton->IsSelected.set(type == CenterSpace::FeelType::Smooth);
-    if (!attachment)
+    if (!attachment || syncingFromParam)
         return;
     
     // Clean = 0/false; smooth = 1/true
@@ -358,6 +388,7 @@ DetectionSelector::DetectionSelector(GuiResources            &resources
         (*parameter
          , [this](float newVal)
          {
+            const juce::ScopedValueSetter<bool> svs(syncingFromParam, true);
             if (auto *choice = dynamic_cast<juce::AudioParameterChoice*>(parameter))
                 Detection.set(choice->getIndex() == 0
                                 ? CenterSpace::DetectionType::Peak
@@ -368,12 +399,17 @@ DetectionSelector::DetectionSelector(GuiResources            &resources
                                 : CenterSpace::DetectionType::RMS);
         });
     }
-    
+
     leftButton ->onClick = [&]{ Detection.set(CenterSpace::DetectionType::Peak); };
     rightButton->onClick = [&]{ Detection.set(CenterSpace::DetectionType::RMS);  };
-    
+
     Detection.on_change.connect(&DetectionSelector::OnDetectionChanged, this);
-    OnDetectionChanged(Detection.get());
+    if (attachment)
+        attachment->sendInitialUpdate();
+    {
+        const juce::ScopedValueSetter<bool> svs(syncingFromParam, true);
+        OnDetectionChanged(Detection.get());
+    }
 }
 
 DetectionSelector::~DetectionSelector() {}
@@ -382,8 +418,8 @@ void DetectionSelector::OnDetectionChanged(CenterSpace::DetectionType type)
 {
     leftButton ->IsSelected.set(type == CenterSpace::DetectionType::Peak);
     rightButton->IsSelected.set(type == CenterSpace::DetectionType::RMS);
-    
-    if (!attachment)
+
+    if (!attachment || syncingFromParam)
         return;
     
     // Peak = 0/false; RMS = 1/true
@@ -406,6 +442,7 @@ StyleSelector::StyleSelector(GuiResources            &resources
         (*parameter
          , [this](float newVal)
          {
+            const juce::ScopedValueSetter<bool> svs(syncingFromParam, true);
             if (auto *choice = dynamic_cast<juce::AudioParameterChoice*>(parameter))
                 Style.set(choice->getIndex() == 0
                               ? CenterSpace::StyleType::VCA
@@ -413,15 +450,20 @@ StyleSelector::StyleSelector(GuiResources            &resources
             else
                 Style.set((int)newVal == 0
                               ? CenterSpace::StyleType::VCA
-                              : CenterSpace::StyleType::Opto);\
+                              : CenterSpace::StyleType::Opto);
         });
     }
-    
+
     leftButton ->onClick = [&]{ Style.set(CenterSpace::StyleType::VCA);  };
     rightButton->onClick = [&]{ Style.set(CenterSpace::StyleType::Opto); };
-    
+
     Style.on_change.connect(&StyleSelector::OnStyleChanged, this);
-    OnStyleChanged(Style.get());
+    if (attachment)
+        attachment->sendInitialUpdate();
+    {
+        const juce::ScopedValueSetter<bool> svs(syncingFromParam, true);
+        OnStyleChanged(Style.get());
+    }
 }
 
 StyleSelector::~StyleSelector() {}
@@ -430,7 +472,7 @@ void StyleSelector::OnStyleChanged(CenterSpace::StyleType type)
 {
     leftButton ->IsSelected.set(type == CenterSpace::StyleType::VCA);
     rightButton->IsSelected.set(type == CenterSpace::StyleType::Opto);
-    if (!attachment)
+    if (!attachment || syncingFromParam)
         return;
     
     // VCA = 0/false; Opto = 1/true
