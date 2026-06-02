@@ -75,8 +75,7 @@ TweakDetection::TweakDetection(GuiResources &resources)
                             , resources.theme.textPrimary
                             , 12.0f);
     
-    // TODO: just add, not visible. (VCA/Opto style switches)
-    addAndMakeVisible(detectionSelector.get());
+    addChildComponent(detectionSelector.get());
     addAndMakeVisible(laSelector.get());
     
     resources.apvts->addParameterListener("style",  this);
