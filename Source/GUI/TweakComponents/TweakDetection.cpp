@@ -107,11 +107,6 @@ TweakDetection::TweakDetection(GuiResources &resources)
 
 TweakDetection::~TweakDetection()
 {
-    scGainSlider.setLookAndFeel(nullptr);
-    threshSlider.setLookAndFeel(nullptr);
-    scHpfSlider .setLookAndFeel(nullptr);
-    scLpfSlider .setLookAndFeel(nullptr);
-    
     resources.apvts->removeParameterListener("style",  this);
 }
 

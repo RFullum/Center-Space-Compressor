@@ -50,7 +50,6 @@ VibeDetection::VibeDetection(GuiResources &resources)
         box.setColour(juce::ComboBox::backgroundColourId, juce::Colour((juce::uint8)53, (juce::uint8)59, (juce::uint8)60, (juce::uint8)255));
         box.setColour(juce::ComboBox::arrowColourId,      juce::Colours::white);
         box.setColour(juce::ComboBox::outlineColourId,    juce::Colours::white);
-//        box.setLookAndFeel(&boxLnF);
         addAndMakeVisible(box);
     };
     // Item order must match the `focus` APVTS StringArray in PluginProcessor.cpp.
@@ -72,10 +71,7 @@ VibeDetection::VibeDetection(GuiResources &resources)
     CenterSpace::SetTip(focusBox, "Filter the Sidechain to focus on specific parts of the signal.");
 }
 
-VibeDetection::~VibeDetection()
-{
-    compressSlider.setLookAndFeel(nullptr);
-}
+VibeDetection::~VibeDetection() {}
 
 void VibeDetection::resized()
 {

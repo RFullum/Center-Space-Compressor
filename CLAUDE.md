@@ -36,14 +36,63 @@ Don't push without explicit ask. The user manages branches.
 
 ```
 Source/
-  Plugin/                     PluginProcessor, PluginEditor
-  DSP/                        Compressor (static curve + envelope + SC filters), CompressorTypes (enums)
+  Plugin/                     Editor + processor
+    PluginProcessor.{cpp,h}   APVTS + DSP entry + user-settings file (tooltips toggle)
+    PluginEditor.{cpp,h}      Top-level editor, owns CSLookAndFeel + TooltipWindow
+    PatchEngine/
+      PatchManager.{cpp,h}    .cspatch files, factory + user, dirty tracking, step
+      ABCompareManager.{cpp,h}    Two-slot snapshot, implicit-copy semantics
+  DSP/
+    Derivations.h             Effective-value derivations (Vibe → Tweak primitives)
   GUI/
-    LookAndFeel/              OtherLookAndFeel, BoxLookAndFeel
-    TitleHeader/              TitleHeader, TitleFooter
-    VUMeter/                  VUMeter, ReduceMeter
-Resources/                    Logo PNG (compiled in via juce_add_binary_data)
-JUCE/                         JUCE submodule, pinned near 8.0.13
+    LookAndFeel/
+      CSLookAndFeel.{cpp,h}   Single global LaF — rotary slider, ComboBox,
+                              PopupMenu, AlertWindow, Tooltip (all themed)
+    GUIUtils/
+      ColorPalette.h          Brand palette (one Theme struct)
+      GuiResources.h          DI bundle — apvts + theme + LaF + processor ptr
+                              + tooltip enable/disable callbacks
+      GuiHelpers.h            SetupSlider / SetupLabel / SetTip helpers
+                              + CenterSpace::SliderText {Db, Hz, Ms, Ratio}
+    Components/
+      Selector.{cpp,h}        SelectorButton + Selector subclasses (Stereo,
+                              UIMode, Detection, Style, Feel, Lookahead*)
+      PatchControls.{cpp,h}   <  name  >, INIT/SAVE/SAVE AS/DELETE/A/B
+      PatchSelectionPopup.{cpp,h}    Modal grid picker — color-coded by
+                              source, tick on current, hover highlight
+    TitleHeaderFooter/
+      TitleHeader.{cpp,h}     Logo + glyph + CENTER SPACE wordmark, Vibe/Tweak,
+                              embeds PatchControls, right-click options menu
+      TitleFooter.{cpp,h}     Version + fullummusic.com
+    TweakComponents/
+      TweakDetection.{cpp,h}  SC Gain, Threshold, SC HPF/LPF, Detection,
+                              Lookahead choice — Tweak-mode SC side
+      TweakDynamics.{cpp,h}   Ratio, Knee, Attack, Release, Style —
+                              Tweak-mode compressor side
+      TweakLayout.{cpp,h}     Wrapper that hosts the two above, owns spacing
+    VibeComponents/
+      VibeDetection.{cpp,h}   Compress macro + Focus combo + Lookahead on/off
+      VibeDynamics.{cpp,h}    React macro + Feel toggle
+      VibeLayout.{cpp,h}      Wrapper that hosts the two above
+    Metering/
+      Metering.{cpp,h}        Host component — owns 60 Hz timer,
+                              lays out [GR][grScale][SC][levelScale][SFM]
+      StereoFieldMeter.{cpp,h}    Cubic-Bezier 3-point curve, lastPaintedDb
+                              repaint gating, GR atomic read
+      SidechainGainMeter.{cpp,h}  SC level + peak-hold tick
+      GainReductionMeter.{cpp,h}  Top-down fill, snap-to-target
+      MeterScale.{cpp,h}      Reusable dB-label component (Level / GR types)
+      MeterScaling.h          Shared dB → Y math, tick value tables
+  Signal/
+    signal/*.h                In-house property/signal lib (unused in v2.0 GUI;
+                              kept for future use)
+  ThirdParty/
+    sigslot/signal.hpp        Dep of Signal lib
+Tests/
+  TestMain.cpp                Console DSP test harness
+Resources/
+  Fullum_brandcolours_output.png    Compiled in via juce_add_binary_data
+JUCE/                         Submodule, pinned near 8.0.13
 CMakeLists.txt
 CMakePresets.json
 ```
@@ -234,9 +283,15 @@ The audio thread runs `processBlock` and everything reachable from it.
 
 **Use the dirty-flag pattern** when the audio thread needs to signal the UI: atomic flag flipped on the audio side, polled by the editor's 60 Hz timer on the message side.
 
-### Editor's 60 Hz timer
+### Timers — who owns what
 
-`PluginEditor::timerCallback` drives all meter updates. Add new timer-driven UI work here. Don't spin up additional timers.
+The editor itself does **not** own a timer. Timer ownership moved into the subsystems during Phase 4:
+
+- **`Metering`** owns a 60 Hz timer. Its `timerCallback` ticks every child meter's `Update()` (SC bar, GR bar, stereo-field meter). Each meter reads its atomics, advances ballistics, decides whether to repaint based on `lastPaintedDb` vs. `currentDb`.
+- **`PatchControls`** owns a 15 Hz timer for the patch-name label and A/B slot indicator. Polling rate is low because these only need to react to dirty-flag flips and slot-change clicks.
+- **`juce::TooltipWindow`** has its own internal timer (~123 ms). Managed entirely by JUCE.
+
+If you add timer-driven UI, prefer reusing the existing 60 Hz Metering tick (forward a method from `Metering`) rather than spinning up another timer. Multiple timers fire on the same thread but waste cycles.
 
 ---
 
@@ -261,7 +316,7 @@ The audio thread runs `processBlock` and everything reachable from it.
 |---|---|---|---|---|
 | `sideInGain` | Float dB | -100 to +12 | 0.0 | |
 | `scHpfHz` | Float Hz | 20 to 2000 | 20.0 | 12 dB/oct, detector-only |
-| `scLpfHz` | Float Hz | 200 to 20000 | 20000.0 | 12 dB/oct, detector-only |
+| `scLpfHz` | Float Hz | 80 to 20000 | 20000.0 | 12 dB/oct, detector-only |
 | `peakRMS` | Choice | `Peak`, `RMS` | `Peak` | UI hidden when `style == Opto` (DSP forces RMS) |
 | `attack` | Float ms | 0.01 to 2000 | 10.0 | |
 | `release` | Float ms | 1 to 2000 | 100.0 | |
@@ -278,7 +333,7 @@ The audio thread runs `processBlock` and everything reachable from it.
 | `feel` | Choice | `Clean`, `Smooth` | `Clean` |
 | `compress` | Float | 0.0 to 1.0 | 0.0 |
 | `react` | Float | 0.0 to 1.0 | 0.5 |
-| `focus` | Choice | 15 presets (see below) | `Full Range` |
+| `focus` | Choice | 9 presets (see below) | `Full Range` |
 | `lookaheadOnOff` | Bool | — | `false` |
 
 ---
@@ -296,8 +351,8 @@ The inactive set is stored but not read by the DSP.
 **Mode-switch audio behavior:** the effective DSP values change instantly when `uiMode` flips. The existing `SmoothedValue` chain (~20 ms ramp) absorbs the discontinuity. No special crossfade logic needed.
 
 **UI layout:**
-- Shared params (top-of-list above) are visible in both modes, in the same positions.
-- Mode-specific controls live on their own `juce::Component`, shown/hidden based on `uiMode`. Avoids per-control show/hide and resize churn.
+- Shared params (top-of-list above) are visible in both modes, in the same positions on the editor.
+- Mode-specific controls live in their own `juce::Component`s under `Source/GUI/{Tweak,Vibe}Components/`. Each mode has a `*Layout` wrapper that hosts a `*Detection` and a `*Dynamics` component side by side. The editor toggles visibility of the two wrappers in `Update()` based on `uiMode`. Avoids per-control show/hide and resize churn.
 
 ---
 
@@ -346,21 +401,19 @@ Linear, both attack and release ramp simultaneously within Feel's range:
 |---|---|---|
 | Full Range | 20 Hz | 20 kHz |
 | Reduce Bass | 80 Hz | 20 kHz |
-| Transient Focus | 120 Hz | 15 kHz |
-| Lows | 40 Hz | 250 Hz |
-| Low Mid | 250 Hz | 500 Hz |
-| High Mid | 500 Hz | 2 kHz |
-| High | 2 kHz | 20 kHz |
-| Vocal Body | 250 Hz | 500 Hz |
-| Vocal Clarity | 1 kHz | 3 kHz |
-| Kick Thump | 40 Hz | 90 Hz |
-| Kick Smack | 2.5 kHz | 4 kHz |
-| Snare Thump | 100 Hz | 300 Hz |
-| Snare Smack | 650 Hz | 20 kHz |
-| Bass Body | 80 Hz | 350 Hz |
-| Hats Range | 350 Hz | 20 kHz |
+| Vocal | 250 Hz | 3 kHz |
+| Kick | 40 Hz | 90 Hz |
+| Bass | 80 Hz | 350 Hz |
+| Transients | 400 Hz | 15 kHz |
+| Low | 20 Hz | 250 Hz |
+| Mid | 250 Hz | 800 Hz |
+| High | 800 Hz | 20 kHz |
 
-Some ranges overlap (e.g. Vocal Body == Low Mid). Intentional for now; refined after listening.
+Trimmed from 15 to 9 during Phase 4 after the original brainstorm list proved
+redundant (Vocal Body == Low Mid, Kick Smack ⊂ Highs, etc.). Order in the
+APVTS `StringArray`, the `FocusPreset` enum in `Derivations.h`, the cutoff
+table in `FocusToScCutoffs`, and the combo's `addItemList` call in
+`VibeDetection.cpp` must all stay in sync — they're indexed positionally.
 
 ---
 
@@ -372,6 +425,22 @@ Some ranges overlap (e.g. Vocal Body == Low Mid). Intentional for now; refined a
 | `peakRMS` | `style == Modern VCA` | DSP forces RMS in Opto regardless of param value |
 
 UX rule: when a control is hidden, **its param value is preserved** — switching back to Modern restores the user's last-set knee/peak-RMS. Never write to a param just because its UI is hidden.
+
+---
+
+## LookAndFeel architecture
+
+A single `CSLookAndFeel` instance owns all visual styling for the plugin — rotary slider, ComboBox (closed + open), PopupMenu, AlertWindow, TooltipWindow, TextEditor, TextButton. It's constructed in the editor and attached via `setLookAndFeel(csLAndF.get())` on the editor itself. Every child Component inherits it through JUCE's component-tree LookAndFeel resolution. **Don't call `setLookAndFeel` on individual sliders or buttons** — the inheritance does the work and stays in sync if `CSLookAndFeel` is replaced.
+
+### LookAndFeel inheritance — three traps to know
+
+1. **`juce::PopupMenu` does NOT inherit LookAndFeel through the component tree.** It's a value type, not a `Component`. It defaults to `LookAndFeel::getDefaultLookAndFeel()` unless you call `menu.setLookAndFeel(resources.csLAndF)` explicitly before `showMenuAsync`. The Focus combo's popup gets styled because JUCE-internal ComboBox machinery routes the LookAndFeel through. Hand-built `PopupMenu` instances (like the title-bar options menu) need the explicit call.
+2. **`juce::TooltipWindow` is opaque by default.** Its constructor calls `setOpaque(true)`, which makes the OS / parent fill the square corners behind any rounded paint. Call `tooltipWindow->setOpaque(false)` after construction, and set `TooltipWindow::backgroundColourId` to `transparentBlack` in `CSLookAndFeel`, otherwise the square corners around a rounded tooltip background will show through.
+3. **`SliderParameterAttachment` constructor overwrites `slider.textFromValueFunction`** with its own lambda that calls the parameter's `getText()`. If you want a custom formatter (e.g. `CenterSpace::SliderText::Db`), assign it **after** constructing the attachment and call `slider.updateText()` to force the textbox to re-render.
+
+### Selectors / custom components and tooltips
+
+JUCE's `Component` base class does NOT inherit from `SettableTooltipClient`. To put a tooltip on a custom component, multiple-inherit from `juce::SettableTooltipClient` (the meters do this) or route via a small helper that calls `setTooltip` on child widgets that do (the `Selector::SetTooltip` pattern walks child components looking for `SettableTooltipClient` and forwards). JUCE's `TooltipWindow` looks at the component directly under the mouse — it doesn't walk up the tree.
 
 ---
 
@@ -414,7 +483,9 @@ cmake --build --preset=macos-release --target CenterSpace_All 2>&1 | grep -E "er
 - Anything that touches global git config
 - Adding new APVTS params (param IDs, ranges, defaults are DSP-design decisions)
 - UI layout / sizing changes (user iterates visually and gives explicit pixel directions)
-- Whether something belongs in the DSP rework (Phase 3) vs. the GUI redesign (Phase 4)
+- Tooltip text wording (the user has a specific voice for these — propose, don't ship)
+- Patch / `.cspatch` format changes (anything that breaks existing saved patches)
+- Adding visual indicators that can lie under any DAW / plugin format (see the SC silence indicator decision in Phase 4)
 
 ---
 
@@ -422,9 +493,22 @@ cmake --build --preset=macos-release --target CenterSpace_All 2>&1 | grep -E "er
 
 1. **Phase 1 — Toolchain & baseline.** ✅ Done. C++20, JUCE 8.0.13, CMake migration, `juce::` qualification, Projucer removed.
 2. **Phase 2 — Project hygiene.** ✅ Done. Class rename, folder reorg, style pass complete. LICENSE + README polish deferred to Phase 5.
-3. **Phase 3 — DSP rework.** 🟡 Bucket A done (header-side init, smart-pointer audit, include cleanup, atomic-load hoist, smoothed values, dB-based GR meter, BallisticsFilter swap, test harness). Bucket B brainstorm done. Implementation in progress — see "v2.0 parameter inventory" below for the locked spec.
-4. **Phase 4 — GUI redesign** to match Dirty Little Bass Synth aesthetic. Includes Vibe/Tweak mode UI, patch system (`FullumMusicModules::PatchManager`), A/B compare (`FullumMusicModules::ABCompareManager`), SC silence indicator, mid meter scaling. **VUMeter dB range still feels too generous:** Phase 3 dropped the floor from -100 dB to -60 dB and the `TestSignalChainGainReduction` harness confirms the signal-chain math is correct (19 dB of real GR produces a 32-percentage-point bar drop), but in-DAW it still doesn't *read* as reduction unless threshold is pushed very low. Phase 4 should tighten the floor further (-48 dB or -36 dB) and likely add a dedicated mid-meter scale tied to the new visual design. This is purely a display-tuning issue — DSP and meter taps are verified correct.
-5. **Phase 5 — Release prep.** LICENSE, README polish, screenshots, DAW verification, code-sign + notarize, v2.0 tag. **Slider skews and ranges to revisit here:** Phase 3 testing pushed each parameter through its range and verified that audio and metering responded — but the *feel* of the skew curves (Attack, Release, Threshold, sideInGain, etc., and the Vibe macros' linear interp / Feel-range mappings) wasn't validated against realistic source material. Once production-stage mixing happens with real tracks (drum bus, vocal bus, full mix), the skews and ranges may need tuning to put the musically useful zone in the middle of the slider travel. Specifically watch: Attack/Release skews (currently 0.15), Threshold skew (currently 4.0), and whether the `compress` 0→1 mapping to sideInGain/threshold/ratio lands "musical = 0.5" or skews toward one end.
+3. **Phase 3 — DSP rework.** ✅ Done. Header-side init, smart-pointer audit, smoothed values, dB-based GR meter, BallisticsFilter swap, test harness, full v2.0 APVTS inventory + Vibe/Tweak effective-value derivation layer. Test harness green.
+4. **Phase 4 — GUI redesign.** ✅ Done. Built:
+   - Brand palette + `CSLookAndFeel` (rotary slider, ComboBox, PopupMenu, AlertWindow, Tooltip)
+   - Patch system (`.cspatch` files, factory + user, dirty tracking, step, save/save-as/delete) + grid-style `PatchSelectionPopup`
+   - A/B compare (`ABCompareManager`, two slots, implicit copy, snapshot persistence)
+   - `TitleHeader` with logo + glyph + CENTER SPACE wordmark + Vibe/Tweak toggle + patch controls + right-click options menu (tooltips on/off, persistent via user-settings PropertiesFile)
+   - Metering subsystem: shared `MeterScaling` utility, `StereoFieldMeter` (cubic-Bezier 3-point curve), `SidechainGainMeter` (peak-hold tick), `GainReductionMeter` (top-down fill, snap-to-target), reusable `MeterScale` for dB labels
+   - Style-conditional visibility (Knee + Peak/RMS hide when Opto)
+   - Slider value-label formatting with units + tiered precision (`CenterSpace::SliderText::{Db, Hz, Ms, Ratio}`)
+   - Tooltips on every meaningful control + meters + title area
+   - FOCUS list trimmed from 15 to 9 presets
+   - Multiplicative-smoother assert fix (decibelsToGain `minusInfinityDb = -200` for all gain converts that feed Multiplicative `SmoothedValue`s)
+
+   **Items explicitly NOT built** (intentional cut during Phase 4): SC silence indicator. Was prototyped and removed — there's no reliable way to distinguish "SC unrouted" from "SC routed but silent" across all DAW + plugin-format combinations, and a wrong "NO SIDECHAIN INPUT" label is worse than no label. The SC meter sitting empty is the diagnostic.
+
+5. **Phase 5 — Release prep.** 🟡 In progress. Done: CLAUDE.md update (this file). Pending: orphaned-files / dead-code sweep, in-DAW verification (Logic AU + Reaper/Live VST3), LICENSE polish, README polish, screenshots, code-sign + notarize, v2.0 git tag. **Slider skews + ranges should still be revisited against real production material** — Phase 3 verified that audio and metering respond across each parameter's range, but the *feel* of the skew curves (Attack/Release skews at 0.15, Threshold skew at 4.0, Vibe macros' linear-interp ranges) wasn't validated against drum bus / vocal bus / full mix. Tune if the musically useful zones don't land near the middle of slider travel.
 
 ---
 
@@ -437,5 +521,10 @@ cmake --build --preset=macos-release --target CenterSpace_All 2>&1 | grep -E "er
 - **`juce::dsp::BallisticsFilter` time-constant convention:** `setAttackTime(t)` means "reach ~99.8% of step input after `t` ms" (uses `exp(-2π/...)` internally), not the textbook "63% time." Same convention as the legacy hand-rolled `Envelope` class, so v1 attack/release values feel the same.
 - **Sub-20 Hz HPF still passes some low-end:** a 12 dB/oct biquad at the 20 Hz floor attenuates 10 Hz by only ~12 dB. For "kick drums won't trigger" use cases, the user must raise the HPF to ~80–150 Hz. Document in user manual.
 - **Out-of-phase SC sources cancel on mono-sum:** standard behavior across all SC-equipped compressors. Document in user manual.
-- **Mid signal can exceed 0 dBFS internally:** `mid = L + R` with both at full scale = 2.0 linear. Decode's `× 0.5` brings it back. Phase 4 mid meter should scale by 0.5 for display.
+- **Mid signal can exceed 0 dBFS internally:** `mid = L + R` with both at full scale = 2.0 linear. Decode's `× 0.5` brings it back. The processor's `inMidLevel` / `outMidLevel` atomics already publish the level scaled by 0.5 so display matches what's audible.
 - **`juce::dsp::BallisticsFilter::setLevelCalculationType` calls `reset()` internally** (see [juce_BallisticsFilter.cpp:60-65](JUCE/modules/juce_dsp/processors/juce_BallisticsFilter.cpp)). Calling it every `processBlock` zeros the envelope state at every block boundary, producing audible clicks during compression (compGain transiently jumps back to 1.0 each block). Always gate it behind a change check: only call when the mode actually changes. Cache the last-applied value and compare. Same hygiene is good for `setAttackTime`/`setReleaseTime` even though they don't reset state — saves an `exp()` per block.
+- **`juce::Decibels::decibelsToGain(dB)` returns exact `0.0f` at `dB <= minusInfinityDb` (default -100 dB).** Multiplicative `SmoothedValue` asserts on a target value of 0. The three gain params (`inGain`, `outGain`, `sideInGain`) all reach exactly -100 dB at the bottom of their range. Pass an explicit floor well below the param range (we use `-200.0f`, exposed as `multiplicativeFloorDb` in `PluginProcessor.cpp`) for any `decibelsToGain` that feeds a multiplicative smoother.
+- **`SliderParameterAttachment` overwrites `slider.textFromValueFunction`** in its constructor. Set custom formatters AFTER attachment construction, then call `slider.updateText()` so the textbox re-renders.
+- **One-pole exponential smoothers never reach their target exactly.** For meters this manifests as a tiny visible sliver of fill that never disappears. Combine `lastPaintedDb` tracking (gate repaints on cumulative drift from displayed state, not per-frame delta) with a "snap to target when within `0.05 dB`" check in the GR meter. See `GainReductionMeter.cpp`.
+- **`juce::PopupMenu` doesn't inherit LookAndFeel through the component tree.** Always call `menu.setLookAndFeel(resources.csLAndF)` on hand-built `PopupMenu`s before `showMenuAsync`.
+- **`juce::TooltipWindow` is opaque by default.** Override with `setOpaque(false)` after construction, and set `TooltipWindow::backgroundColourId` to transparent in the LookAndFeel, so the square corners around a rounded tooltip don't show through.

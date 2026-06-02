@@ -44,10 +44,7 @@ VibeDynamics::VibeDynamics(GuiResources &resources)
     feelSelector->SetTooltip("Compressor character: Clean = Peak + Modern + Hard Knee; Smooth = RMS + Vintage + Soft Knee.");
 }
 
-VibeDynamics::~VibeDynamics()
-{
-    reactSlider.setLookAndFeel(nullptr);
-}
+VibeDynamics::~VibeDynamics() {}
 
 void VibeDynamics::resized()
 {

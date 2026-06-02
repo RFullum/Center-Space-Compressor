@@ -16,7 +16,6 @@
 namespace
 {
     // Vibe = minimal UI controls; Tweak = all UI param controls
-//    static constexpr int uiModeVibe  = 0;
     static constexpr int   uiModeTweak           = 1;
     static constexpr float multiplicativeFloorDb = -200.0f;
 }
@@ -281,14 +280,12 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
     const float effectiveAttackMs  = GetEffectiveAttackMs();
     const float effectiveReleaseMs = GetEffectiveReleaseMs();
 
-//    if (effectiveAttackMs != lastAppliedAttackMs)
     if (!juce::approximatelyEqual(effectiveAttackMs, lastAppliedAttackMs))
     {
         envelope.setAttackTime(effectiveAttackMs);
         lastAppliedAttackMs = effectiveAttackMs;
     }
     
-//    if (effectiveReleaseMs != lastAppliedReleaseMs)
     if (!juce::approximatelyEqual(effectiveReleaseMs, lastAppliedReleaseMs))
     {
         envelope.setReleaseTime(effectiveReleaseMs);
@@ -339,7 +336,6 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
         inLevelChan0   = 0.0f;
         inMidLevel     = 0.0f;
         inLevelChan1   = 0.0f;
-        inSideLevel    = 0.0f;
         sideChainLevel = 0.0f;
         outLevelChan0  = 0.0f;
         outMidLevel    = 0.0f;
@@ -509,7 +505,6 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
         inLevelChan0   = std::sqrt((float)(sumSqInChan0 * invN));
         inMidLevel     = std::sqrt((float)(sumSqInMid   * invN)) * 0.5f;
         inLevelChan1   = std::sqrt((float)(sumSqInChan1 * invN));
-        inSideLevel    = std::sqrt((float)(sumSqInSide  * invN)) * 0.5f;
         sideChainLevel = std::sqrt((float)(sumSqSC      * invN));
         outLevelChan0  = std::sqrt((float)(sumSqOutChan0 * invN));
         outMidLevel    = std::sqrt((float)(sumSqOutMid   * invN));
@@ -520,7 +515,6 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
         inLevelChan0   = maxAbsInChan0;
         inMidLevel     = maxAbsInMid * 0.5f;
         inLevelChan1   = maxAbsInChan1;
-        inSideLevel    = maxAbsInSide * 0.5f;
         sideChainLevel = maxAbsSC;
         outLevelChan0  = maxAbsOutChan0;
         outMidLevel    = maxAbsOutMid;

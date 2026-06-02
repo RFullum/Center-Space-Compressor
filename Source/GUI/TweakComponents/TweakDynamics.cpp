@@ -100,11 +100,6 @@ TweakDynamics::TweakDynamics(GuiResources &resources)
 
 TweakDynamics::~TweakDynamics()
 {
-    ratioSlider.setLookAndFeel(nullptr);
-    kneeSlider .setLookAndFeel(nullptr);
-    atkSlider  .setLookAndFeel(nullptr);
-    relSlider  .setLookAndFeel(nullptr);
-    
     resources.apvts->removeParameterListener("style",  this);
 }
 

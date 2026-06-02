@@ -63,7 +63,6 @@ public:
     std::atomic<float> inMidLevel      { 0.0f };
     std::atomic<float> inLevelChan0    { 0.0f };
     std::atomic<float> inLevelChan1    { 0.0f };
-    std::atomic<float> inSideLevel     { 0.0f };
     std::atomic<float> sideChainLevel  { 0.0f };
     std::atomic<float> outLevelChan0   { 0.0f };
     std::atomic<float> outMidLevel     { 0.0f };
