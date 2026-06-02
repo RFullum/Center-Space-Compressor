@@ -55,24 +55,23 @@ VibeDetection::VibeDetection(GuiResources &resources)
 //        box.setLookAndFeel(&boxLnF);
         addAndMakeVisible(box);
     };
+    // Item order must match the `focus` APVTS StringArray in PluginProcessor.cpp.
     ComboSetup(focusBox, juce::StringArray({"Full Range"
                                             , "Reduce Bass"
-                                            , "Transient Focus"
-                                            , "Lows"
-                                            , "Low Mid"
-                                            , "High Mid"
-                                            , "High"
-                                            , "Vocal Body"
-                                            , "Vocal Clarity"
-                                            , "Kick Thump"
-                                            , "Kick Smack"
-                                            , "Snare Thump"
-                                            , "Snare Smack"
-                                            , "Bass Body"
-                                            , "Hats Range"}));
-    
+                                            , "Vocal"
+                                            , "Kick"
+                                            , "Bass"
+                                            , "Transients"
+                                            , "Low"
+                                            , "Mid"
+                                            , "High"}));
+
     compressAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>  (*resources.apvts, "compress", compressSlider);
     focusAttachment    = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(*resources.apvts, "focus",    focusBox);
+ 
+    CenterSpace::SetTip(compressSlider, "Turning up increases the Sidechain gain and ratio, and lowers the threshold.");
+    laSelector->SetTooltip("4ms Lookahead on/off. (Reports latency to the host when on).");
+    CenterSpace::SetTip(focusBox, "Filter the Sidechain to focus on specific parts of the signal.");
 }
 
 VibeDetection::~VibeDetection()

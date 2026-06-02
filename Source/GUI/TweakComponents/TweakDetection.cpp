@@ -97,7 +97,14 @@ TweakDetection::TweakDetection(GuiResources &resources)
     threshSlider.updateText();
     scHpfSlider .updateText();
     scLpfSlider .updateText();
-    
+
+    CenterSpace::SetTip(scGainSlider, "Set Sidechain's input Gain.");
+    CenterSpace::SetTip(threshSlider, "Set compression Threshold. Sidechain signal above threshold triggers compressor.");
+    CenterSpace::SetTip(scHpfSlider,  "Sidechain HPF: Remove low frequencies from the sidechain signal before it hits the threshold.");
+    CenterSpace::SetTip(scLpfSlider,  "Sidechain LPF: Remove high frequencies from the sidechain signal before it hits the threshold.");
+    detectionSelector->SetTooltip("Peak: max voltage (instantaneous); RMS: average power (slower, smoother).");
+    laSelector       ->SetTooltip("Sidechain Lookahead in milliseconds. (Reports latency to the host)");
+
     Update();
 }
 

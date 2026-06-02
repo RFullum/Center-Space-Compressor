@@ -48,7 +48,9 @@ public:
     
     void paint(juce::Graphics &) override;
     void resized() override;
-    
+
+    void SetTooltip(const juce::String &text);
+
 protected:
     GuiResources &resources;
     

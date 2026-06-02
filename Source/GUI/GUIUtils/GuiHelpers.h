@@ -125,6 +125,11 @@ namespace CenterSpace
         }
     }
 
+    inline void SetTip(juce::SettableTooltipClient &control, const juce::String &text)
+    {
+        control.setTooltip(text);
+    }
+
     inline void SetupLabel(juce::Component              *parent
                            , juce::Label                &label
                            , juce::String                labelText

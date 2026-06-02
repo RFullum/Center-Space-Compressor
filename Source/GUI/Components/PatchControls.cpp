@@ -77,6 +77,15 @@ PatchControls::PatchControls(GuiResources       &res
 
     addAndMakeVisible(abButton);
 
+    prevButton     .setTooltip("Load the previous patch in the list.");
+    nextButton     .setTooltip("Load the next patch in the list.");
+    patchNameButton.setTooltip("Click to browse and pick a patch.");
+    initButton     .setTooltip("Reset all parameters to their default values.");
+    saveButton     .setTooltip("Save changes to the current patch.");
+    saveAsButton   .setTooltip("Save the current settings as a new patch.");
+    deleteButton   .setTooltip("Delete the current patch (user patches only).");
+    abButton       .setTooltip("Toggle between A/B compare slots. Each slot is an independent settings snapshot.");
+
     prevButton     .onClick = [this] { HandlePrev(); };
     nextButton     .onClick = [this] { HandleNext(); };
     patchNameButton.onClick = [this] { HandlePatchNameClicked(); };

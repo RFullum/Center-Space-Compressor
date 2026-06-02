@@ -41,6 +41,9 @@ VibeDynamics::VibeDynamics(GuiResources &resources)
     addAndMakeVisible(feelSelector.get());
     
     reactAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(*resources.apvts, "react", reactSlider);
+
+    CenterSpace::SetTip(reactSlider, "Reaction time: Left = fast attack & release; right = slow attack & release.");
+    feelSelector->SetTooltip("Compressor character: Clean = Peak + Modern + Hard Knee; Smooth = RMS + Vintage + Soft Knee.");
 }
 
 VibeDynamics::~VibeDynamics()

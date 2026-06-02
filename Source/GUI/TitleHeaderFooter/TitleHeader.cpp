@@ -23,6 +23,7 @@ TitleHeader::TitleHeader(GuiResources &resources)
     setOpaque(false);
 
     addAndMakeVisible(uiModeSelector.get());
+    uiModeSelector->SetTooltip("Vibe: Less detail, more feel. Tweak: Full control of every parameter.");
 
     if (resources.processor != nullptr)
     {

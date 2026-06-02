@@ -45,8 +45,9 @@ private:
 
     void Update();
     
-    std::unique_ptr<CSLookAndFeel> csLAndF;
-    GuiResources                   resources;
+    std::unique_ptr<CSLookAndFeel>       csLAndF;
+    GuiResources                         resources;
+    std::unique_ptr<juce::TooltipWindow> tooltipWindow;
     
     std::unique_ptr<TitleHeader> titleHeader;
     std::unique_ptr<TitleFooter> titleFooter;

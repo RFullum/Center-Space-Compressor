@@ -275,6 +275,43 @@ void CSLookAndFeel::getIdealPopupMenuItemSize(const juce::String &text
     idealHeight = standardMenuItemHeight > 0 ? standardMenuItemHeight : popupItemHeight;
 }
 
+void CSLookAndFeel::drawTooltip(juce::Graphics &g, const juce::String &text, int width, int height)
+{
+    const auto bounds = juce::Rectangle<float>(0.0f, 0.0f, (float) width, (float) height);
+
+    g.setColour(theme.background);
+    g.fillRoundedRectangle(bounds, popupCornerRadius);
+
+    g.setColour(theme.primaryAccent.withAlpha(0.5f));
+    g.drawRoundedRectangle(bounds.reduced(0.5f), popupCornerRadius, 1.0f);
+
+    juce::AttributedString s;
+    s.append(text, getPopupMenuFont(), theme.textPrimary);
+    s.setJustification(juce::Justification::centred);
+
+    juce::TextLayout layout;
+    layout.createLayout(s, (float) width - 12.0f);
+    layout.draw(g, bounds.reduced(6.0f, 4.0f));
+}
+
+juce::Rectangle<int> CSLookAndFeel::getTooltipBounds(const juce::String   &tipText
+                                                    , juce::Point<int>     screenPos
+                                                    , juce::Rectangle<int> parentArea)
+{
+    juce::AttributedString s;
+    s.append(tipText, getPopupMenuFont());
+
+    juce::TextLayout layout;
+    layout.createLayout(s, 400.0f);
+
+    const int w = (int) std::ceil(layout.getWidth())  + 16;
+    const int h = (int) std::ceil(layout.getHeight()) + 10;
+
+    return juce::Rectangle<int>(screenPos.x > parentArea.getCentreX() ? screenPos.x - (w + 12) : screenPos.x + 24,
+                                screenPos.y > parentArea.getCentreY() ? screenPos.y - (h + 6)  : screenPos.y + 6,
+                                w, h).constrainedWithin(parentArea);
+}
+
 void CSLookAndFeel::drawAlertBox(juce::Graphics              &g
                                  , juce::AlertWindow         &alert
                                  , const juce::Rectangle<int> &textArea

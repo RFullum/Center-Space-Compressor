@@ -62,6 +62,9 @@ CenterSpaceAudioProcessorEditor::CenterSpaceAudioProcessorEditor(CenterSpaceAudi
     // (including sliders inside Tweak/Vibe sub-components) inherits it via
     // the component tree, so no per-slider setLookAndFeel call is needed.
     setLookAndFeel(csLAndF.get());
+
+    // One TooltipWindow drives tooltips for every child with setTooltip().
+    tooltipWindow = std::make_unique<juce::TooltipWindow>(this);
     
     addAndMakeVisible(titleHeader.get());
     addAndMakeVisible(titleFooter.get());
@@ -122,6 +125,11 @@ CenterSpaceAudioProcessorEditor::CenterSpaceAudioProcessorEditor(CenterSpaceAudi
     inGainSlider .updateText();
     outGainSlider.updateText();
 
+    CenterSpace::SetTip(inGainSlider,  "Set audio's Input Gain.");
+    CenterSpace::SetTip(outGainSlider, "Set audio's Output Gain.");
+    inStereoSelector ->SetTooltip("Select LR if the source is in standard Left-Right stereo. Only pick M/S if the source is already Mid/Side encoded.");
+    outStereoSelector->SetTooltip("Select LR to decode back to standard Left-Right stereo. Select M/S to leave the output Mid/Side encoded.");
+
     audioProcessor.parameters.addParameterListener("uiMode", this);
 
     Update();
@@ -130,10 +138,7 @@ CenterSpaceAudioProcessorEditor::CenterSpaceAudioProcessorEditor(CenterSpaceAudi
 CenterSpaceAudioProcessorEditor::~CenterSpaceAudioProcessorEditor()
 {
     audioProcessor.parameters.removeParameterListener("uiMode", this);
-
-    // Clear the editor's LookAndFeel before csLAndF is destroyed — any
-    // children that haven't already cleared their own LookAndFeel are still
-    // pointing at it through the inheritance chain.
+    
     setLookAndFeel(nullptr);
 }
 

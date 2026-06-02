@@ -74,11 +74,18 @@ void Selector::resized()
 {
     if (!leftButton || !rightButton)
         return;
-    
+
     auto bounds = getLocalBounds();
     leftButton->setBounds(bounds.removeFromLeft(bounds.proportionOfWidth(0.5f))
                                 .reduced(3));
     rightButton->setBounds(bounds.reduced(3));
+}
+
+void Selector::SetTooltip(const juce::String &text)
+{
+    for (auto *child : getChildren())
+        if (auto *tc = dynamic_cast<juce::SettableTooltipClient *>(child))
+            tc->setTooltip(text);
 }
 
 //==============================================================================

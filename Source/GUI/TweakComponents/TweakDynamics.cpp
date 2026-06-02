@@ -90,6 +90,12 @@ TweakDynamics::TweakDynamics(GuiResources &resources)
     kneeSlider .updateText();
     atkSlider  .updateText();
     relSlider  .updateText();
+
+    CenterSpace::SetTip(ratioSlider, "Compression ratio. 1:1 = no compression. Over 10:1 gets into the limiting range.");
+    CenterSpace::SetTip(kneeSlider,  "Soft-knee width. 0 dB = hard knee. Wider knee = gentler transition past threshold.");
+    CenterSpace::SetTip(atkSlider,   "How quickly the compressor clamps down once the sidechain crosses the threshold.");
+    CenterSpace::SetTip(relSlider,   "How quickly the compressor recovers once the sidechain falls below threshold.");
+    styleSelector->SetTooltip("Compressor character. VCA: modern, precise, transparent. Opto: smoother, slower.");
     
     Update();
 }
