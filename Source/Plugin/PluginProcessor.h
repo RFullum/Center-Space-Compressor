@@ -57,6 +57,9 @@ public:
     PatchManager     patchManager;
     ABCompareManager abCompareManager;
 
+    bool GetTooltipsEnabled() const;
+    void SetTooltipsEnabled(bool enabled);
+
     std::atomic<float> inMidLevel      { 0.0f };
     std::atomic<float> inLevelChan0    { 0.0f };
     std::atomic<float> inLevelChan1    { 0.0f };
@@ -84,6 +87,9 @@ private:
     int   GetEffectiveLookaheadSamples() const;
 
     double currentSampleRate = 44100.0;
+
+    juce::PropertiesFile *GetUserSettings() const;
+    mutable std::unique_ptr<juce::PropertiesFile> userSettings;
 
     // Shared
     std::atomic<float>       *uiModeChoice         = nullptr;

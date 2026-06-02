@@ -29,8 +29,6 @@ namespace
     constexpr float peakDecayDbPerS = 12.0f;   // peak decay
 
     constexpr float slotCornerRadius = 2.0f;
-    constexpr float slotInsetX       = 4.0f;   // horizontal padding inside the component bounds
-    constexpr float slotInsetY       = 4.0f;
     constexpr float peakTickHeight   = 2.0f;
 
     constexpr float repaintThresholdDb = 0.1f;

@@ -35,11 +35,27 @@ private:
     static constexpr int glyphGap     = 3;
     static constexpr int glyphAreaW   = (glyphW * numGlyphs) + (glyphGap * numGlyphGaps) + glyphW; // center glyph double wide
     
+    // Overlay for tooltip & right-click
+    class TitleArea
+        : public  juce::Component
+        , public  juce::SettableTooltipClient
+    {
+    public:
+        explicit TitleArea(std::function<void()> rightClickHandler);
+        void mouseDown(const juce::MouseEvent &e) override;
+
+    private:
+        std::function<void()> onRightClick;
+    };
+
+    void ShowOptionsMenu();
+
     GuiResources &resources;
-    
+
     std::unique_ptr<UIModeSelector> uiModeSelector;
     std::unique_ptr<PatchControls>  patchControls;
-    
+    std::unique_ptr<TitleArea>      titleArea;
+
     juce::Rectangle<int> fullumMusicArea;
     juce::Rectangle<int> centerArea;
     juce::Rectangle<int> spaceArea;

@@ -16,6 +16,21 @@
 
 //==============================================================================
 
+TitleHeader::TitleArea::TitleArea(std::function<void()> rightClickHandler)
+: onRightClick(std::move(rightClickHandler))
+{
+    setOpaque(false);
+    setInterceptsMouseClicks(true, false);
+}
+
+void TitleHeader::TitleArea::mouseDown(const juce::MouseEvent &e)
+{
+    if (e.mods.isPopupMenu() && onRightClick)
+        onRightClick();
+}
+
+//==============================================================================
+
 TitleHeader::TitleHeader(GuiResources &resources)
 : resources(resources)
 , uiModeSelector(std::make_unique<UIModeSelector>(resources, "uiMode"))
@@ -24,6 +39,10 @@ TitleHeader::TitleHeader(GuiResources &resources)
 
     addAndMakeVisible(uiModeSelector.get());
     uiModeSelector->SetTooltip("Vibe: Less detail, more feel. Tweak: Full control of every parameter.");
+
+    titleArea = std::make_unique<TitleArea>([this] { ShowOptionsMenu(); });
+    titleArea->setTooltip("Right-click for options menu.");
+    addAndMakeVisible(titleArea.get());
 
     if (resources.processor != nullptr)
     {
@@ -35,6 +54,35 @@ TitleHeader::TitleHeader(GuiResources &resources)
 }
 
 TitleHeader::~TitleHeader() {}
+
+void TitleHeader::ShowOptionsMenu()
+{
+    if (!resources.getTooltipsEnabled || !resources.setTooltipsEnabled)
+        return;
+
+    const bool tipsOn = resources.getTooltipsEnabled();
+
+    juce::PopupMenu menu;
+    if (resources.csLAndF != nullptr)
+        menu.setLookAndFeel(resources.csLAndF);
+
+    menu.addItem(1, "Tooltips", /*isEnabled*/ true, /*isTicked*/ tipsOn);
+
+    auto getTips     = resources.getTooltipsEnabled;
+    auto setTips     = resources.setTooltipsEnabled;
+    auto refreshTips = resources.refreshTooltipWindow;
+
+    menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(titleArea.get()),
+                       [getTips, setTips, refreshTips] (int chosen)
+                       {
+                           if (chosen != 1) return;
+                           if (! getTips || ! setTips) return;
+
+                           setTips(! getTips());
+                           if (refreshTips)
+                               refreshTips();
+                       });
+}
 
 
 void TitleHeader::paint(juce::Graphics &g)
@@ -85,15 +133,23 @@ void TitleHeader::resized()
 {
     auto bounds = getLocalBounds();
     bounds.reduce(10, 0);
-    const auto absoluteCenter = bounds.getCentre();
     
     fullumMusicArea = bounds.removeFromRight(131);
     centerArea      = bounds.removeFromLeft(118);
-    
+
     glyphArea       = bounds.removeFromLeft(glyphAreaW).reduced(0, 26);
     glyphArea.removeFromBottom(5);
-    
+
     spaceArea       = bounds.removeFromLeft(97);
+
+    if (titleArea != nullptr)
+    {
+        const int areaLeft  = centerArea.getX();
+        const int areaRight = spaceArea.getRight();
+        const int areaTop   = juce::jmin(centerArea.getY(), glyphArea.getY());
+        const int areaBot   = juce::jmax(centerArea.getBottom(), glyphArea.getBottom());
+        titleArea->setBounds(areaLeft, areaTop, areaRight - areaLeft, areaBot - areaTop);
+    }
     
     auto patchingArea = bounds.removeFromRight(300);
     if (patchControls != nullptr)

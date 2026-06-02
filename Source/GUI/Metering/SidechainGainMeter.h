@@ -16,6 +16,7 @@
 
 class SidechainGainMeter
     : public juce::Component
+    , public juce::SettableTooltipClient
 {
 public:
     explicit SidechainGainMeter(GuiResources &resources);

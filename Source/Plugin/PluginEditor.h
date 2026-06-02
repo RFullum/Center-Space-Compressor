@@ -44,6 +44,7 @@ private:
     void parameterChanged(const juce::String &paramId, float newValue) override;
 
     void Update();
+    void UpdateTooltipWindow();  
     
     std::unique_ptr<CSLookAndFeel>       csLAndF;
     GuiResources                         resources;

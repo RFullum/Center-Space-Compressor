@@ -28,10 +28,12 @@ namespace
     {
         return GuiResources
         {
-            .apvts     = &processor.parameters,
-            .theme     =  Palette::DefaultTheme,
-            .csLAndF   = &lAndF,
-            .processor = &processor
+            .apvts              = &processor.parameters,
+            .theme              =  Palette::DefaultTheme,
+            .csLAndF            = &lAndF,
+            .processor          = &processor,
+            .getTooltipsEnabled = [&processor] { return processor.GetTooltipsEnabled(); },
+            .setTooltipsEnabled = [&processor] (bool on) { processor.SetTooltipsEnabled(on); }
         };
     }
 
@@ -63,8 +65,9 @@ CenterSpaceAudioProcessorEditor::CenterSpaceAudioProcessorEditor(CenterSpaceAudi
     // the component tree, so no per-slider setLookAndFeel call is needed.
     setLookAndFeel(csLAndF.get());
 
-    // One TooltipWindow drives tooltips for every child with setTooltip().
-    tooltipWindow = std::make_unique<juce::TooltipWindow>(this);
+    resources.refreshTooltipWindow = [this] { UpdateTooltipWindow(); };
+
+    UpdateTooltipWindow();
     
     addAndMakeVisible(titleHeader.get());
     addAndMakeVisible(titleFooter.get());
@@ -229,11 +232,28 @@ void CenterSpaceAudioProcessorEditor::Update()
     jassert(uiModeRaw);
     if (!uiModeRaw)
         return;
-    
+
     const bool isTweak = (uiModeRaw != nullptr) && ((int)uiModeRaw->load() == 1);
 
     vibeDetection ->setVisible(!isTweak);
     vibeDynamics  ->setVisible(!isTweak);
     tweakDetection->setVisible( isTweak);
     tweakDynamics ->setVisible( isTweak);
+}
+
+void CenterSpaceAudioProcessorEditor::UpdateTooltipWindow()
+{
+    const bool want = resources.getTooltipsEnabled && resources.getTooltipsEnabled();
+
+    if (want && tooltipWindow == nullptr)
+    {
+        // Non-opaque so CSLookAndFeel::drawTooltip's rounded background looks
+        // rounded with no corners poking out.
+        tooltipWindow = std::make_unique<juce::TooltipWindow>(this);
+        tooltipWindow->setOpaque(false);
+    }
+    else if (! want && tooltipWindow != nullptr)
+    {
+        tooltipWindow.reset();
+    }
 }

@@ -17,6 +17,7 @@
 
 class GainReductionMeter
     : public juce::Component
+    , public juce::SettableTooltipClient
 {
 public:
     explicit GainReductionMeter(GuiResources &resources);

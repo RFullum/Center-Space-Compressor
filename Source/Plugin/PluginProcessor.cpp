@@ -593,6 +593,36 @@ juce::AudioProcessor *JUCE_CALLTYPE createPluginFilter()
 }
 
 
+juce::PropertiesFile *CenterSpaceAudioProcessor::GetUserSettings() const
+{
+    if (userSettings == nullptr)
+    {
+        juce::PropertiesFile::Options opts;
+        opts.applicationName     = "Center Space";
+        opts.folderName          = "FullumMusic/Center Space";
+        opts.filenameSuffix      = "settings";
+        opts.osxLibrarySubFolder = "Application Support";
+        userSettings = std::make_unique<juce::PropertiesFile>(opts);
+    }
+    return userSettings.get();
+}
+
+bool CenterSpaceAudioProcessor::GetTooltipsEnabled() const
+{
+    if (auto *settings = GetUserSettings())
+        return settings->getBoolValue("tooltipsEnabled", true);
+    return true;
+}
+
+void CenterSpaceAudioProcessor::SetTooltipsEnabled(bool enabled)
+{
+    if (auto *settings = GetUserSettings())
+    {
+        settings->setValue("tooltipsEnabled", enabled);
+        settings->saveIfNeeded();
+    }
+}
+
 float CenterSpaceAudioProcessor::GetEffectiveSideInGainDb() const
 {
     if ((int)uiModeChoice->load() == uiModeTweak)

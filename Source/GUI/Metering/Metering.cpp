@@ -32,6 +32,10 @@ Metering::Metering(GuiResources &res)
     addAndMakeVisible(meterScale        .get());
     addAndMakeVisible(grMeterScale      .get());
 
+    sidechainGainMeter->setTooltip("Sidechain Meter (Post-Filters).");
+    gainReductionMeter->setTooltip("Gain Reduction applied to Mid channel.");
+    stereoFieldMeter  ->setTooltip("Stereo Field Meter: Grey = Input levels; Orange = Output levels. Tracks levels at Left, Center, and Right points of stereo field.");
+
     startTimerHz(60);
 }
 

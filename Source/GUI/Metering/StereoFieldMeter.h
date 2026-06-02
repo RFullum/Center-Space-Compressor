@@ -21,6 +21,7 @@
 
 class StereoFieldMeter
     : public juce::Component
+    , public juce::SettableTooltipClient
 {
 public:
     explicit StereoFieldMeter(GuiResources &resources);

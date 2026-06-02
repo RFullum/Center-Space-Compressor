@@ -29,6 +29,10 @@ CSLookAndFeel::CSLookAndFeel(const Palette::Theme &themeRef)
     setColour(juce::PopupMenu::highlightedBackgroundColourId, theme.primaryAccent.withAlpha(0.20f));
     setColour(juce::PopupMenu::highlightedTextColourId,       theme.textPrimary);
 
+    setColour(juce::TooltipWindow::backgroundColourId, juce::Colours::transparentBlack);
+    setColour(juce::TooltipWindow::textColourId,       theme.textPrimary);
+    setColour(juce::TooltipWindow::outlineColourId,    juce::Colours::transparentBlack);
+
     setColour(juce::AlertWindow::backgroundColourId, theme.background);
     setColour(juce::AlertWindow::textColourId,       theme.textPrimary);
     setColour(juce::AlertWindow::outlineColourId,    juce::Colours::transparentBlack);
