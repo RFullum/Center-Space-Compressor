@@ -13,6 +13,7 @@
 #include "GainReductionMeter.h"
 #include "StereoFieldMeter.h"
 #include "MeterScale.h"
+#include "ShutdownTrace.h"
 
 //==============================================================================
 
@@ -41,7 +42,9 @@ Metering::Metering(GuiResources &res)
 
 Metering::~Metering()
 {
+    CS_TRACE("~Metering begin (60Hz stopTimer)");
     stopTimer();
+    CS_TRACE("~Metering end");
 }
 
 void Metering::paint(juce::Graphics &g)
