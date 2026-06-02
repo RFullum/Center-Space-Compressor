@@ -66,7 +66,7 @@ void TitleHeader::ShowOptionsMenu()
     if (resources.csLAndF != nullptr)
         menu.setLookAndFeel(resources.csLAndF);
 
-    menu.addItem(1, "Tooltips", /*isEnabled*/ true, /*isTicked*/ tipsOn);
+    menu.addItem(1, "Tooltips", true, tipsOn);
 
     auto getTips     = resources.getTooltipsEnabled;
     auto setTips     = resources.setTooltipsEnabled;
