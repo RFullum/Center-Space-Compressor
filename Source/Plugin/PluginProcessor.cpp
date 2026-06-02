@@ -260,14 +260,14 @@ void CenterSpaceAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
     const int numSamples = buffer.getNumSamples();
     const int peakMode   = GetEffectivePeakMode();
 
-    inGainSmoothed.setTargetValue          (juce::Decibels::decibelsToGain(inputGainParam->load(),     multiplicativeFloorDb));
-    outGainSmoothed.setTargetValue         (juce::Decibels::decibelsToGain(outputGainParam->load(),    multiplicativeFloorDb));
-    sideGainSmoothed.setTargetValue        (juce::Decibels::decibelsToGain(GetEffectiveSideInGainDb(), multiplicativeFloorDb));
-    thresholdSmoothed.setTargetValue       (GetEffectiveThresholdDb());
-    ratioReciprocalSmoothed.setTargetValue (1.0f / GetEffectiveRatio());
-    kneeSmoothed.setTargetValue            (GetEffectiveKneeDb());
-    scHpfSmoothed.setTargetValue           (GetEffectiveScHpfHz());
-    scLpfSmoothed.setTargetValue           (GetEffectiveScLpfHz());
+    inGainSmoothed         .setTargetValue(juce::Decibels::decibelsToGain(inputGainParam->load(),     multiplicativeFloorDb));
+    outGainSmoothed        .setTargetValue(juce::Decibels::decibelsToGain(outputGainParam->load(),    multiplicativeFloorDb));
+    sideGainSmoothed       .setTargetValue(juce::Decibels::decibelsToGain(GetEffectiveSideInGainDb(), multiplicativeFloorDb));
+    thresholdSmoothed      .setTargetValue(GetEffectiveThresholdDb());
+    ratioReciprocalSmoothed.setTargetValue(1.0f / GetEffectiveRatio());
+    kneeSmoothed           .setTargetValue(GetEffectiveKneeDb());
+    scHpfSmoothed          .setTargetValue(GetEffectiveScHpfHz());
+    scLpfSmoothed          .setTargetValue(GetEffectiveScLpfHz());
 
     const int newLookaheadSamples = juce::jlimit(0, maxLookaheadSamples, GetEffectiveLookaheadSamples());
     if (newLookaheadSamples != currentLookaheadSamples)
