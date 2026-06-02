@@ -135,15 +135,26 @@ target_include_directories(CenterSpace PRIVATE
     Source/Signal
     Source/ThirdParty)
 
-# --- Binary data --------------------------------------------------------------
-# Compiles assets into a static lib exposing them via `BinaryData::*` symbols.
-juce_add_binary_data(CenterSpaceBinaryData
-    SOURCES
-        Resources/Fullum_brandcolours_output.png)
+# --- Factory presets ----------------------------------------------------------
+# Per-bundle POST_BUILD: copy Resources/FactoryPresets/*.cspatch into each
+# plugin bundle's Contents/Resources/Patches/. PatchManager reads from that
+# path at runtime — see PatchManager::ResolveFactoryPatchesDirectory().
+# The shell script also pushes a copy into the installed bundle under
+# ~/Library/Audio/Plug-Ins/<format>/ so JUCE's COPY_PLUGIN_AFTER_BUILD step
+# (which may have already run) doesn't leave a stale install missing patches.
+set(FACTORY_PRESETS_SRC    "${CMAKE_CURRENT_SOURCE_DIR}/Resources/FactoryPresets")
+set(FACTORY_PRESETS_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/scripts/copy_factory_presets.sh")
 
-source_group("Resources" FILES "${CMAKE_CURRENT_SOURCE_DIR}/Resources/Fullum_brandcolours_output.png")
-
-target_link_libraries(CenterSpace PRIVATE CenterSpaceBinaryData)
+foreach(plugin_target IN ITEMS CenterSpace_VST3 CenterSpace_AU CenterSpace_Standalone)
+    if(TARGET ${plugin_target})
+        add_custom_command(TARGET ${plugin_target} POST_BUILD
+            COMMAND /bin/sh "${FACTORY_PRESETS_SCRIPT}"
+                    "$<TARGET_BUNDLE_DIR:${plugin_target}>"
+                    "${FACTORY_PRESETS_SRC}"
+            VERBATIM
+            COMMENT "Copying factory presets into ${plugin_target}")
+    endif()
+endforeach()
 
 # --- JuceHeader.h -------------------------------------------------------------
 # Generated header lets sources keep using `#include <JuceHeader.h>`.

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<CSPatch name="Transient Space" pluginVersion="2.0.0">
+  <ParameterTree>
+    <PARAM id="attack" value="0.009999999776482582"/>
+    <PARAM id="compress" value="0.5100000500679016"/>
+    <PARAM id="feel" value="0.0"/>
+    <PARAM id="focus" value="5.0"/>
+    <PARAM id="inGain" value="-2.235174179077148e-6"/>
+    <PARAM id="inputType" value="0.0"/>
+    <PARAM id="knee" value="0.0"/>
+    <PARAM id="lookahead" value="0.0"/>
+    <PARAM id="lookaheadOnOff" value="0.0"/>
+    <PARAM id="outGain" value="-2.235174179077148e-6"/>
+    <PARAM id="outputType" value="0.0"/>
+    <PARAM id="peakRMS" value="0.0"/>
+    <PARAM id="ratio" value="8.0"/>
+    <PARAM id="react" value="0.5"/>
+    <PARAM id="release" value="10.0"/>
+    <PARAM id="scHpfHz" value="400.1799926757812"/>
+    <PARAM id="scLpfHz" value="15000.0"/>
+    <PARAM id="sideInGain" value="-2.235174179077148e-6"/>
+    <PARAM id="style" value="0.0"/>
+    <PARAM id="threshold" value="-10.00000190734863"/>
+    <PARAM id="uiMode" value="1.0"/>
+  </ParameterTree>
+</CSPatch>

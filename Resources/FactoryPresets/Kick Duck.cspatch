@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<CSPatch name="Kick Duck" pluginVersion="2.0.0">
+  <ParameterTree>
+    <PARAM id="attack" value="0.5"/>
+    <PARAM id="compress" value="1.0"/>
+    <PARAM id="feel" value="0.0"/>
+    <PARAM id="focus" value="0.0"/>
+    <PARAM id="inGain" value="-2.235174179077148e-6"/>
+    <PARAM id="inputType" value="0.0"/>
+    <PARAM id="knee" value="0.0"/>
+    <PARAM id="lookahead" value="0.0"/>
+    <PARAM id="lookaheadOnOff" value="0.0"/>
+    <PARAM id="outGain" value="1.169997692108154"/>
+    <PARAM id="outputType" value="0.0"/>
+    <PARAM id="peakRMS" value="0.0"/>
+    <PARAM id="ratio" value="4.199999809265137"/>
+    <PARAM id="react" value="0.6110000014305115"/>
+    <PARAM id="release" value="150.8899993896484"/>
+    <PARAM id="scHpfHz" value="20.0"/>
+    <PARAM id="scLpfHz" value="90.0"/>
+    <PARAM id="sideInGain" value="-2.235174179077148e-6"/>
+    <PARAM id="style" value="0.0"/>
+    <PARAM id="threshold" value="-40.0"/>
+    <PARAM id="uiMode" value="1.0"/>
+  </ParameterTree>
+</CSPatch>
