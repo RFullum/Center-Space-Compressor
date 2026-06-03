@@ -69,3 +69,6 @@ xcuserdata/
 # Logs & temp
 *.log
 *.tmp
+
+# Local-only working notes
+CLAUDE.md
