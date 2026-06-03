@@ -67,7 +67,7 @@ VibeDetection::VibeDetection(GuiResources &resources)
     focusAttachment    = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(*resources.apvts, "focus",    focusBox);
  
     CenterSpace::SetTip(compressSlider, "Turning up increases the Sidechain gain and ratio, and lowers the threshold.");
-    laSelector->SetTooltip("1ms Lookahead on/off. (Reports latency to the host when on).");
+    laSelector->SetTooltip("Lookahead on/off. (Reports latency to the host when on).");
     CenterSpace::SetTip(focusBox, "Filter the Sidechain to focus on specific parts of the signal.");
 }
 
