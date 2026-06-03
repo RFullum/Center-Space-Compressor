@@ -192,6 +192,56 @@ target_link_libraries(CenterSpace
         juce::juce_recommended_warning_flags
         centerspace_warning_overrides)
 
+# --- Code signing (opt-in) ----------------------------------------------------
+# Enables Developer ID signing + hardened runtime entitlements on each plugin
+# bundle. Opt-in via the CENTERSPACE_SIGN_IDENTITY environment variable so
+# contributors without an Apple Developer cert still get clean builds.
+#
+# Usage:
+#   export CENTERSPACE_SIGN_IDENTITY="Developer ID Application: Robert Fullum (A26T94CMW9)"
+#   cmake --build --preset=macos-release --target CenterSpace_All
+#
+# This step ONLY signs the .vst3 / .component / .app bundles. The .pkg
+# installer is built and signed separately by scripts/package-and-notarize.sh
+# (which also handles notarization + stapling). HARDENED_RUNTIME_ENABLED in
+# juce_add_plugin above writes the matching Info.plist flag; the entitlements
+# file below carries the disable-library-validation entitlement that AU/VST3
+# hosts require when loading us into their address space.
+#
+# Implementation note: JUCE's Xcode generator emits a built-in CodeSign build
+# phase that ad-hoc signs the bundle ("Sign to Run Locally") AFTER any
+# add_custom_command(POST_BUILD) we attach. So a custom codesign step gets
+# silently overwritten. Instead, we override the Xcode CODE_SIGN_IDENTITY /
+# entitlements attributes on the target — Xcode's built-in CodeSign step then
+# applies our Developer ID with hardened runtime + entitlements directly.
+if(APPLE)
+    set(CENTERSPACE_SIGN_IDENTITY_ENV "$ENV{CENTERSPACE_SIGN_IDENTITY}")
+    if(CENTERSPACE_SIGN_IDENTITY_ENV)
+        set(CENTERSPACE_ENTITLEMENTS "${CMAKE_CURRENT_SOURCE_DIR}/Resources/CenterSpace.entitlements")
+        # Parse Team ID out of identity string of form
+        # "Developer ID Application: Robert Fullum (A26T94CMW9)".
+        string(REGEX MATCH "\\(([A-Z0-9]+)\\)" _team_match "${CENTERSPACE_SIGN_IDENTITY_ENV}")
+        set(CENTERSPACE_TEAM_ID "${CMAKE_MATCH_1}")
+        message(STATUS "Center Space: Developer ID signing ENABLED")
+        message(STATUS "  Identity: ${CENTERSPACE_SIGN_IDENTITY_ENV}")
+        message(STATUS "  Team ID:  ${CENTERSPACE_TEAM_ID}")
+
+        foreach(plugin_target IN ITEMS CenterSpace_VST3 CenterSpace_AU CenterSpace_Standalone)
+            if(TARGET ${plugin_target})
+                set_target_properties(${plugin_target} PROPERTIES
+                    XCODE_ATTRIBUTE_CODE_SIGN_STYLE                 "Manual"
+                    XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY              "${CENTERSPACE_SIGN_IDENTITY_ENV}"
+                    XCODE_ATTRIBUTE_DEVELOPMENT_TEAM                "${CENTERSPACE_TEAM_ID}"
+                    XCODE_ATTRIBUTE_CODE_SIGN_ENTITLEMENTS          "${CENTERSPACE_ENTITLEMENTS}"
+                    XCODE_ATTRIBUTE_OTHER_CODE_SIGN_FLAGS           "--timestamp --options=runtime"
+                    XCODE_ATTRIBUTE_ENABLE_HARDENED_RUNTIME         "YES")
+            endif()
+        endforeach()
+    else()
+        message(STATUS "Center Space: Developer ID signing disabled (set CENTERSPACE_SIGN_IDENTITY to enable)")
+    endif()
+endif()
+
 # --- Per-config Xcode build settings ------------------------------------------
 # Mirrors the .jucer Xcode configurations:
 #   Debug   — host arch only (fast iteration), -O0
