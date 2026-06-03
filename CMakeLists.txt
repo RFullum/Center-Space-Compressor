@@ -47,22 +47,12 @@ target_compile_definitions(CenterSpace PUBLIC
     JUCE_DISPLAY_SPLASH_SCREEN=0
     JUCE_REPORT_APP_USAGE=0)
 
-# Optional shutdown trace — writes timestamped destructor markers to
-# ~/Library/Logs/CenterSpace/shutdown.log. Used to diagnose host beachballing
-# during quit. Configure with -DCENTERSPACE_TRACE_SHUTDOWN=OFF to enable.
-option(CENTERSPACE_TRACE_SHUTDOWN "Enable plugin shutdown trace logging" OFF)
-if(CENTERSPACE_TRACE_SHUTDOWN)
-    target_compile_definitions(CenterSpace PUBLIC CS_TRACE_SHUTDOWN=1)
-    message(STATUS "Center Space: shutdown trace ENABLED -> ~/Library/Logs/CenterSpace/shutdown.log")
-endif()
-
 # --- Sources ------------------------------------------------------------------
 set(CenterSpace_SOURCES
     Source/Plugin/PluginProcessor.cpp
     Source/Plugin/PluginProcessor.h
     Source/Plugin/PluginEditor.cpp
     Source/Plugin/PluginEditor.h
-    Source/Plugin/ShutdownTrace.h
     Source/Plugin/PatchEngine/PatchManager.cpp
     Source/Plugin/PatchEngine/PatchManager.h
     Source/Plugin/PatchEngine/ABCompareManager.cpp

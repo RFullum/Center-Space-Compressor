@@ -17,7 +17,6 @@
 #include "TweakDynamics.h"
 #include "TweakDetection.h"
 #include "Metering.h"
-#include "ShutdownTrace.h"
 
 //==============================================================================
 
@@ -141,13 +140,9 @@ CenterSpaceAudioProcessorEditor::CenterSpaceAudioProcessorEditor(CenterSpaceAudi
 
 CenterSpaceAudioProcessorEditor::~CenterSpaceAudioProcessorEditor()
 {
-    CS_TRACE("~CenterSpaceAudioProcessorEditor begin");
-
     audioProcessor.parameters.removeParameterListener("uiMode", this);
 
     setLookAndFeel(nullptr);
-
-    CS_TRACE("~CenterSpaceAudioProcessorEditor end (child dtors next)");
 }
 
 void CenterSpaceAudioProcessorEditor::paint(juce::Graphics &g)

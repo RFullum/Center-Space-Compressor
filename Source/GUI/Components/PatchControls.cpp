@@ -10,7 +10,6 @@
 
 #include "PatchManager.h"
 #include "PluginProcessor.h"
-#include "ShutdownTrace.h"
 
 //==============================================================================
 
@@ -102,9 +101,7 @@ PatchControls::PatchControls(GuiResources       &res
 
 PatchControls::~PatchControls()
 {
-    CS_TRACE("~PatchControls begin (15Hz stopTimer)");
     stopTimer();
-    CS_TRACE("~PatchControls end");
 }
 
 void PatchControls::paint(juce::Graphics &) {}

@@ -7,7 +7,6 @@
 */
 
 #include "PatchManager.h"
-#include "ShutdownTrace.h"
 #include <algorithm>
 
 //==============================================================================
@@ -20,9 +19,7 @@ PatchManager::PatchManager(juce::AudioProcessorValueTreeState &apvtsToManage)
 
 PatchManager::~PatchManager()
 {
-    CS_TRACE("~PatchManager begin");
     UnregisterParameterListeners();
-    CS_TRACE("~PatchManager end");
 }
 
 void PatchManager::Init()

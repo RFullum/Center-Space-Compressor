@@ -9,7 +9,6 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 #include "Derivations.h"
-#include "ShutdownTrace.h"
 
 
 //==============================================================================
@@ -106,25 +105,9 @@ CenterSpaceAudioProcessor::CenterSpaceAudioProcessor()
 
     patchManager.Init();
     abCompareManager.Init();
-
-    CS_TRACE_INSTALL();
-    CS_TRACE("CenterSpaceAudioProcessor constructed");
 }
 
-CenterSpaceAudioProcessor::~CenterSpaceAudioProcessor()
-{
-    CS_TRACE("~CenterSpaceAudioProcessor begin");
-
-    // Reset userSettings explicitly so we can time the PropertiesFile flush.
-    if (userSettings != nullptr)
-    {
-        CS_TRACE("  userSettings.reset() begin");
-        userSettings.reset();
-        CS_TRACE("  userSettings.reset() end");
-    }
-
-    CS_TRACE("~CenterSpaceAudioProcessor end (member dtors next)");
-}
+CenterSpaceAudioProcessor::~CenterSpaceAudioProcessor() {}
 
 
 const juce::String CenterSpaceAudioProcessor::getName() const
@@ -247,8 +230,6 @@ void CenterSpaceAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
 
 void CenterSpaceAudioProcessor::releaseResources()
 {
-    CS_TRACE("releaseResources begin");
-
     envelope.reset();
     scHpf.reset();
     scLpf.reset();
@@ -258,8 +239,6 @@ void CenterSpaceAudioProcessor::releaseResources()
     lastAppliedPeakMode  = -1;
     lastAppliedAttackMs  = -1.0f;
     lastAppliedReleaseMs = -1.0f;
-
-    CS_TRACE("releaseResources end");
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
