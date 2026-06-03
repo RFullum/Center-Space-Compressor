@@ -1,6 +1,8 @@
 # Center Space
 
-A stereo sidechain compressor that only compresses the **center** of the stereo field. 
+[![Latest release](https://img.shields.io/github/v/release/RFullum/Center-Space-Compressor?label=download&style=for-the-badge)](https://github.com/RFullum/Center-Space-Compressor/releases/latest)
+
+A stereo sidechain compressor that only compresses the **center** of the stereo field.
 
 If no signal hits the sidechain, the compressor does nothing — but the M/S encode/decode and input/output gain still run, so you can also use Center Space as a stereo-type converter on its own.
 
@@ -42,13 +44,18 @@ Windows and Linux presets exist in `CMakePresets.json` but haven't been exercise
 
 ---
 
-## Installation
+## Download
 
-Successful builds auto-install to:
+Grab the latest macOS installer from the [Releases page](https://github.com/RFullum/Center-Space-Compressor/releases/latest).
 
-- VST3 → `~/Library/Audio/Plug-Ins/VST3/Center Space.vst3`
-- AU → `~/Library/Audio/Plug-Ins/Components/Center Space.component`
-- Standalone `.app` is left in `build/macos/CenterSpace_artefacts/Release/Standalone/`
+The `.pkg` installs VST3 and AU plug-ins. Signed and notarized for macOS.
+
+---
+
+## Where files land after install
+
+- VST3 → `/Library/Audio/Plug-Ins/VST3/Center Space.vst3`
+- AU → `/Library/Audio/Plug-Ins/Components/Center Space.component`
 
 User patches live at:
 `~/Library/Application Support/FullumMusic/Center Space/Patches/`
