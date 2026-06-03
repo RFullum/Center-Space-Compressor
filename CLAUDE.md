@@ -128,6 +128,24 @@ Result: the center collapses under sidechain transients while the stereo width s
 
 ---
 
+## Stereo-field meter — what it shows
+
+`StereoFieldMeter` is the central visualizer. It plots **level as a curve across stereo position**: L at the left edge, the mid at the center, R at the right edge. Two translucent curves are drawn — pre-compression input and post-compression output — and the visible dip in the output curve at center *is* the compressor's effect, rendered. The gap between the two curves at center reads as GR on the mid; the edges show whether in/out gain is matched.
+
+Sample points (per side):
+- Left edge: `inLeftLevel` / `outLeftLevel`
+- Center: `inMidLevel` / `outMidLevel` — both already scaled by 0.5 in the processor so the displayed level matches what's audible after M/S decode.
+- Right edge: `inRightLevel` / `outRightLevel`
+
+Framing decisions:
+- "M for center, S for edges" was rejected — side is a single value and would render flat across the L and R positions, destroying the stereo-position meaning.
+- Mono input renders as a flat curve dipping uniformly under GR. Expected behavior; defeats the plugin's purpose by design and is documented in the user manual.
+- When `inputType` / `outputType` is set to M/S, "L" and "R" channels actually carry M and S, so the curve's spatial meaning shifts. The visualization is still valid as a level display — just no longer a stereo-position one.
+
+The dedicated `SidechainGainMeter` and `GainReductionMeter` stay alongside it for precise numeric reads; the stereo-field curve communicates identity and balance, not exact dB.
+
+---
+
 ## Code style — non-negotiable
 
 Match these exactly when writing or editing code.
