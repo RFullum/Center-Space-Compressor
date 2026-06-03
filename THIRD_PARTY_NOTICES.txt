@@ -12,11 +12,11 @@ governs Center Space as a whole.
 ================================================================================
 
 Center Space is built using the JUCE cross-platform C++ framework
-(https://juce.com). JUCE is used under a commercial JUCE Pro license held
-by FullumMusic. End users of Center Space receive only the compiled
-binary form of JUCE as part of the Center Space plug-in and have no
-separate rights in the JUCE source or library beyond what is granted in
-the Center Space EULA.
+(https://juce.com), version 8.0.x. JUCE is used under a commercial JUCE
+Pro license held by FullumMusic. End users of Center Space receive only
+the compiled binary form of JUCE as part of the Center Space plug-in
+and have no separate rights in the JUCE source or library beyond what
+is granted in the Center Space End User License Agreement.
 
 
 ================================================================================

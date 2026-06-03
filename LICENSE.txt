@@ -1,6 +1,6 @@
 CENTER SPACE — END USER LICENSE AGREEMENT
 
-Copyright (c) 2026 Robert Fullum / FullumMusic. All rights reserved.
+Copyright (c) 2026-present Robert Fullum / FullumMusic. All rights reserved.
 
 This End User License Agreement ("Agreement") is a legal agreement between
 you ("Licensee") and Robert Fullum, doing business as FullumMusic
@@ -16,12 +16,14 @@ or use the Software.
 1. LICENSE GRANT
 
 Subject to the terms of this Agreement and payment of the applicable
-license fee, Licensor grants you a non-exclusive, non-transferable,
-revocable license to install and use the Software for your own personal
-or internal commercial music-production purposes on any computer that you
-personally own or control. There is no limit on the number of personal
-machines on which you may install the Software, provided all such
-installations are used solely by you (the named Licensee).
+license fee (which may, at Licensor's discretion, be zero for a given
+release or distribution channel), Licensor grants you a non-exclusive,
+non-transferable, revocable license to install and use the Software for
+your own personal or internal commercial music-production purposes on
+any computer that you personally own or control. There is no limit on
+the number of personal machines on which you may install the Software,
+provided all such installations are used solely by you (the named
+Licensee).
 
 
 2. RESTRICTIONS
@@ -32,9 +34,10 @@ You may not:
       transfer the Software or your license, in whole or in part, to any
       third party;
   (b) reverse-engineer, decompile, disassemble, or otherwise attempt to
-      derive the source code, underlying algorithms, or internal structure
-      of the Software, except to the extent such activity is expressly
-      permitted by applicable law notwithstanding this restriction;
+      derive the source code, underlying algorithms, or internal
+      structure of the Software, except to the extent that, and only to
+      the extent that, applicable law expressly permits such activity
+      notwithstanding this restriction;
   (c) modify, adapt, translate, or create derivative works based on the
       Software;
   (d) remove, alter, or obscure any copyright, trademark, or other
@@ -112,7 +115,17 @@ laws of the jurisdiction in which Licensor resides, without regard to its
 conflict-of-laws provisions.
 
 
-11. ENTIRE AGREEMENT
+11. SEVERABILITY
+
+If any provision of this Agreement is held by a court of competent
+jurisdiction to be invalid, illegal, or unenforceable, that provision
+shall be modified to the minimum extent necessary to make it
+enforceable, or, if no such modification is possible, severed from this
+Agreement. The remaining provisions shall continue in full force and
+effect.
+
+
+12. ENTIRE AGREEMENT
 
 This Agreement constitutes the entire agreement between you and Licensor
 regarding the Software and supersedes all prior or contemporaneous
