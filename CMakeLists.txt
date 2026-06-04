@@ -45,7 +45,11 @@ juce_add_plugin(CenterSpace
 target_compile_definitions(CenterSpace PUBLIC
     JUCE_VST3_CAN_REPLACE_VST2=0
     JUCE_DISPLAY_SPLASH_SCREEN=0
-    JUCE_REPORT_APP_USAGE=0)
+    JUCE_REPORT_APP_USAGE=0
+    # Center Space has no WebBrowserComponent. Disabling the web browser drops
+    # the GTK/WebKit dependency that juce_gui_extra otherwise pulls in on Linux
+    # (juce_gui_extra.cpp -> <gtk/gtk.h>). Inert on macOS, which uses WebKit.
+    JUCE_WEB_BROWSER=0)
 
 # --- Sources ------------------------------------------------------------------
 set(CenterSpace_SOURCES
@@ -145,16 +149,35 @@ target_include_directories(CenterSpace PRIVATE
 set(FACTORY_PRESETS_SRC    "${CMAKE_CURRENT_SOURCE_DIR}/Resources/FactoryPresets")
 set(FACTORY_PRESETS_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/scripts/copy_factory_presets.sh")
 
-foreach(plugin_target IN ITEMS CenterSpace_VST3 CenterSpace_AU CenterSpace_Standalone)
-    if(TARGET ${plugin_target})
-        add_custom_command(TARGET ${plugin_target} POST_BUILD
-            COMMAND /bin/sh "${FACTORY_PRESETS_SCRIPT}"
-                    "$<TARGET_BUNDLE_DIR:${plugin_target}>"
-                    "${FACTORY_PRESETS_SRC}"
+if(APPLE)
+    # macOS: each plugin is a true Bundle target, so $<TARGET_BUNDLE_DIR> is
+    # valid. The shell script also syncs into ~/Library/Audio/Plug-Ins/.
+    foreach(plugin_target IN ITEMS CenterSpace_VST3 CenterSpace_AU CenterSpace_Standalone)
+        if(TARGET ${plugin_target})
+            add_custom_command(TARGET ${plugin_target} POST_BUILD
+                COMMAND /bin/sh "${FACTORY_PRESETS_SCRIPT}"
+                        "$<TARGET_BUNDLE_DIR:${plugin_target}>"
+                        "${FACTORY_PRESETS_SRC}"
+                VERBATIM
+                COMMENT "Copying factory presets into ${plugin_target}")
+        endif()
+    endforeach()
+elseif(UNIX)
+    # Linux: the VST3 uses a bundle-style layout, but it is NOT a CMake Bundle
+    # target, so $<TARGET_BUNDLE_DIR> is unavailable. The .so lands in
+    # Center Space.vst3/Contents/<arch>-linux/, so $<TARGET_FILE_DIR>/../Resources
+    # resolves to Center Space.vst3/Contents/Resources — where
+    # PatchManager::ResolveFactoryPatchesDirectory() looks at runtime.
+    if(TARGET CenterSpace_VST3)
+        set(_linux_vst3_patches "$<TARGET_FILE_DIR:CenterSpace_VST3>/../Resources/Patches")
+        add_custom_command(TARGET CenterSpace_VST3 POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E make_directory "${_linux_vst3_patches}"
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+                    "${FACTORY_PRESETS_SRC}" "${_linux_vst3_patches}"
             VERBATIM
-            COMMENT "Copying factory presets into ${plugin_target}")
+            COMMENT "Copying factory presets into CenterSpace_VST3 (Linux)")
     endif()
-endforeach()
+endif()
 
 # --- JuceHeader.h -------------------------------------------------------------
 # Generated header lets sources keep using `#include <JuceHeader.h>`.
