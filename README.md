@@ -36,29 +36,63 @@ If no signal hits the sidechain, the compressor does nothing — but the M/S enc
 
 ## System Requirements
 
+**macOS**
+
 - macOS 11 (Big Sur) or later
 - Universal binary (Apple Silicon + Intel)
 - Formats: **VST3**, **AU**
 
-Windows and Linux presets exist in `CMakePresets.json` but haven't been exercised.
+**Linux**
+
+- 64-bit x86_64 distribution with **glibc 2.41 or newer**. The build is produced
+  on Debian 13 (trixie); current rolling/recent distros (Debian 13, Ubuntu 25.04+,
+  recent Fedora/Arch) work, but older LTS releases (e.g. Ubuntu 24.04, Debian 12)
+  ship an older glibc and will not load it.
+- A standard desktop audio/GUI stack (ALSA or JACK, X11, FreeType, Fontconfig) —
+  present on any typical desktop Linux.
+- Format: **VST3** (no AU — that format is macOS-only)
+- ARM (aarch64) Linux is not currently provided; the build is x86_64 only.
+
+Windows presets exist in `CMakePresets.json` but haven't been exercised.
 
 ---
 
 ## Download
 
-Grab the latest macOS installer from the [Releases page](https://github.com/RFullum/Center-Space-Compressor/releases/latest).
+Grab the latest build from the [Releases page](https://github.com/RFullum/Center-Space-Compressor/releases/latest).
 
-The `.pkg` installs VST3 and AU plug-ins. Signed and notarized for macOS.
+**macOS** — the `.pkg` installs VST3 and AU plug-ins. Signed and notarized.
+
+**Linux** — download the `…-Linux-x86_64.vst3.tar.gz` and extract the bundle into
+your personal VST3 folder:
+
+```sh
+mkdir -p ~/.vst3
+tar -xzf CenterSpace-2.0.0-Linux-x86_64.vst3.tar.gz -C ~/.vst3
+```
+
+Then rescan plug-ins in your DAW. For a system-wide install, extract into
+`/usr/lib/vst3` instead (needs `sudo`). See the System Requirements above for the
+glibc baseline.
 
 ---
 
 ## Where files land after install
+
+**macOS**
 
 - VST3 → `/Library/Audio/Plug-Ins/VST3/Center Space.vst3`
 - AU → `/Library/Audio/Plug-Ins/Components/Center Space.component`
 
 User patches live at:
 `~/Library/Application Support/FullumMusic/Center Space/Patches/`
+
+**Linux**
+
+- VST3 → `~/.vst3/Center Space.vst3` (or `/usr/lib/vst3/` system-wide)
+
+User patches live at:
+`~/.config/FullumMusic/Center Space/Patches/`
 
 Factory patches travel inside the plugin bundle and are read-only.
 
@@ -81,7 +115,7 @@ If you already cloned without `--recurse-submodules`:
 git submodule update --init --recursive
 ```
 
-Configure and build (macOS):
+### macOS
 
 ```sh
 cmake --preset=macos
@@ -97,6 +131,29 @@ cmake --build --preset=macos-release --target CenterSpace_VST3
 cmake --build --preset=macos-release --target CenterSpace_AU
 cmake --build --preset=macos-release --target CenterSpace_Standalone
 ```
+
+### Linux
+
+Uses the Ninja Multi-Config generator with the system compiler (GCC). Install the
+JUCE build dependencies first (Debian/Ubuntu names shown):
+
+```sh
+sudo apt install build-essential ninja-build cmake \
+    libasound2-dev libjack-jackd2-dev \
+    libfreetype-dev libfontconfig1-dev \
+    libx11-dev libxext-dev libxinerama-dev libxrandr-dev libxcursor-dev \
+    libxcomposite-dev libxrender-dev libgl-dev libcurl4-openssl-dev
+```
+
+Configure and build the VST3 (the only format released for Linux):
+
+```sh
+cmake --preset=linux
+cmake --build --preset=linux-release --target CenterSpace_VST3
+```
+
+The build installs the plug-in to `~/.vst3/Center Space.vst3`. For development
+iteration, use `--preset=linux-debug` instead.
 
 ---
 
