@@ -53,7 +53,13 @@ If no signal hits the sidechain, the compressor does nothing — but the M/S enc
 - Format: **VST3** (no AU — that format is macOS-only)
 - ARM (aarch64) Linux is not currently provided; the build is x86_64 only.
 
-Windows presets exist in `CMakePresets.json` but haven't been exercised.
+**Windows**
+
+- 64-bit Windows 10 or 11 (x64).
+- Self-contained — the Visual C++ Redistributable is **not** required (the MSVC
+  runtime is statically linked into the plug-in).
+- Format: **VST3** (no AU — that format is macOS-only)
+- ARM (aarch64) Windows is not currently provided; the build is x64 only.
 
 ---
 
@@ -75,6 +81,20 @@ Then rescan plug-ins in your DAW. For a system-wide install, extract into
 `/usr/lib/vst3` instead (needs `sudo`). See the System Requirements above for the
 glibc baseline.
 
+**Windows** — download the `…-Windows-x86_64.vst3.zip` and extract the
+`Center Space.vst3` folder into the standard system VST3 directory:
+
+```
+C:\Program Files\Common Files\VST3\
+```
+
+Right-click the downloaded zip → **Extract All…**, then move the extracted
+`Center Space.vst3` folder into that location (you'll be prompted for
+administrator permission, since it's under `Program Files`). Then rescan
+plug-ins in your DAW. Because the build is unsigned, your browser may warn that
+the zip is "not commonly downloaded" — choose **Keep**. If extraction is
+blocked, right-click the zip → **Properties** → tick **Unblock** → **OK** first.
+
 ---
 
 ## Where files land after install
@@ -93,6 +113,13 @@ User patches live at:
 
 User patches live at:
 `~/.config/FullumMusic/Center Space/Patches/`
+
+**Windows**
+
+- VST3 → `C:\Program Files\Common Files\VST3\Center Space.vst3`
+
+User patches live at:
+`%APPDATA%\FullumMusic\Center Space\Patches\`
 
 Factory patches travel inside the plugin bundle and are read-only.
 
@@ -154,6 +181,25 @@ cmake --build --preset=linux-release --target CenterSpace_VST3
 
 The build installs the plug-in to `~/.vst3/Center Space.vst3`. For development
 iteration, use `--preset=linux-debug` instead.
+
+### Windows
+
+Requires **Visual Studio 2026** (the v18 toolset) with the *Desktop development
+with C++* workload. The bundled CMake works — either add it to your `PATH` or
+run from a *Developer PowerShell for VS*. The plug-in links the MSVC runtime
+statically, so the resulting VST3 needs no Visual C++ Redistributable.
+
+Configure and build the VST3 (the only format released for Windows):
+
+```powershell
+cmake --preset=windows
+cmake --build --preset=windows-release --target CenterSpace_VST3
+```
+
+The build does **not** auto-install on Windows (the system VST3 folder needs
+admin rights). Copy `build\windows\CenterSpace_artefacts\Release\VST3\Center Space.vst3`
+into `C:\Program Files\Common Files\VST3\` yourself, or load it from the build
+tree in your DAW. For development iteration, use `--preset=windows-debug`.
 
 ---
 
