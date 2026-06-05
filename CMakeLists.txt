@@ -10,6 +10,17 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# --- Windows C++ runtime ------------------------------------------------------
+# Statically link the MSVC runtime (/MT, /MTd for Debug) so the shipped VST3 is
+# self-contained and does NOT require end users to have the Visual C++
+# Redistributable installed. Set before add_subdirectory(JUCE) so every target
+# — JUCE's static libs and our own sources alike — links the runtime the same
+# way; a mismatch produces LNK4098 / runtime-heap corruption. Relies on policy
+# CMP0091 (MSVC runtime selected via abstraction), default-NEW on CMake 3.15+.
+if(WIN32)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif()
+
 # --- JUCE ---------------------------------------------------------------------
 # JUCE is vendored as a git submodule at ./JUCE
 add_subdirectory(JUCE)
@@ -17,6 +28,21 @@ add_subdirectory(JUCE)
 # --- Plugin target ------------------------------------------------------------
 # Sources and binary data are wired up in subsequent sub-steps (5.4 / 5.5).
 # Per-config build flags (Universal Binary, optimisation, LTO) are in 5.6.
+#
+# COPY_PLUGIN_AFTER_BUILD auto-installs the freshly-built plugin so it can be
+# loaded in a DAW without a manual copy. On macOS/Linux JUCE targets a
+# user-writable dir (~/Library/Audio/Plug-Ins, ~/.vst3), so it just works. On
+# Windows the only standard VST3 location is the SYSTEM path
+# C:\Program Files\Common Files\VST3, which needs administrator rights — an
+# unelevated build fails the post-build copy (copyDir.cmake / MSB3073). We
+# package the zip straight from the build artefacts, so the auto-install is
+# unnecessary on Windows; disable it there to keep non-admin builds green.
+if(WIN32)
+    set(CENTERSPACE_COPY_AFTER_BUILD FALSE)
+else()
+    set(CENTERSPACE_COPY_AFTER_BUILD TRUE)
+endif()
+
 juce_add_plugin(CenterSpace
     PRODUCT_NAME                "Center Space"
     VERSION                     2.0.0
@@ -35,7 +61,7 @@ juce_add_plugin(CenterSpace
     VST3_CATEGORIES             Fx Dynamics
     AU_MAIN_TYPE                kAudioUnitType_Effect
     HARDENED_RUNTIME_ENABLED    TRUE
-    COPY_PLUGIN_AFTER_BUILD     TRUE)
+    COPY_PLUGIN_AFTER_BUILD     ${CENTERSPACE_COPY_AFTER_BUILD})
 
 # JUCE 8 defaults JUCE_VST3_CAN_REPLACE_VST2 to 1, but Center Space never had
 # a VST2 ancestor. Disable so the param-ID mismatch check stays quiet.
@@ -162,12 +188,14 @@ if(APPLE)
                 COMMENT "Copying factory presets into ${plugin_target}")
         endif()
     endforeach()
-elseif(UNIX)
-    # Linux: the VST3 uses a bundle-style layout, but it is NOT a CMake Bundle
-    # target, so $<TARGET_BUNDLE_DIR> is unavailable. The .so lands in
-    # Center Space.vst3/Contents/<arch>-linux/, so $<TARGET_FILE_DIR>/../Resources
-    # resolves to Center Space.vst3/Contents/Resources — where
-    # PatchManager::ResolveFactoryPatchesDirectory() looks at runtime.
+elseif(UNIX OR WIN32)
+    # Linux & Windows: the VST3 uses a bundle-style layout, but it is NOT a CMake
+    # Bundle target, so $<TARGET_BUNDLE_DIR> is unavailable. The binary lands in
+    # Center Space.vst3/Contents/<arch>-linux/ (or <arch>-win/ on Windows), so
+    # $<TARGET_FILE_DIR>/../Resources resolves to Center Space.vst3/Contents/
+    # Resources — where PatchManager::ResolveFactoryPatchesDirectory() looks at
+    # runtime. The copy commands are generator-agnostic (cmake -E), so the same
+    # branch serves both platforms.
     if(TARGET CenterSpace_VST3)
         set(_linux_vst3_patches "$<TARGET_FILE_DIR:CenterSpace_VST3>/../Resources/Patches")
         add_custom_command(TARGET CenterSpace_VST3 POST_BUILD
