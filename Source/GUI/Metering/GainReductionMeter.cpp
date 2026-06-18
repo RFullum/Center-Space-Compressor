@@ -20,17 +20,11 @@
 
 namespace
 {
-    constexpr float attackTimeMs  = 5.0f;
-    constexpr float releaseTimeMs = 400.0f;
-
     constexpr float slotCornerRadius = 2.0f;
     constexpr float slotInsetX       = 4.0f;
     constexpr float slotInsetY       = 4.0f;
 
     constexpr float repaintThresholdDb = 0.1f;
-
-    // Snap to avoid asymptotic never-getting there
-    constexpr float snapToTargetDb = 0.05f;
 }
 
 
@@ -40,6 +34,7 @@ GainReductionMeter::GainReductionMeter(GuiResources &res)
 : resources(res)
 {
     setOpaque(false);
+    level.SetSnapToTarget(0.05f); // avoids the asymptotic plateau that never empties
     lastUpdateMs = juce::Time::getMillisecondCounterHiRes();
 }
 
@@ -57,32 +52,17 @@ void GainReductionMeter::Update()
 
     const float targetDb = processor->gainReduction.load();   // already dB
 
-    AdvanceLevel(targetDb, dtSecs);
+    const float currentDb = level.Advance(targetDb, dtSecs);   // snap now happens inside Advance
 
-    // Snap to target when very close — otherwise the smoother asymptotes at
-    // a non-zero plateau and the meter never empties.
-    bool snapped = false;
-    
-    if (!juce::approximatelyEqual(currentDb, targetDb) && std::abs(currentDb - targetDb) < snapToTargetDb)
-    {
-        currentDb = targetDb;
-        snapped   = true;
-    }
-
-    if (snapped || std::abs(currentDb - lastPaintedDb) > repaintThresholdDb)
+    // Repaint on a meaningful move OR when the snap just landed us on target
+    // (so the bar fully empties even when the final step is < threshold).
+    if (std::abs(currentDb - lastPaintedDb) > repaintThresholdDb
+        || (juce::approximatelyEqual(currentDb, targetDb)
+            && !juce::approximatelyEqual(lastPaintedDb, currentDb)))
     {
         repaint();
         lastPaintedDb = currentDb;
     }
-}
-
-void GainReductionMeter::AdvanceLevel(float targetDb, float dtSeconds)
-{
-    const bool  attacking = (targetDb > currentDb);
-    const float tauSec    = (attacking ? attackTimeMs : releaseTimeMs) * 0.001f;
-    const float alpha     = 1.0f - std::exp(-dtSeconds / tauSec);
-
-    currentDb += alpha * (targetDb - currentDb);
 }
 
 void GainReductionMeter::paint(juce::Graphics &g)
@@ -93,7 +73,7 @@ void GainReductionMeter::paint(juce::Graphics &g)
     g.fillRoundedRectangle(bounds, slotCornerRadius);
 
     // GR fills top-down: the bar's bottom edge tracks the dB-mapped Y position.
-    const float fillBottomY = MeterScaling::grDbToY(currentDb, bounds.getY(), bounds.getBottom());
+    const float fillBottomY = MeterScaling::grDbToY(level.GetCurrentDb(), bounds.getY(), bounds.getBottom());
     const float fillH       = fillBottomY - bounds.getY();
 
     if (fillH > 0.5f)

@@ -12,7 +12,7 @@
 #include "SidechainGainMeter.h"
 #include "GainReductionMeter.h"
 #include "StereoFieldMeter.h"
-#include "MeterScale.h"
+#include "GUI/MeterScale.h"
 
 //==============================================================================
 
@@ -21,8 +21,8 @@ Metering::Metering(GuiResources &res)
 , sidechainGainMeter(std::make_unique<SidechainGainMeter>(res))
 , gainReductionMeter(std::make_unique<GainReductionMeter>(res))
 , stereoFieldMeter  (std::make_unique<StereoFieldMeter>  (res))
-, meterScale  (std::make_unique<MeterScale>(res, MeterScale::Type::Level, juce::Justification::centred))
-, grMeterScale(std::make_unique<MeterScale>(res, MeterScale::Type::GR,    juce::Justification::centredLeft))
+, meterScale  (std::make_unique<MeterScale>(res.theme, MeterScale::Type::Level, juce::Justification::centred))
+, grMeterScale(std::make_unique<MeterScale>(res.theme, MeterScale::Type::GR,    juce::Justification::centredLeft))
 {
     setOpaque(false);
 

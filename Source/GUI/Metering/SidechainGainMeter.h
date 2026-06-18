@@ -9,6 +9,7 @@
 #pragma once
 
 #include "GuiResources.h"
+#include "GUI/MeterBallistics.h"
 #include <JuceHeader.h>
 
 
@@ -28,14 +29,11 @@ public:
     void Update();
 
 private:
-    void  AdvanceLevel(float targetDb, float dtSeconds);
-    void  AdvancePeakHold(float dtSeconds);
-
     GuiResources &resources;
+    
+    MeterBallistics level { 20.0f, 250.0f, -120.0f }; 
+    MeterPeakHold   peak  { 1.5f,  12.0f, -120.0f };
 
-    float currentDb        { -120.0f };  // smoothed level
-    float peakHoldDb       { -120.0f };  // peak-hold display value
-    float peakHoldTimer    { 0.0f    };  // seconds remaining at current peak before decay starts
     float lastPaintedDb    { -120.0f };  // displayed level as of last repaint
     float lastPaintedPeak  { -120.0f };  // displayed peak as of last repaint
 

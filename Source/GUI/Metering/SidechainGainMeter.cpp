@@ -22,12 +22,6 @@ namespace
 
     constexpr float floorDb = -120.0f;
 
-    constexpr float riseTimeMs = 20.0f;
-    constexpr float fallTimeMs = 250.0f;
-
-    constexpr float peakHoldSeconds = 1.5f;    // peak hold
-    constexpr float peakDecayDbPerS = 12.0f;   // peak decay
-
     constexpr float slotCornerRadius = 2.0f;
     constexpr float peakTickHeight   = 2.0f;
 
@@ -58,44 +52,16 @@ void SidechainGainMeter::Update()
 
     const float targetDb = juce::Decibels::gainToDecibels(processor->sideChainLevel.load(), floorDb);
 
-    AdvanceLevel   (targetDb, dtSecs);
-    AdvancePeakHold(dtSecs);
+    const float currentDb  = level.Advance(targetDb, dtSecs);
+    const float peakHoldDb = peak.Advance(currentDb, dtSecs);
 
-    if (std::abs(currentDb  - lastPaintedDb)   > repaintThresholdDb
+    if (std::abs(currentDb  - lastPaintedDb) > repaintThresholdDb
         || std::abs(peakHoldDb - lastPaintedPeak) > repaintThresholdDb)
     {
         repaint();
         lastPaintedDb   = currentDb;
         lastPaintedPeak = peakHoldDb;
     }
-}
-
-void SidechainGainMeter::AdvanceLevel(float targetDb, float dtSeconds)
-{
-    const bool  rising = (targetDb > currentDb);
-    const float tauSec = (rising ? riseTimeMs : fallTimeMs) * 0.001f;
-    const float alpha  = 1.0f - std::exp(-dtSeconds / tauSec);
-
-    currentDb += alpha * (targetDb - currentDb);
-}
-
-void SidechainGainMeter::AdvancePeakHold(float dtSeconds)
-{
-    if (currentDb > peakHoldDb)
-    {
-        peakHoldDb    = currentDb;
-        peakHoldTimer = peakHoldSeconds;
-        return;
-    }
-
-    if (peakHoldTimer > 0.0f)
-    {
-        peakHoldTimer = juce::jmax(0.0f, peakHoldTimer - dtSeconds);
-        return;
-    }
-
-    peakHoldDb -= peakDecayDbPerS * dtSeconds;
-    peakHoldDb  = juce::jmax(peakHoldDb, floorDb);
 }
 
 void SidechainGainMeter::paint(juce::Graphics &g)
@@ -105,7 +71,7 @@ void SidechainGainMeter::paint(juce::Graphics &g)
     g.setColour(resources.theme.structure);
     g.fillRoundedRectangle(bounds, slotCornerRadius);
 
-    const float fillTopY = MeterScaling::levelDbToY(currentDb, bounds.getY(), bounds.getBottom());
+    const float fillTopY = MeterScaling::levelDbToY(level.GetCurrentDb(), bounds.getY(), bounds.getBottom());
     auto fill = juce::Rectangle<float>(bounds.getX()
                                        , fillTopY
                                        , bounds.getWidth()
@@ -113,9 +79,9 @@ void SidechainGainMeter::paint(juce::Graphics &g)
     g.setColour(resources.theme.secondaryAccent);
     g.fillRoundedRectangle(fill, slotCornerRadius);
 
-    if (peakHoldDb > floorDb + 1.0f)
+    if (peak.GetPeakDb() > floorDb + 1.0f)
     {
-        const float peakY = MeterScaling::levelDbToY(peakHoldDb, bounds.getY(), bounds.getBottom());
+        const float peakY = MeterScaling::levelDbToY(peak.GetPeakDb(), bounds.getY(), bounds.getBottom());
         const auto  tick  = juce::Rectangle<float>(bounds.getX()
                                                    , peakY - (peakTickHeight * 0.5f)
                                                    , bounds.getWidth()

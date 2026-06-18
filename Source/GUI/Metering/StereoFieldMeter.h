@@ -14,6 +14,7 @@
 #pragma once
 
 #include "GuiResources.h"
+#include "GUI/MeterBallistics.h"
 #include <JuceHeader.h>
 
 
@@ -35,6 +36,8 @@ public:
 private:
     struct SamplePoint
     {
+        MeterBallistics ballistics { 80.0f, 400.0f, -120.0f };
+        
         float currentDb     = -120.0f;  // last smoothed value, dB
         float lastPaintedDb = -120.0f;  // value as of the most recent repaint
     };

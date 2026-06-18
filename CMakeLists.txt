@@ -112,9 +112,7 @@ set(CenterSpace_SOURCES
     Source/GUI/Metering/SidechainGainMeter.cpp
     Source/GUI/Metering/SidechainGainMeter.h
     Source/GUI/Metering/GainReductionMeter.cpp
-    Source/GUI/Metering/GainReductionMeter.h
-    Source/GUI/Metering/MeterScale.cpp
-    Source/GUI/Metering/MeterScale.h)
+    Source/GUI/Metering/GainReductionMeter.h)
 
 target_sources(CenterSpace PRIVATE ${CenterSpace_SOURCES})
 
@@ -141,7 +139,10 @@ set(FullumModules_SOURCES
     FullumModules/GUI/TitleFooter.cpp
     FullumModules/GUI/TitleFooter.h
     FullumModules/GUI/MeterScaling.h
-    FullumModules/GUI/Format.h)
+    FullumModules/GUI/Format.h
+    FullumModules/GUI/MeterBallistics.h
+    FullumModules/GUI/MeterScale.cpp
+    FullumModules/GUI/MeterScale.h)
 
 target_sources(CenterSpace PRIVATE ${FullumModules_SOURCES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${FullumModules_SOURCES})

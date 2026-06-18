@@ -22,10 +22,6 @@ namespace
 
     constexpr float floorDb = -120.0f;   // input atomics below this are treated as silence
 
-    // StereoFieldMeter smoothness
-    constexpr float riseTimeMs = 80.0f;
-    constexpr float fallTimeMs = 400.0f;
-
     constexpr float inputFillAlpha   = 0.18f;
     constexpr float outputFillAlpha  = 0.32f;
     constexpr float strokeWidth      = 1.5f;
@@ -101,14 +97,7 @@ void StereoFieldMeter::Update()
 
 void StereoFieldMeter::AdvancePoint(SamplePoint &point, float targetDb, float dtSeconds)
 {
-    const bool  rising = (targetDb > point.currentDb);
-    const float tauMs  = rising ? riseTimeMs : fallTimeMs;
-    const float tauSec = tauMs * 0.001f;
-
-    // Standard one-pole exponential smoother: alpha = 1 - exp(-dt / tau)
-    const float alpha = 1.0f - std::exp(-dtSeconds / tauSec);
-
-    point.currentDb += alpha * (targetDb - point.currentDb);
+    point.currentDb = point.ballistics.Advance(targetDb, dtSeconds);
 }
 
 void StereoFieldMeter::BuildTopPath(juce::Path               &path

@@ -10,6 +10,7 @@
 #pragma once
 
 #include "GuiResources.h"
+#include "GUI/MeterBallistics.h"
 #include <JuceHeader.h>
 
 
@@ -29,11 +30,10 @@ public:
     void Update();
 
 private:
-    void AdvanceLevel(float targetDb, float dtSeconds);
-
     GuiResources &resources;
 
-    float  currentDb     { 0.0f };  // smoothed GR amount in dB (0 = no reduction)
+    MeterBallistics level { 5.0f, 400.0f, 0.0f };
+    
     float  lastPaintedDb { 0.0f };  // displayed value as of the most recent repaint
     double lastUpdateMs  { 0.0  };
 
