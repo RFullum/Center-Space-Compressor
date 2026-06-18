@@ -11,7 +11,7 @@
 #include "TitleHeader.h"
 
 #include "Selector.h"
-#include "PatchControls.h"
+#include "GUI/PatchControls.h"
 #include "PluginProcessor.h"
 
 //==============================================================================
@@ -46,14 +46,23 @@ TitleHeader::TitleHeader(GuiResources &resources)
 
     if (resources.processor != nullptr)
     {
-        patchControls = std::make_unique<PatchControls>(resources
-                                                        , resources.processor->patchManager
+        abButton      = std::make_unique<ABButton>     (resources.theme
                                                         , resources.processor->abCompareManager);
+        patchControls = std::make_unique<PatchControls>(resources.theme
+                                                        , resources.processor->patchManager
+                                                        , abButton.get()
+                                                        , resources.csLAndF);
         addAndMakeVisible(patchControls.get());
+        lastPatchIdentity = PatchIdentity();
+        patchControls->Update();
+        startTimerHz(15);
     }
 }
 
-TitleHeader::~TitleHeader() {}
+TitleHeader::~TitleHeader()
+{
+    stopTimer();
+}
 
 void TitleHeader::ShowOptionsMenu()
 {
@@ -157,5 +166,31 @@ void TitleHeader::resized()
 
     bounds.removeFromRight(56);
     uiModeSelector->setBounds(bounds.removeFromRight(141).withSizeKeepingCentre(141, 35));
+}
+
+void TitleHeader::timerCallback()
+{
+    if (!patchControls)
+        return;
+    
+    patchControls->Update();
+    
+    const auto identity = PatchIdentity();
+    if (identity != lastPatchIdentity)
+    {
+        lastPatchIdentity = identity;
+        resources.processor->abCompareManager.ResetToLiveState();
+    }
+}
+
+juce::String TitleHeader::PatchIdentity() const
+{
+    jassert(resources.processor);
+    auto &pm = *resources.processor;
+    return pm.patchManager.GetCurrentPatchFile().getFullPathName()
+            + "|"
+            + pm.patchManager.GetCurrentPatchName()
+            + "|"
+            + juce::String((int) pm.patchManager.GetCurrentSource());
 }
 

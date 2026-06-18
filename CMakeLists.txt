@@ -107,10 +107,8 @@ set(CenterSpace_SOURCES
     Source/GUI/GUIUtils/GuiHelpers.h
     Source/GUI/Components/Selector.cpp
     Source/GUI/Components/Selector.h
-    Source/GUI/Components/PatchControls.cpp
-    Source/GUI/Components/PatchControls.h
-    Source/GUI/Components/PatchSelectionPopup.cpp
-    Source/GUI/Components/PatchSelectionPopup.h
+    Source/GUI/Components/ABButton.cpp
+    Source/GUI/Components/ABButton.h
     Source/GUI/Metering/Metering.cpp
     Source/GUI/Metering/Metering.h
     Source/GUI/Metering/StereoFieldMeter.cpp
@@ -137,7 +135,11 @@ set(FullumModules_SOURCES
     FullumModules/State/PatchManager.h
     FullumModules/State/ABCompareManager.cpp
     FullumModules/State/ABCompareManager.h
-    FullumModules/GUI/ColorPalette.h)
+    FullumModules/GUI/ColorPalette.h
+    FullumModules/GUI/PatchControls.cpp
+    FullumModules/GUI/PatchControls.h
+    FullumModules/GUI/PatchSelectionPopup.cpp
+    FullumModules/GUI/PatchSelectionPopup.h)
 
 target_sources(CenterSpace PRIVATE ${FullumModules_SOURCES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${FullumModules_SOURCES})
@@ -174,6 +176,7 @@ target_include_directories(CenterSpace PRIVATE
     # #include "Signal/Property.h". Libraries/ stays on the path so the migrated
     # headers' #include "sigslot/signal.hpp" resolves.
     FullumModules
+    FullumModules/State
     FullumModules/Libraries)
 
 # --- Factory presets ----------------------------------------------------------

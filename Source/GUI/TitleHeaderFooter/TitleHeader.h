@@ -11,6 +11,7 @@
 #pragma once
 
 #include "GuiResources.h"
+#include "ABButton.h"
 #include <JuceHeader.h>
 
 class UIModeSelector;
@@ -19,7 +20,8 @@ class PatchControls;
 //==============================================================================
 
 class TitleHeader
-    : public juce::Component
+    : public  juce::Component
+    , private juce::Timer
 {
 public:
     TitleHeader(GuiResources &resources);
@@ -48,11 +50,15 @@ private:
         std::function<void()> onRightClick;
     };
 
+    void timerCallback() override;
+    
     void ShowOptionsMenu();
+    juce::String PatchIdentity() const;
 
     GuiResources &resources;
 
     std::unique_ptr<UIModeSelector> uiModeSelector;
+    std::unique_ptr<ABButton>       abButton;
     std::unique_ptr<PatchControls>  patchControls;
     std::unique_ptr<TitleArea>      titleArea;
 
@@ -60,6 +66,8 @@ private:
     juce::Rectangle<int> centerArea;
     juce::Rectangle<int> spaceArea;
     juce::Rectangle<int> glyphArea;
+    
+    juce::String lastPatchIdentity;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(TitleHeader)
 };
