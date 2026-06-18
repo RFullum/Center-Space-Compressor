@@ -14,7 +14,7 @@
 #include "ABButton.h"
 #include <JuceHeader.h>
 
-class UIModeSelector;
+class Selector;
 class PatchControls;
 
 //==============================================================================
@@ -57,7 +57,7 @@ private:
 
     GuiResources &resources;
 
-    std::unique_ptr<UIModeSelector> uiModeSelector;
+    std::unique_ptr<Selector>       uiModeSelector;
     std::unique_ptr<ABButton>       abButton;
     std::unique_ptr<PatchControls>  patchControls;
     std::unique_ptr<TitleArea>      titleArea;

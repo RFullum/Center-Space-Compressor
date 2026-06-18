@@ -10,12 +10,17 @@
 #include "VibeDynamics.h"
 
 #include "GUI/GuiHelpers.h"
-#include "Selector.h"
+#include "GUI/Selector.h"
+#include "CenterSpaceHelpers.h"
 
 //==============================================================================
 
 VibeDynamics::VibeDynamics(GuiResources &resources)
-: feelSelector(std::make_unique<FeelSelector>(resources, "feel"))
+: feelSelector(std::make_unique<Selector>(*resources.apvts
+                                          , "feel"
+                                          , resources.theme
+                                          , juce::StringArray{"CLEAN","SMOOTH"}
+                                          , CenterSpace::SelectorFontOptions))
 {
     GuiHelpers::SetupSlider(this
                              , reactSlider

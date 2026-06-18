@@ -11,14 +11,23 @@
 
 #include "GUI/GuiHelpers.h"
 #include "GUI/Format.h"
-#include "Selector.h"
+#include "GUI/Selector.h"
+#include "CenterSpaceHelpers.h"
 
 //==============================================================================
 
 TweakDetection::TweakDetection(GuiResources &resources)
 : resources(resources)
-, detectionSelector(std::make_unique<DetectionSelector>     (resources, "peakRMS"))
-, laSelector       (std::make_unique<LookaheadTweakSelector>(resources, "lookahead"))
+, detectionSelector(std::make_unique<Selector>(*resources.apvts
+                                               , "peakRMS"
+                                               , resources.theme
+                                               , juce::StringArray{"PEAK","RMS"}
+                                               , CenterSpace::SelectorFontOptions))
+, laSelector       (std::make_unique<Selector>(*resources.apvts
+                                               , "lookahead"
+                                               , resources.theme
+                                               , juce::StringArray{"0","1","4","10"}
+                                               , CenterSpace::SelectorFontOptions))
 {
     GuiHelpers::SetupSlider(this
                              , scGainSlider

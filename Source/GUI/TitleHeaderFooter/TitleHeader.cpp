@@ -10,9 +10,10 @@
 
 #include "TitleHeader.h"
 
-#include "Selector.h"
+#include "GUI/Selector.h"
 #include "GUI/PatchControls.h"
 #include "PluginProcessor.h"
+#include "CenterSpaceHelpers.h"
 
 //==============================================================================
 
@@ -33,7 +34,11 @@ void TitleHeader::TitleArea::mouseDown(const juce::MouseEvent &e)
 
 TitleHeader::TitleHeader(GuiResources &resources)
 : resources(resources)
-, uiModeSelector(std::make_unique<UIModeSelector>(resources, "uiMode"))
+, uiModeSelector(std::make_unique<Selector>(*resources.apvts
+                                            , "uiMode"
+                                            , resources.theme
+                                            , juce::StringArray{"VIBE","TWEAK"}
+                                            , CenterSpace::SelectorFontOptions))
 {
     setOpaque(false);
 

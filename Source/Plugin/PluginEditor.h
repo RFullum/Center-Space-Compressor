@@ -18,7 +18,7 @@
 class CenterSpaceAudioProcessor;
 class TitleHeader;
 class TitleFooter;
-class StereoSelector;
+class Selector;
 class FullumLookAndFeel;
 
 class VibeDetection;
@@ -54,10 +54,10 @@ private:
     std::unique_ptr<TitleHeader> titleHeader;
     std::unique_ptr<TitleFooter> titleFooter;
     
-    std::unique_ptr<StereoSelector> inStereoSelector;
-    std::unique_ptr<StereoSelector> outStereoSelector;
-    juce::Label                     inStereoLabel;
-    juce::Label                     outStereoLabel;
+    std::unique_ptr<Selector> inStereoSelector;
+    std::unique_ptr<Selector> outStereoSelector;
+    juce::Label               inStereoLabel;
+    juce::Label               outStereoLabel;
     
     std::unique_ptr<VibeDetection>  vibeDetection;
     std::unique_ptr<VibeDynamics>   vibeDynamics;

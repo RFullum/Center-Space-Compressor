@@ -11,13 +11,18 @@
 
 #include "GUI/GuiHelpers.h"
 #include "GUI/Format.h"
-#include "Selector.h"
+#include "GUI/Selector.h"
+#include "CenterSpaceHelpers.h"
 
 //==============================================================================
 
 TweakDynamics::TweakDynamics(GuiResources &resources)
 : resources(resources)
-, styleSelector(std::make_unique<StyleSelector>(resources, "style"))
+, styleSelector(std::make_unique<Selector>(*resources.apvts
+                                           , "style"
+                                           , resources.theme
+                                           , juce::StringArray{"VCA","OPTO"}
+                                           , CenterSpace::SelectorFontOptions))
 {
     GuiHelpers::SetupSlider(this
                              , ratioSlider

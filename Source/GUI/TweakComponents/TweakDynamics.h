@@ -13,7 +13,7 @@
 #include "TweakLayout.h"
 #include <JuceHeader.h>
 
-class StyleSelector;
+class Selector;
 
 //==============================================================================
 
@@ -45,7 +45,7 @@ private:
     juce::Label relLabel;
     juce::Label styleLabel;
     
-    std::unique_ptr<StyleSelector> styleSelector;
+    std::unique_ptr<Selector> styleSelector;
     
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> ratioSliderAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> kneeAttachment;

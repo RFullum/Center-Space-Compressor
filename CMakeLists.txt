@@ -101,8 +101,6 @@ set(CenterSpace_SOURCES
     Source/GUI/GUIUtils/ColorPalette.h
     Source/GUI/GUIUtils/GuiResources.h
     Source/GUI/GUIUtils/CenterSpaceHelpers.h
-    Source/GUI/Components/Selector.cpp
-    Source/GUI/Components/Selector.h
     Source/GUI/Components/ABButton.cpp
     Source/GUI/Components/ABButton.h
     Source/GUI/Metering/Metering.cpp
@@ -142,7 +140,9 @@ set(FullumModules_SOURCES
     FullumModules/GUI/Format.h
     FullumModules/GUI/MeterBallistics.h
     FullumModules/GUI/MeterScale.cpp
-    FullumModules/GUI/MeterScale.h)
+    FullumModules/GUI/MeterScale.h
+    FullumModules/GUI/Selector.cpp
+    FullumModules/GUI/Selector.h)
 
 target_sources(CenterSpace PRIVATE ${FullumModules_SOURCES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${FullumModules_SOURCES})

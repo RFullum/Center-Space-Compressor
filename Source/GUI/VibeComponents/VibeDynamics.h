@@ -13,7 +13,7 @@
 #include "VibeLayout.h"
 #include <JuceHeader.h>
 
-class FeelSelector;
+class Selector;
 
 //==============================================================================
 
@@ -31,7 +31,7 @@ private:
     juce::Label  reactLabel;
     juce::Label  feelLabel;
     
-    std::unique_ptr<FeelSelector> feelSelector;
+    std::unique_ptr<Selector> feelSelector;
     
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> reactAttachment;
 };

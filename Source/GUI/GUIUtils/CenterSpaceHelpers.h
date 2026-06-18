@@ -53,4 +53,6 @@ namespace CenterSpace
         Ten
     };
 
+    static const juce::FontOptions SelectorFontOptions { juce::FontOptions("Helvetica", 11.0f, juce::Font::plain) };
+
 }   // namespace CenterSpace

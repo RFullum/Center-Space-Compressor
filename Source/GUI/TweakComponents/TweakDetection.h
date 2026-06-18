@@ -13,8 +13,7 @@
 #include "TweakLayout.h"
 #include <JuceHeader.h>
 
-class DetectionSelector;
-class LookaheadTweakSelector;
+class Selector;
 
 //==============================================================================
 
@@ -47,8 +46,8 @@ private:
     juce::Label detectionLabel;
     juce::Label laLabel;
     
-    std::unique_ptr<DetectionSelector>      detectionSelector;
-    std::unique_ptr<LookaheadTweakSelector> laSelector;
+    std::unique_ptr<Selector> detectionSelector;
+    std::unique_ptr<Selector> laSelector;
     
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> scGainSliderAttachement;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> threshSliderAttachment;

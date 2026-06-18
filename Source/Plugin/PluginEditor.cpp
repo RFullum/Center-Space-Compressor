@@ -10,13 +10,14 @@
 #include "PluginEditor.h"
 #include "TitleHeader.h"
 #include "GUI/TitleFooter.h"
-#include "Selector.h"
+#include "GUI/Selector.h"
 #include "GUI/FullumLookAndFeel.h"
 #include "VibeDynamics.h"
 #include "VibeDetection.h"
 #include "TweakDynamics.h"
 #include "TweakDetection.h"
 #include "Metering.h"
+#include "CenterSpaceHelpers.h"
 
 //==============================================================================
 
@@ -47,8 +48,16 @@ CenterSpaceAudioProcessorEditor::CenterSpaceAudioProcessorEditor(CenterSpaceAudi
 , resources(MakeResources(p, *csLAndF))
 , titleHeader(std::make_unique<TitleHeader>(resources))
 , titleFooter(std::make_unique<TitleFooter>(resources.theme, ProjectInfo::versionString))
-, inStereoSelector (std::make_unique<StereoSelector>(resources, "inputType"))
-, outStereoSelector(std::make_unique<StereoSelector>(resources, "outputType"))
+, inStereoSelector (std::make_unique<Selector>(*resources.apvts
+                                               , "inputType"
+                                               , resources.theme
+                                               , juce::StringArray{"LR","M/S"}
+                                               , CenterSpace::SelectorFontOptions))
+, outStereoSelector(std::make_unique<Selector>(*resources.apvts
+                                               , "outputType"
+                                               , resources.theme
+                                               , juce::StringArray{"LR","M/S"}
+                                               , CenterSpace::SelectorFontOptions))
 , vibeDetection (std::make_unique<VibeDetection> (resources))
 , vibeDynamics  (std::make_unique<VibeDynamics>  (resources))
 , tweakDetection(std::make_unique<TweakDetection>(resources))

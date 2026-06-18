@@ -10,12 +10,17 @@
 #include "VibeDetection.h"
 
 #include "GUI/GuiHelpers.h"
-#include "Selector.h"
+#include "GUI/Selector.h"
+#include "CenterSpaceHelpers.h"
 
 //==============================================================================
 
 VibeDetection::VibeDetection(GuiResources &resources)
-: laSelector(std::make_unique<LookaheadVibeSelector>(resources, "lookaheadOnOff"))
+: laSelector(std::make_unique<Selector>(*resources.apvts
+                                        , "lookaheadOnOff"
+                                        , resources.theme
+                                        , juce::StringArray{"OFF","ON"}
+                                        , CenterSpace::SelectorFontOptions))
 {
     GuiHelpers::SetupSlider(this
                              , compressSlider
