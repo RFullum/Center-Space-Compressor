@@ -136,7 +136,8 @@ set(FullumModules_SOURCES
     FullumModules/State/PatchManager.cpp
     FullumModules/State/PatchManager.h
     FullumModules/State/ABCompareManager.cpp
-    FullumModules/State/ABCompareManager.h)
+    FullumModules/State/ABCompareManager.h
+    FullumModules/GUI/ColorPalette.h)
 
 target_sources(CenterSpace PRIVATE ${FullumModules_SOURCES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${FullumModules_SOURCES})
