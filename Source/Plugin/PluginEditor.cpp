@@ -126,8 +126,8 @@ CenterSpaceAudioProcessorEditor::CenterSpaceAudioProcessorEditor(CenterSpaceAudi
     // parameter's getText()) with our project-wide formatters. Must happen
     // AFTER the attachment is constructed — the attachment's ctor overwrites
     // textFromValueFunction with its own lambda.
-    inGainSlider .textFromValueFunction = CenterSpace::SliderText::Db;
-    outGainSlider.textFromValueFunction = CenterSpace::SliderText::Db;
+    inGainSlider .textFromValueFunction = Format::Db;
+    outGainSlider.textFromValueFunction = Format::Db;
     inGainSlider .updateText();
     outGainSlider.updateText();
 

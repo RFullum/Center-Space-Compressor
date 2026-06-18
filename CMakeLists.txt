@@ -140,7 +140,8 @@ set(FullumModules_SOURCES
     FullumModules/GUI/FullumLookAndFeel.h
     FullumModules/GUI/TitleFooter.cpp
     FullumModules/GUI/TitleFooter.h
-    FullumModules/GUI/MeterScaling.h)
+    FullumModules/GUI/MeterScaling.h
+    FullumModules/GUI/Format.h)
 
 target_sources(CenterSpace PRIVATE ${FullumModules_SOURCES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${FullumModules_SOURCES})

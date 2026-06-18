@@ -10,7 +10,7 @@
 #include "TweakDetection.h"
 
 #include "GUI/GuiHelpers.h"
-#include "CenterSpaceHelpers.h"
+#include "GUI/Format.h"
 #include "Selector.h"
 
 //==============================================================================
@@ -87,10 +87,10 @@ TweakDetection::TweakDetection(GuiResources &resources)
     scLpfAttachment         = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(*resources.apvts, "scLpfHz",    scLpfSlider);
 
     // Must happen AFTER attachments are constructed — see PluginEditor.cpp.
-    scGainSlider.textFromValueFunction = CenterSpace::SliderText::Db;
-    threshSlider.textFromValueFunction = CenterSpace::SliderText::Db;
-    scHpfSlider .textFromValueFunction = CenterSpace::SliderText::Hz;
-    scLpfSlider .textFromValueFunction = CenterSpace::SliderText::Hz;
+    scGainSlider.textFromValueFunction = Format::Db;
+    threshSlider.textFromValueFunction = Format::Db;
+    scHpfSlider .textFromValueFunction = Format::Hz;
+    scLpfSlider .textFromValueFunction = Format::Hz;
     scGainSlider.updateText();
     threshSlider.updateText();
     scHpfSlider .updateText();

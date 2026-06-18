@@ -10,7 +10,7 @@
 #include "TweakDynamics.h"
 
 #include "GUI/GuiHelpers.h"
-#include "CenterSpaceHelpers.h"
+#include "GUI/Format.h"
 #include "Selector.h"
 
 //==============================================================================
@@ -81,10 +81,10 @@ TweakDynamics::TweakDynamics(GuiResources &resources)
     relSliderAttachment   = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(*resources.apvts, "release", relSlider);
 
     // Must happen AFTER attachments are constructed — see PluginEditor.cpp.
-    ratioSlider.textFromValueFunction = CenterSpace::SliderText::Ratio;
-    kneeSlider .textFromValueFunction = CenterSpace::SliderText::Db;
-    atkSlider  .textFromValueFunction = CenterSpace::SliderText::Ms;
-    relSlider  .textFromValueFunction = CenterSpace::SliderText::Ms;
+    ratioSlider.textFromValueFunction = Format::Ratio;
+    kneeSlider .textFromValueFunction = Format::Db;
+    atkSlider  .textFromValueFunction = Format::TimeMS;
+    relSlider  .textFromValueFunction = Format::TimeMS;
     ratioSlider.updateText();
     kneeSlider .updateText();
     atkSlider  .updateText();
