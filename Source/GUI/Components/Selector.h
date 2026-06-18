@@ -10,7 +10,7 @@
 #pragma once
 
 #include "GuiResources.h"
-#include "signal/Property.h"
+#include "Signal/Property.h"
 #include "GuiHelpers.h"
 #include <JuceHeader.h>
 

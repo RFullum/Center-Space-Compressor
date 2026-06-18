@@ -125,16 +125,21 @@ set(CenterSpace_SOURCES
     Source/GUI/Metering/GainReductionMeter.h
     Source/GUI/Metering/MeterScale.cpp
     Source/GUI/Metering/MeterScale.h
-    Source/GUI/Metering/MeterScaling.h
-    Source/Signal/signal/Signal.h
-    Source/Signal/signal/Property.h
-    Source/Signal/signal/OwnedProperty.h
-    Source/Signal/signal/PropertyReader.h
-    Source/Signal/signal/PropertyBridge.h
-    Source/Signal/signal/HoldableOnChange.h
-    Source/ThirdParty/sigslot/signal.hpp)
+    Source/GUI/Metering/MeterScaling.h)
 
 target_sources(CenterSpace PRIVATE ${CenterSpace_SOURCES})
+
+set(FullumModules_SOURCES
+    FullumModules/Signal/Signal.h
+    FullumModules/Signal/Property.h
+    FullumModules/Signal/OwnedProperty.h
+    FullumModules/Signal/PropertyReader.h
+    FullumModules/Signal/PropertyBridge.h
+    FullumModules/Signal/HoldableOnChange.h
+    FullumModules/Libraries/sigslot/signal.hpp)
+
+target_sources(CenterSpace PRIVATE ${FullumModules_SOURCES})
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${FullumModules_SOURCES})
 
 # Mirror on-disk folder structure in IDE navigators (Xcode, Visual Studio).
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${CenterSpace_SOURCES})
@@ -162,8 +167,14 @@ target_include_directories(CenterSpace PRIVATE
     Source/GUI/Metering
     Source/GUI/GUIUtils
     Source/GUI/Components
-    Source/Signal
-    Source/ThirdParty)
+    # NOTE: add the FullumModules *root* to the include path, not its subfolders.
+    # Putting FullumModules/Signal directly on the path makes its Signal.h shadow
+    # the POSIX <signal.h> on case-insensitive filesystems (macOS/Windows),
+    # breaking JUCE's juce_core. Headers are referenced folder-rooted, e.g.
+    # #include "Signal/Property.h". Libraries/ stays on the path so the migrated
+    # headers' #include "sigslot/signal.hpp" resolves.
+    FullumModules
+    FullumModules/Libraries)
 
 # --- Factory presets ----------------------------------------------------------
 # Per-bundle POST_BUILD: copy Resources/FactoryPresets/*.cspatch into each
