@@ -9,7 +9,8 @@
 #pragma once
 
 #include "GuiResources.h"
-#include "GuiHelpers.h"
+#include "GUI/GuiHelpers.h"
+#include "CenterSpaceHelperes.h"
 
 #include <JuceHeader.h>
 

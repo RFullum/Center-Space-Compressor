@@ -11,7 +11,7 @@
 
 #include "GuiResources.h"
 #include "Signal/Property.h"
-#include "GuiHelpers.h"
+#include "CenterSpaceHelperes.h"
 #include <JuceHeader.h>
 
 //==============================================================================

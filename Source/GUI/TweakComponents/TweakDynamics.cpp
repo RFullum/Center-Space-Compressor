@@ -9,7 +9,8 @@
 
 #include "TweakDynamics.h"
 
-#include "GuiHelpers.h"
+#include "GUI/GuiHelpers.h"
+#include "CenterSpaceHelperes.h"
 #include "Selector.h"
 
 //==============================================================================
@@ -18,52 +19,52 @@ TweakDynamics::TweakDynamics(GuiResources &resources)
 : resources(resources)
 , styleSelector(std::make_unique<StyleSelector>(resources, "style"))
 {
-    CenterSpace::SetupSlider(this
+    GuiHelpers::SetupSlider(this
                              , ratioSlider
                              , juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag
                              , resources.theme.primaryAccent
                              , juce::Colours::transparentBlack
                              , resources.theme.textPrimary);
-    CenterSpace::SetupSlider(this
+    GuiHelpers::SetupSlider(this
                              , kneeSlider
                              , juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag
                              , resources.theme.primaryAccent
                              , juce::Colours::transparentBlack
                              , resources.theme.textPrimary);
-    CenterSpace::SetupSlider(this
+    GuiHelpers::SetupSlider(this
                              , atkSlider
                              , juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag
                              , resources.theme.primaryAccent
                              , juce::Colours::transparentBlack
                              , resources.theme.textPrimary);
-    CenterSpace::SetupSlider(this
+    GuiHelpers::SetupSlider(this
                              , relSlider
                              , juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag
                              , resources.theme.primaryAccent
                              , juce::Colours::transparentBlack
                              , resources.theme.textPrimary);
 
-    CenterSpace::SetupLabel(this
+    GuiHelpers::SetupLabel(this
                             , ratioLabel
                             , "Ratio"
                             , resources.theme.textPrimary
                             , 12.0f);
-    CenterSpace::SetupLabel(this
+    GuiHelpers::SetupLabel(this
                             , kneeLabel
                             , "Knee"
                             , resources.theme.textPrimary
                             , 12.0f);
-    CenterSpace::SetupLabel(this
+    GuiHelpers::SetupLabel(this
                             , atkLabel
                             , "Attack"
                             , resources.theme.textPrimary
                             , 12.0f);
-    CenterSpace::SetupLabel(this
+    GuiHelpers::SetupLabel(this
                             , relLabel
                             , "Release"
                             , resources.theme.textPrimary
                             , 12.0f);
-    CenterSpace::SetupLabel(this
+    GuiHelpers::SetupLabel(this
                             , styleLabel
                             , "STYLE"
                             , resources.theme.textPrimary
@@ -89,10 +90,10 @@ TweakDynamics::TweakDynamics(GuiResources &resources)
     atkSlider  .updateText();
     relSlider  .updateText();
 
-    CenterSpace::SetTip(ratioSlider, "Compression ratio. 1:1 = no compression. Over 10:1 gets into the limiting range.");
-    CenterSpace::SetTip(kneeSlider,  "Soft-knee width. 0 dB = hard knee. Wider knee = gentler transition past threshold.");
-    CenterSpace::SetTip(atkSlider,   "How quickly the compressor clamps down once the sidechain crosses the threshold.");
-    CenterSpace::SetTip(relSlider,   "How quickly the compressor recovers once the sidechain falls below threshold.");
+    GuiHelpers::SetTip(ratioSlider, "Compression ratio. 1:1 = no compression. Over 10:1 gets into the limiting range.");
+    GuiHelpers::SetTip(kneeSlider,  "Soft-knee width. 0 dB = hard knee. Wider knee = gentler transition past threshold.");
+    GuiHelpers::SetTip(atkSlider,   "How quickly the compressor clamps down once the sidechain crosses the threshold.");
+    GuiHelpers::SetTip(relSlider,   "How quickly the compressor recovers once the sidechain falls below threshold.");
     styleSelector->SetTooltip("Compressor character. VCA: modern, precise, transparent. Opto: smoother, slower.");
     
     Update();

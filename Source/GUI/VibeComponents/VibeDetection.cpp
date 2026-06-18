@@ -9,7 +9,7 @@
 
 #include "VibeDetection.h"
 
-#include "GuiHelpers.h"
+#include "GUI/GuiHelpers.h"
 #include "Selector.h"
 
 //==============================================================================
@@ -17,7 +17,7 @@
 VibeDetection::VibeDetection(GuiResources &resources)
 : laSelector(std::make_unique<LookaheadVibeSelector>(resources, "lookaheadOnOff"))
 {
-    CenterSpace::SetupSlider(this
+    GuiHelpers::SetupSlider(this
                              , compressSlider
                              , juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag
                              , resources.theme.primaryAccent
@@ -25,17 +25,17 @@ VibeDetection::VibeDetection(GuiResources &resources)
                              , resources.theme.textPrimary);
     compressSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
 
-    CenterSpace::SetupLabel(this
+    GuiHelpers::SetupLabel(this
                             , compressLabel
                             , "Compress"
                             , resources.theme.textPrimary
                             , 15.0f);
-    CenterSpace::SetupLabel(this
+    GuiHelpers::SetupLabel(this
                             , laLabel
                             , "LOOKAHEAD"
                             , resources.theme.textPrimary
                             , 11.0f);
-    CenterSpace::SetupLabel(this
+    GuiHelpers::SetupLabel(this
                             , focusLabel
                             , "FOCUS"
                             , resources.theme.textPrimary
@@ -66,9 +66,9 @@ VibeDetection::VibeDetection(GuiResources &resources)
     compressAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>  (*resources.apvts, "compress", compressSlider);
     focusAttachment    = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(*resources.apvts, "focus",    focusBox);
  
-    CenterSpace::SetTip(compressSlider, "Turning up increases the Sidechain gain and ratio, and lowers the threshold.");
+    GuiHelpers::SetTip(compressSlider, "Turning up increases the Sidechain gain and ratio, and lowers the threshold.");
     laSelector->SetTooltip("Lookahead on/off. (Reports latency to the host when on).");
-    CenterSpace::SetTip(focusBox, "Filter the Sidechain to focus on specific parts of the signal.");
+    GuiHelpers::SetTip(focusBox, "Filter the Sidechain to focus on specific parts of the signal.");
 }
 
 VibeDetection::~VibeDetection() {}

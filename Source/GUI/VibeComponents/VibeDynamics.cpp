@@ -9,7 +9,7 @@
 
 #include "VibeDynamics.h"
 
-#include "GuiHelpers.h"
+#include "GUI/GuiHelpers.h"
 #include "Selector.h"
 
 //==============================================================================
@@ -17,7 +17,7 @@
 VibeDynamics::VibeDynamics(GuiResources &resources)
 : feelSelector(std::make_unique<FeelSelector>(resources, "feel"))
 {
-    CenterSpace::SetupSlider(this
+    GuiHelpers::SetupSlider(this
                              , reactSlider
                              , juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag
                              , resources.theme.primaryAccent
@@ -25,12 +25,12 @@ VibeDynamics::VibeDynamics(GuiResources &resources)
                              , resources.theme.textPrimary);
     reactSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
 
-    CenterSpace::SetupLabel(this
+    GuiHelpers::SetupLabel(this
                             , reactLabel
                             , "React"
                             , resources.theme.textPrimary
                             , 15.0f);
-    CenterSpace::SetupLabel(this
+    GuiHelpers::SetupLabel(this
                             , feelLabel
                             , "FEEL"
                             , resources.theme.textPrimary
@@ -40,7 +40,7 @@ VibeDynamics::VibeDynamics(GuiResources &resources)
     
     reactAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(*resources.apvts, "react", reactSlider);
 
-    CenterSpace::SetTip(reactSlider, "Reaction time: Left = fast attack & release; right = slow attack & release.");
+    GuiHelpers::SetTip(reactSlider, "Reaction time: Left = fast attack & release; right = slow attack & release.");
     feelSelector->SetTooltip("Compressor character: Clean = Peak + Modern + Hard Knee; Smooth = RMS + Vintage + Soft Knee.");
 }
 

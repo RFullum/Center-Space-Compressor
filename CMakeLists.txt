@@ -104,7 +104,7 @@ set(CenterSpace_SOURCES
     Source/GUI/TitleHeaderFooter/TitleFooter.h
     Source/GUI/GUIUtils/ColorPalette.h
     Source/GUI/GUIUtils/GuiResources.h
-    Source/GUI/GUIUtils/GuiHelpers.h
+    Source/GUI/GUIUtils/CenterSpaceHelperes.h
     Source/GUI/Components/Selector.cpp
     Source/GUI/Components/Selector.h
     Source/GUI/Components/ABButton.cpp
@@ -139,7 +139,8 @@ set(FullumModules_SOURCES
     FullumModules/GUI/PatchControls.cpp
     FullumModules/GUI/PatchControls.h
     FullumModules/GUI/PatchSelectionPopup.cpp
-    FullumModules/GUI/PatchSelectionPopup.h)
+    FullumModules/GUI/PatchSelectionPopup.h
+    FullumModules/GUI/GuiHelpers.h)
 
 target_sources(CenterSpace PRIVATE ${FullumModules_SOURCES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${FullumModules_SOURCES})

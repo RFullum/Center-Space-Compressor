@@ -9,7 +9,8 @@
 
 #include "TweakDetection.h"
 
-#include "GuiHelpers.h"
+#include "GUI/GuiHelpers.h"
+#include "CenterSpaceHelperes.h"
 #include "Selector.h"
 
 //==============================================================================
@@ -19,57 +20,57 @@ TweakDetection::TweakDetection(GuiResources &resources)
 , detectionSelector(std::make_unique<DetectionSelector>     (resources, "peakRMS"))
 , laSelector       (std::make_unique<LookaheadTweakSelector>(resources, "lookahead"))
 {
-    CenterSpace::SetupSlider(this
+    GuiHelpers::SetupSlider(this
                              , scGainSlider
                              , juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag
                              , resources.theme.primaryAccent
                              , juce::Colours::transparentBlack
                              , resources.theme.textPrimary);
-    CenterSpace::SetupSlider(this
+    GuiHelpers::SetupSlider(this
                              , threshSlider
                              , juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag
                              , resources.theme.primaryAccent
                              , juce::Colours::transparentBlack
                              , resources.theme.textPrimary);
-    CenterSpace::SetupSlider(this
+    GuiHelpers::SetupSlider(this
                              , scHpfSlider
                              , juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag
                              , resources.theme.primaryAccent
                              , juce::Colours::transparentBlack
                              , resources.theme.textPrimary);
-    CenterSpace::SetupSlider(this
+    GuiHelpers::SetupSlider(this
                              , scLpfSlider
                              , juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag
                              , resources.theme.primaryAccent
                              , juce::Colours::transparentBlack
                              , resources.theme.textPrimary);
 
-    CenterSpace::SetupLabel(this
+    GuiHelpers::SetupLabel(this
                             , scGainLabel
                             , "SC Gain"
                             , resources.theme.textPrimary
                             , 12.0f);
-    CenterSpace::SetupLabel(this
+    GuiHelpers::SetupLabel(this
                             , threshLabel
                             , "Threshold"
                             , resources.theme.textPrimary
                             , 12.0f);
-    CenterSpace::SetupLabel(this
+    GuiHelpers::SetupLabel(this
                             , scHpfLabel
                             , "SC HPF"
                             , resources.theme.textPrimary
                             , 12.0f);
-    CenterSpace::SetupLabel(this
+    GuiHelpers::SetupLabel(this
                             , scLpfLabel
                             , "SC LPF"
                             , resources.theme.textPrimary
                             , 12.0f);
-    CenterSpace::SetupLabel(this
+    GuiHelpers::SetupLabel(this
                             , detectionLabel
                             , "DETECTION"
                             , resources.theme.textPrimary
                             , 12.0f);
-    CenterSpace::SetupLabel(this
+    GuiHelpers::SetupLabel(this
                             , laLabel
                             , "LOOKAHEAD (ms)"
                             , resources.theme.textPrimary
@@ -95,10 +96,10 @@ TweakDetection::TweakDetection(GuiResources &resources)
     scHpfSlider .updateText();
     scLpfSlider .updateText();
 
-    CenterSpace::SetTip(scGainSlider, "Set Sidechain's input Gain.");
-    CenterSpace::SetTip(threshSlider, "Set compression Threshold. Sidechain signal above threshold triggers compressor.");
-    CenterSpace::SetTip(scHpfSlider,  "Sidechain HPF: Remove low frequencies from the sidechain signal before it hits the threshold.");
-    CenterSpace::SetTip(scLpfSlider,  "Sidechain LPF: Remove high frequencies from the sidechain signal before it hits the threshold.");
+    GuiHelpers::SetTip(scGainSlider, "Set Sidechain's input Gain.");
+    GuiHelpers::SetTip(threshSlider, "Set compression Threshold. Sidechain signal above threshold triggers compressor.");
+    GuiHelpers::SetTip(scHpfSlider,  "Sidechain HPF: Remove low frequencies from the sidechain signal before it hits the threshold.");
+    GuiHelpers::SetTip(scLpfSlider,  "Sidechain LPF: Remove high frequencies from the sidechain signal before it hits the threshold.");
     detectionSelector->SetTooltip("Peak: max voltage (instantaneous); RMS: average power (slower, smoother).");
     laSelector       ->SetTooltip("Sidechain Lookahead in milliseconds. (Reports latency to the host)");
 

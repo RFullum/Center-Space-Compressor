@@ -74,36 +74,36 @@ CenterSpaceAudioProcessorEditor::CenterSpaceAudioProcessorEditor(CenterSpaceAudi
     
     addAndMakeVisible(inStereoSelector .get());
     addAndMakeVisible(outStereoSelector.get());
-    CenterSpace::SetupLabel(this
+    GuiHelpers::SetupLabel(this
                             , inStereoLabel
                             , "In Stereo"
                             , resources.theme.textSecondary
                             , 11.0f);
-    CenterSpace::SetupLabel(this
+    GuiHelpers::SetupLabel(this
                             , outStereoLabel
                             , "Out Stereo"
                             , resources.theme.textSecondary
                             , 11.0f);
 
-    CenterSpace::SetupSlider(this
+    GuiHelpers::SetupSlider(this
                              , inGainSlider
                              , juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag
                              , resources.theme.secondaryAccent
                              , juce::Colours::transparentBlack
                              , resources.theme.textPrimary);
-    CenterSpace::SetupSlider(this
+    GuiHelpers::SetupSlider(this
                              , outGainSlider
                              , juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag
                              , resources.theme.secondaryAccent
                              , juce::Colours::transparentBlack
                              , resources.theme.textPrimary);
 
-    CenterSpace::SetupLabel(this
+    GuiHelpers::SetupLabel(this
                             , inGainLabel
                             , "In Gain"
                             , resources.theme.textSecondary
                             , 11.0f);
-    CenterSpace::SetupLabel(this
+    GuiHelpers::SetupLabel(this
                             , outGainLabel
                             , "Out Gain"
                             , resources.theme.textSecondary
@@ -128,8 +128,8 @@ CenterSpaceAudioProcessorEditor::CenterSpaceAudioProcessorEditor(CenterSpaceAudi
     inGainSlider .updateText();
     outGainSlider.updateText();
 
-    CenterSpace::SetTip(inGainSlider,  "Set audio's Input Gain.");
-    CenterSpace::SetTip(outGainSlider, "Set audio's Output Gain.");
+    GuiHelpers::SetTip(inGainSlider,  "Set audio's Input Gain.");
+    GuiHelpers::SetTip(outGainSlider, "Set audio's Output Gain.");
     inStereoSelector ->SetTooltip("Select LR if the source is in standard Left-Right stereo. Only pick M/S if the source is already Mid/Side encoded.");
     outStereoSelector->SetTooltip("Select LR to decode back to standard Left-Right stereo. Select M/S to leave the output Mid/Side encoded.");
 
