@@ -8,7 +8,7 @@
 
 #include "PatchControls.h"
 
-#include "PatchManager.h"
+#include "State/PatchManager.h"
 #include "PluginProcessor.h"
 
 //==============================================================================

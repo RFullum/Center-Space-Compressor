@@ -83,8 +83,6 @@ set(CenterSpace_SOURCES
     Source/Plugin/PluginProcessor.h
     Source/Plugin/PluginEditor.cpp
     Source/Plugin/PluginEditor.h
-    Source/Plugin/PatchEngine/PatchManager.cpp
-    Source/Plugin/PatchEngine/PatchManager.h
     Source/Plugin/PatchEngine/ABCompareManager.cpp
     Source/Plugin/PatchEngine/ABCompareManager.h
     Source/DSP/Derivations.h
@@ -136,7 +134,9 @@ set(FullumModules_SOURCES
     FullumModules/Signal/PropertyReader.h
     FullumModules/Signal/PropertyBridge.h
     FullumModules/Signal/HoldableOnChange.h
-    FullumModules/Libraries/sigslot/signal.hpp)
+    FullumModules/Libraries/sigslot/signal.hpp
+    FullumModules/State/PatchManager.cpp
+    FullumModules/State/PatchManager.h)
 
 target_sources(CenterSpace PRIVATE ${FullumModules_SOURCES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${FullumModules_SOURCES})
