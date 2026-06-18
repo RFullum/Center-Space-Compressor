@@ -9,7 +9,7 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 #include "TitleHeader.h"
-#include "TitleFooter.h"
+#include "GUI/TitleFooter.h"
 #include "Selector.h"
 #include "GUI/FullumLookAndFeel.h"
 #include "VibeDynamics.h"
@@ -46,7 +46,7 @@ CenterSpaceAudioProcessorEditor::CenterSpaceAudioProcessorEditor(CenterSpaceAudi
 , csLAndF(std::make_unique<FullumLookAndFeel>(Palette::DefaultTheme))
 , resources(MakeResources(p, *csLAndF))
 , titleHeader(std::make_unique<TitleHeader>(resources))
-, titleFooter(std::make_unique<TitleFooter>(resources))
+, titleFooter(std::make_unique<TitleFooter>(resources.theme, ProjectInfo::versionString))
 , inStereoSelector (std::make_unique<StereoSelector>(resources, "inputType"))
 , outStereoSelector(std::make_unique<StereoSelector>(resources, "outputType"))
 , vibeDetection (std::make_unique<VibeDetection> (resources))

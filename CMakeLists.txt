@@ -98,8 +98,6 @@ set(CenterSpace_SOURCES
     Source/GUI/VibeComponents/VibeLayout.h
     Source/GUI/TitleHeaderFooter/TitleHeader.cpp
     Source/GUI/TitleHeaderFooter/TitleHeader.h
-    Source/GUI/TitleHeaderFooter/TitleFooter.cpp
-    Source/GUI/TitleHeaderFooter/TitleFooter.h
     Source/GUI/GUIUtils/ColorPalette.h
     Source/GUI/GUIUtils/GuiResources.h
     Source/GUI/GUIUtils/CenterSpaceHelperes.h
@@ -140,7 +138,9 @@ set(FullumModules_SOURCES
     FullumModules/GUI/PatchSelectionPopup.h
     FullumModules/GUI/GuiHelpers.h
     FullumModules/GUI/FullumLookAndFeel.cpp
-    FullumModules/GUI/FullumLookAndFeel.h)
+    FullumModules/GUI/FullumLookAndFeel.h
+    FullumModules/GUI/TitleFooter.cpp
+    FullumModules/GUI/TitleFooter.h)
 
 target_sources(CenterSpace PRIVATE ${FullumModules_SOURCES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${FullumModules_SOURCES})
