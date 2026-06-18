@@ -7,7 +7,7 @@
 */
 
 #include "MeterScale.h"
-#include "MeterScaling.h"
+#include "GUI/MeterScaling.h"
 
 
 //==============================================================================

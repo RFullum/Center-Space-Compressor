@@ -7,7 +7,7 @@
 */
 
 #include "StereoFieldMeter.h"
-#include "MeterScaling.h"
+#include "GUI/MeterScaling.h"
 #include "PluginProcessor.h"
 
 #include <cmath>
