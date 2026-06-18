@@ -19,7 +19,7 @@ class CenterSpaceAudioProcessor;
 class TitleHeader;
 class TitleFooter;
 class StereoSelector;
-class CSLookAndFeel;
+class FullumLookAndFeel;
 
 class VibeDetection;
 class VibeDynamics;
@@ -47,7 +47,7 @@ private:
     void Update();
     void UpdateTooltipWindow();  
     
-    std::unique_ptr<CSLookAndFeel>       csLAndF;
+    std::unique_ptr<FullumLookAndFeel>   csLAndF;
     GuiResources                         resources;
     std::unique_ptr<juce::TooltipWindow> tooltipWindow;
     

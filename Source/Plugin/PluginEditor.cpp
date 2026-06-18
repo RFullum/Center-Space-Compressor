@@ -11,7 +11,7 @@
 #include "TitleHeader.h"
 #include "TitleFooter.h"
 #include "Selector.h"
-#include "CSLookAndFeel.h"
+#include "GUI/FullumLookAndFeel.h"
 #include "VibeDynamics.h"
 #include "VibeDetection.h"
 #include "TweakDynamics.h"
@@ -43,7 +43,7 @@ namespace
 
 CenterSpaceAudioProcessorEditor::CenterSpaceAudioProcessorEditor(CenterSpaceAudioProcessor &p)
 : juce::AudioProcessorEditor(&p)
-, csLAndF(std::make_unique<CSLookAndFeel>(Palette::DefaultTheme))
+, csLAndF(std::make_unique<FullumLookAndFeel>(Palette::DefaultTheme))
 , resources(MakeResources(p, *csLAndF))
 , titleHeader(std::make_unique<TitleHeader>(resources))
 , titleFooter(std::make_unique<TitleFooter>(resources))
@@ -58,7 +58,10 @@ CenterSpaceAudioProcessorEditor::CenterSpaceAudioProcessorEditor(CenterSpaceAudi
 {
     setSize(1280, 720);
 
-    csLAndF->SetTrackBackground(resources.theme.structure);
+    csLAndF->SetTrackBackground    (resources.theme.structure);
+    csLAndF->SetArcThicknessFactor (0.08f);
+    csLAndF->SetAlertTitleAccent   (resources.theme.primaryAccent);
+    csLAndF->SetTooltipBorderColour(resources.theme.primaryAccent.withAlpha(0.5f));
 
     // Attach our LookAndFeel at the editor level — every child component
     // (including sliders inside Tweak/Vibe sub-components) inherits it via
@@ -247,7 +250,7 @@ void CenterSpaceAudioProcessorEditor::UpdateTooltipWindow()
 
     if (want && tooltipWindow == nullptr)
     {
-        // Non-opaque so CSLookAndFeel::drawTooltip's rounded background looks
+        // Non-opaque so FullumLookAndFeel::drawTooltip's rounded background looks
         // rounded with no corners poking out.
         tooltipWindow = std::make_unique<juce::TooltipWindow>(this);
         tooltipWindow->setOpaque(false);

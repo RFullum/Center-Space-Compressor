@@ -84,8 +84,6 @@ set(CenterSpace_SOURCES
     Source/Plugin/PluginEditor.cpp
     Source/Plugin/PluginEditor.h
     Source/DSP/Derivations.h
-    Source/GUI/LookAndFeel/CSLookAndFeel.cpp
-    Source/GUI/LookAndFeel/CSLookAndFeel.h
     Source/GUI/TweakComponents/TweakDetection.cpp
     Source/GUI/TweakComponents/TweakDetection.h
     Source/GUI/TweakComponents/TweakDynamics.cpp
@@ -140,7 +138,9 @@ set(FullumModules_SOURCES
     FullumModules/GUI/PatchControls.h
     FullumModules/GUI/PatchSelectionPopup.cpp
     FullumModules/GUI/PatchSelectionPopup.h
-    FullumModules/GUI/GuiHelpers.h)
+    FullumModules/GUI/GuiHelpers.h
+    FullumModules/GUI/FullumLookAndFeel.cpp
+    FullumModules/GUI/FullumLookAndFeel.h)
 
 target_sources(CenterSpace PRIVATE ${FullumModules_SOURCES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${FullumModules_SOURCES})
@@ -163,7 +163,6 @@ source_group("JUCE Library Code" FILES ${_juce_module_files})
 target_include_directories(CenterSpace PRIVATE
     Source/Plugin
     Source/DSP
-    Source/GUI/LookAndFeel
     Source/GUI/TweakComponents
     Source/GUI/VibeComponents
     Source/GUI/TitleHeaderFooter
