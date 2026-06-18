@@ -13,7 +13,7 @@
 #pragma once
 
 #include "GuiResources.h"
-#include "ABCompareManager.h"
+#include "State/ABCompareManager.h"
 #include "PatchSelectionPopup.h"
 #include <JuceHeader.h>
 

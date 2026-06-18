@@ -10,7 +10,7 @@
 
 #include <JuceHeader.h>
 #include "State/PatchManager.h"
-#include "ABCompareManager.h"
+#include "State/ABCompareManager.h"
 
 
 //==============================================================================

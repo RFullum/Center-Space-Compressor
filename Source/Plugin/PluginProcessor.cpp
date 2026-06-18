@@ -72,14 +72,14 @@ CenterSpaceAudioProcessor::CenterSpaceAudioProcessor()
                                                                                                                                      , "High"}), 0)
     , std::make_unique<juce::AudioParameterBool>  (juce::ParameterID{"lookaheadOnOff", 1}, "Lookahead On/Off",    false)
   })
-//, patchManager(parameters)
 , patchManager(parameters
                , PatchConfig{.fileExtension        = ".cspatch"
                             , .rootTagName         = "CSPatch"
                             , .pluginName          = "Center Space"
                             , .companyName         = "FullumMusic"
                             , .isExcludedFromPatch = [](const juce::String &id) { return id == "bypass"; } })
-, abCompareManager(parameters)
+, abCompareManager(parameters
+                   , [](const juce::String &id) { return id == "bypass"; })
 {
     // Shared
     uiModeChoice         = parameters.getRawParameterValue("uiMode");

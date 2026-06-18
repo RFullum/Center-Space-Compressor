@@ -83,8 +83,6 @@ set(CenterSpace_SOURCES
     Source/Plugin/PluginProcessor.h
     Source/Plugin/PluginEditor.cpp
     Source/Plugin/PluginEditor.h
-    Source/Plugin/PatchEngine/ABCompareManager.cpp
-    Source/Plugin/PatchEngine/ABCompareManager.h
     Source/DSP/Derivations.h
     Source/GUI/LookAndFeel/CSLookAndFeel.cpp
     Source/GUI/LookAndFeel/CSLookAndFeel.h
@@ -136,7 +134,9 @@ set(FullumModules_SOURCES
     FullumModules/Signal/HoldableOnChange.h
     FullumModules/Libraries/sigslot/signal.hpp
     FullumModules/State/PatchManager.cpp
-    FullumModules/State/PatchManager.h)
+    FullumModules/State/PatchManager.h
+    FullumModules/State/ABCompareManager.cpp
+    FullumModules/State/ABCompareManager.h)
 
 target_sources(CenterSpace PRIVATE ${FullumModules_SOURCES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${FullumModules_SOURCES})
@@ -158,7 +158,6 @@ source_group("JUCE Library Code" FILES ${_juce_module_files})
 # directives keep working without per-file path prefixes.
 target_include_directories(CenterSpace PRIVATE
     Source/Plugin
-    Source/Plugin/PatchEngine
     Source/DSP
     Source/GUI/LookAndFeel
     Source/GUI/TweakComponents
