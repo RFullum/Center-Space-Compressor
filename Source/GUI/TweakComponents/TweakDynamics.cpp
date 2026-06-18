@@ -10,7 +10,7 @@
 #include "TweakDynamics.h"
 
 #include "GUI/GuiHelpers.h"
-#include "CenterSpaceHelperes.h"
+#include "CenterSpaceHelpers.h"
 #include "Selector.h"
 
 //==============================================================================

@@ -100,7 +100,7 @@ set(CenterSpace_SOURCES
     Source/GUI/TitleHeaderFooter/TitleHeader.h
     Source/GUI/GUIUtils/ColorPalette.h
     Source/GUI/GUIUtils/GuiResources.h
-    Source/GUI/GUIUtils/CenterSpaceHelperes.h
+    Source/GUI/GUIUtils/CenterSpaceHelpers.h
     Source/GUI/Components/Selector.cpp
     Source/GUI/Components/Selector.h
     Source/GUI/Components/ABButton.cpp

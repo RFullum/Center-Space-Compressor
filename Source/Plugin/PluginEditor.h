@@ -10,7 +10,7 @@
 
 #include "GuiResources.h"
 #include "GUI/GuiHelpers.h"
-#include "CenterSpaceHelperes.h"
+#include "CenterSpaceHelpers.h"
 
 #include <JuceHeader.h>
 
